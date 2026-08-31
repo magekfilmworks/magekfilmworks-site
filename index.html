@@ -47,10 +47,21 @@
         <span class="seq-line seq-line-accent">And we put it everywhere.</span>
       </h1>
       <p class="hero-sub">A production company for brands, associations, and events that need video to actually land — on scale, on budget, on time.</p>
-      <button type="button" class="reel-open" data-reel>
-        <span class="reel-play" aria-hidden="true"></span>
-        The Art of Cutting Live <span class="reel-time">1:09:07</span>
-      </button>
+      <div class="reel-row">
+        <button type="button" class="reel-open"
+                data-reel data-src="media/art-of-cutting-live.mp4"
+                data-poster="images/clip-poster.jpeg"
+                data-label="The reel">
+          <span class="reel-play" aria-hidden="true"></span>
+          The reel <span class="reel-time">0:38</span>
+        </button>
+        <button type="button" class="reel-open reel-open--quiet"
+                data-reel data-youtube="lQ_MciOESPY"
+                data-label="The Art of Cutting Live">
+          <span class="reel-play" aria-hidden="true"></span>
+          The Art of Cutting Live <span class="reel-time">1:09:07</span>
+        </button>
+      </div>
     </div>
     <div class="vignette" aria-hidden="true"></div>
     <div class="hero-progress" aria-hidden="true">
@@ -358,9 +369,7 @@
       </div>
     </div>
   </section>
-  <dialog class="reel" id="reel"
-          data-youtube="lQ_MciOESPY"
-          aria-label="The Art of Cutting Live">
+  <dialog class="reel" id="reel" aria-label="Video">
     <button type="button" class="reel-close" data-reel-close aria-label="Close">&times;</button>
     <div class="reel-frame" data-reel-frame>
       <noscript>

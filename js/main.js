@@ -145,53 +145,77 @@ if (slider) {
 }
 
 /* ---------- Reel lightbox ----------
-   A dialog rather than a hand-rolled overlay: the browser handles the
-   focus trap, Escape, and returning focus to the button that opened it.
+   One dialog, two sources. A dialog rather than a hand-rolled overlay:
+   the browser handles the focus trap, Escape, and returning focus to
+   whichever button opened it.
 
-   The YouTube player is built on open and torn down on close. Nothing
-   from youtube.com is requested while the page is merely sitting there,
-   which keeps their cookies and their tracking out of a visit where
-   nobody asked to watch anything. Removing the iframe on close is also
-   the only reliable way to stop playback — a hidden iframe keeps going.
+   The player is built on open and torn down on close, whichever kind it
+   is. For YouTube that keeps their cookies and tracking out of a visit
+   where nobody asked to watch anything — nothing is requested from
+   youtube.com until a click. For the local clip it keeps 9.5MB off the
+   wire for the same reason. Tearing the node out is also the only
+   reliable way to stop playback: a hidden iframe keeps playing audio.
    ------------------------------------------------------------------ */
 const reelDialog = document.querySelector("#reel");
 const reelFrame = reelDialog && reelDialog.querySelector("[data-reel-frame]");
 
 if (reelDialog && reelFrame) {
-  const videoId = reelDialog.dataset.youtube;
-
-  const build = () => {
+  const buildYouTube = (id, label) => {
     const iframe = document.createElement("iframe");
     // nocookie host, and no related-video grid from other channels at the end
     iframe.src =
-      `https://www.youtube-nocookie.com/embed/${videoId}` +
+      `https://www.youtube-nocookie.com/embed/${id}` +
       "?autoplay=1&rel=0&modestbranding=1&playsinline=1";
-    iframe.title = "The Art of Cutting Live";
+    iframe.title = label;
     iframe.allow =
       "accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
     iframe.allowFullscreen = true;
     iframe.referrerPolicy = "strict-origin-when-cross-origin";
-    reelFrame.appendChild(iframe);
+    return iframe;
+  };
+
+  const buildVideo = (src, poster) => {
+    const video = document.createElement("video");
+    video.className = "reel-video";
+    video.controls = true;
+    video.playsInline = true;
+    video.autoplay = true;
+    if (poster) video.poster = poster;
+    const source = document.createElement("source");
+    source.src = src;
+    source.type = "video/mp4";
+    video.appendChild(source);
+    return video;
   };
 
   const teardown = () => {
-    const iframe = reelFrame.querySelector("iframe");
-    if (iframe) iframe.remove();
+    const player = reelFrame.querySelector("iframe, video");
+    if (!player) return;
+    // Pause first: removing a <video> mid-play can leave the fetch running.
+    if (typeof player.pause === "function") player.pause();
+    player.remove();
   };
 
-  const open = () => {
-    if (!reelFrame.querySelector("iframe")) build();
+  const open = (btn) => {
+    teardown(); // in case a previous player is somehow still mounted
+    const label = btn.dataset.label || "Video";
+    reelDialog.setAttribute("aria-label", label);
+    reelFrame.appendChild(
+      btn.dataset.youtube
+        ? buildYouTube(btn.dataset.youtube, label)
+        : buildVideo(btn.dataset.src, btn.dataset.poster)
+    );
     if (typeof reelDialog.showModal === "function") reelDialog.showModal();
     else reelDialog.setAttribute("open", "");
   };
 
   const close = () => {
     if (typeof reelDialog.close === "function") reelDialog.close();
-    else reelDialog.removeAttribute("open");
+    else { reelDialog.removeAttribute("open"); teardown(); }
   };
 
   document.querySelectorAll("[data-reel]").forEach((btn) => {
-    btn.addEventListener("click", open);
+    btn.addEventListener("click", () => open(btn));
   });
 
   reelDialog.querySelectorAll("[data-reel-close]").forEach((btn) => {
