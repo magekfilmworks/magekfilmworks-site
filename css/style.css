@@ -87,26 +87,9 @@ p { margin: 0 0 1em; }
   outline-offset: 3px;
 }
 
-/* ---------- REC mark: the signature element ----------
-   A square, sharp-cornered indicator (vs. gekjr's round
-   tally dot) — the light on the front of a camera, not the
-   one a TD watches. Used sparingly as a section marker. */
-.tally-mark {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background: var(--tally);
-  box-shadow: 0 0 0 3px var(--tally-dim);
-  flex: none;
-}
-
-.tally-pulse { animation: tally-pulse 2.4s ease-in-out infinite; }
-
-@keyframes tally-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px var(--tally-dim); opacity: 1; }
-  50% { box-shadow: 0 0 0 6px var(--tally-glow); opacity: 0.7; }
-}
-
+/* ---------- Eyebrow ----------
+   No bullet mark. gekjr.pro leads its labels with a tally dot; this site
+   deliberately does not, so the two read as related but not the same. */
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -237,7 +220,6 @@ p { margin: 0 0 1em; }
   align-items: flex-end;
   overflow: hidden;
   background: var(--paper);
-  border-bottom: 1px solid var(--line-soft);
 }
 
 .hero-bg {
@@ -329,21 +311,19 @@ p { margin: 0 0 1em; }
 #top { scroll-margin-top: calc(var(--header-h) + 12px); }
 
 .section {
-  padding: 44px 0;
-  border-bottom: 1px solid var(--line-soft);
+  padding: 92px 0;
   scroll-margin-top: calc(var(--header-h) + 12px);
 }
-.section:last-of-type { border-bottom: none; }
 
-.section-alt {
-  background: var(--paper-raised);
-}
+/* No alternating bands. One ground, and spacing does the separating —
+   the same way the reference site holds together without dividers. */
+.section-alt { background: transparent; }
 .section-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 22px;
+  margin-bottom: 42px;
   flex-wrap: wrap;
 }
 
@@ -370,15 +350,9 @@ p { margin: 0 0 1em; }
   display: grid;
 }
 
-.editorial-list li {
-  padding: 30px 0;
-  border-top: 1px solid var(--line);
-}
+.editorial-list { gap: 64px; }
 
-.editorial-list li:first-child {
-  border-top: none;
-  padding-top: 6px;
-}
+.editorial-list li { padding: 0; }
 
 .editorial-list h3 {
   font-size: 1.32rem;
@@ -393,7 +367,7 @@ p { margin: 0 0 1em; }
 }
 
 @media (max-width: 640px) {
-  .editorial-list li { padding: 24px 0; }
+  .editorial-list { gap: 44px; }
   .editorial-list h3 { font-size: 1.18rem; }
 }
 
@@ -407,8 +381,7 @@ p { margin: 0 0 1em; }
 }
 
 .testimonial {
-  border-left: 2px solid var(--tally);
-  padding: 4px 0 4px 24px;
+  padding: 0;
 }
 
 .testimonial p {
@@ -429,13 +402,14 @@ p { margin: 0 0 1em; }
   color: var(--ink-soft);
 }
 
+/* Three quotes, three columns — a 2-up grid left one hanging on its own
+   row with a hole beside it. */
 @media (min-width: 900px) {
-  .testimonial-grid { grid-template-columns: 1fr 1fr; }
+  .testimonial-grid { grid-template-columns: repeat(3, 1fr); gap: 32px; }
 }
 
 @media (max-width: 640px) {
   .testimonial-grid { gap: 30px; }
-  .testimonial { padding-left: 18px; }
   .testimonial p { font-size: 1.08rem; }
 }
 
@@ -528,7 +502,7 @@ p { margin: 0 0 1em; }
 
 /* ---------- Footer ---------- */
 .site-footer {
-  padding: 28px 0 40px;
+  padding: 64px 0 48px;
 }
 
 /* The disc closes the page where the wordmark opens it. */
@@ -587,7 +561,7 @@ html, body { overflow-x: hidden; }
     --header-h: 92px;
   }
   .brand img { height: 56px; }
-  .section { padding: 56px 0; }
+  .section { padding: 72px 0; }
 
   /* Narrower crop pulls the bright sky behind the eyebrow — lift the scrim. */
   .hero::after {
@@ -674,7 +648,7 @@ html, body { overflow-x: hidden; }
   }
 
   /* Sections: tighter rhythm, roomier cards. */
-  .section { padding: 44px 0; }
+  .section { padding: 58px 0; }
   .section-head { margin-bottom: 18px; }
 
 
@@ -729,8 +703,7 @@ html, body { overflow-x: hidden; }
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
   flex-wrap: wrap;
 }
 
@@ -1118,11 +1091,9 @@ html, body { overflow-x: hidden; }
   display: grid;
 }
 
-.crew li {
-  padding: 26px 0;
-  border-top: 1px solid var(--line);
-}
-.crew li:first-child { border-top: none; padding-top: 0; }
+.crew { gap: 44px; }
+
+.crew li { padding: 0; }
 
 .crew-role {
   display: block;
@@ -1187,16 +1158,15 @@ html, body { overflow-x: hidden; }
    otherwise leave a lit, empty cell at the end of the last row. */
 .clients-grid {
   list-style: none;
-  margin: 22px 0 0;
+  margin: 28px 0 0;
   padding: 0;
   display: grid;
-  column-gap: 24px;
-  border-top: 1px solid var(--line);
+  column-gap: 40px;
+  row-gap: 14px;
 }
 
 .clients-grid li {
-  border-bottom: 1px solid var(--line);
-  padding: 14px 2px;
+  padding: 0;
   font-family: var(--font-mono);
   font-size: 0.84rem;
   letter-spacing: 0.03em;
@@ -1220,14 +1190,13 @@ html, body { overflow-x: hidden; }
    idea: mono, dotted, scannable, no boxes. */
 .editorial-list .spec {
   font-family: var(--font-mono);
+  border-top: none;
   font-size: 0.76rem;
   line-height: 1.9;
   letter-spacing: 0.02em;
   color: var(--ink-soft);
   max-width: 68ch;
-  margin: 14px 0 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--line-soft);
+  margin: 18px 0 0;
 }
 
 /* Mission sits between the statement and the body copy — labelled, so the
@@ -1259,8 +1228,7 @@ html, body { overflow-x: hidden; }
 /* The header is fixed and only the homepage hero is meant to sit under
    it. Interior pages clear it. */
 .split-hero {
-  padding: calc(var(--header-h) + 34px) 0 40px;
-  border-bottom: 1px solid var(--line-soft);
+  padding: calc(var(--header-h) + 44px) 0 72px;
 }
 
 .split-hero-grid {
@@ -1301,18 +1269,6 @@ html, body { overflow-x: hidden; }
   object-fit: cover;
 }
 
-/* A hairline in tally red along the top edge, so the photo reads as
-   part of the system rather than a dropped-in rectangle. */
-.split-hero-media::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 34%;
-  height: 3px;
-  background: var(--tally);
-}
-
 @media (min-width: 900px) {
   .split-hero-media { aspect-ratio: 5 / 4; }
 }
@@ -1351,23 +1307,9 @@ html, body { overflow-x: hidden; }
 .footer-nav a { white-space: nowrap; }
 
 /* Current page marker, header and footer alike. */
+/* Current page reads by weight and colour, not a rule under it. */
 .header-nav a[aria-current="page"] {
   color: var(--ink);
-  position: relative;
-}
-.header-nav a[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -7px;
-  height: 2px;
-  background: var(--tally);
-}
-
-@media (max-width: 1024px) {
-  .header-nav a[aria-current="page"]::after { display: none; }
-  .header-nav a[aria-current="page"] { color: var(--tally); }
 }
 
 @media (min-width: 640px) {

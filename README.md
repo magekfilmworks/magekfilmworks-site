@@ -15,19 +15,23 @@ maintainable without a dev team.
 ## Layout
 
 ```
-index.html          the site
-css/style.css       one stylesheet, token-driven
-js/main.js          nav, footer year, intake wizard
-images/             photography and logo lockups
-amplify.yml         build config, version-controlled rather than clicked in
-tools/lint.py       stylesheet guard (see Deploying)
-tools/inline.py     flatten to one file for preview
+index.html            hero, services summary, testimonials
+services.html         full capability detail
+about.html            mission, crew, clients & collaborators
+contact.html          the client intake wizard
+css/style.css         one stylesheet, token-driven
+js/main.js            nav, footer year, clients disclosure, intake wizard
+images/               photography and logo lockups
+amplify.yml           build config, version-controlled rather than clicked in
+tools/lint.py         stylesheet guard
+tools/lint_chrome.py  header/footer drift and dead-link guard
+tools/inline.py       flatten to one file for preview
 ```
 
 The deploy script lives at `~/deploy-magek.sh`, not in this repo — one
-copy, the same place `~/deploy-gekjr.sh` sits. Two copies of a script
-drift apart silently, which is a lesson the gekjr.pro Bible learned the
-hard way with duplicated page sections.
+copy, the same place `~/deploy-gekjr.sh` sits. It writes to
+`~/Documents/GitHub/magekfilmworks-site`, where GitHub Desktop keeps its
+clones; `MAGEK_REPO` overrides that for a single run.
 
 Site files sit at the repo root because that is what every static host
 expects by default.
@@ -65,9 +69,12 @@ GitHub Desktop has no mobile version. Download the zip on-device, then
 github.com in a mobile browser → repo → Add file → Upload files → commit
 to `main`. More manual, but it works.
 
-## The lint
+## The lints
 
-`tools/lint.py` runs in the Amplify build and fails the deploy on:
+Both run in the Amplify build and in `~/deploy-magek.sh`, so a problem
+stops the deploy rather than shipping.
+
+`tools/lint.py` fails on:
 
 - **unbalanced braces** — a single stray `}` silently drops every rule
   after it, with no console error anywhere
@@ -79,7 +86,19 @@ It also warns on `:hover` rules outside `@media (hover: hover)`, because
 plain `:hover` sticks on touch devices — tapping fakes a hover-in with no
 hover-out.
 
-Run it directly any time: `python3 tools/lint.py css/style.css`
+`tools/lint_chrome.py` fails on:
+
+- **header or footer drift** between pages — four hand-editable pages means
+  four copies of the site nav, and a link fixed on one page and not the
+  other three is the version of that bug that costs you visitors
+- **internal links to pages that don't exist**
+
+Run either directly:
+
+```
+python3 tools/lint.py css/style.css
+python3 tools/lint_chrome.py ./*.html
+```
 
 ## Design system
 
@@ -138,7 +157,11 @@ falls back to opening a prefilled email so nothing is silently dropped.
 
 ## Outstanding
 
-- Formspree endpoint for this site
-- `Work` in the nav points at testimonials; there is no portfolio yet
-- Multi-page structure — work / capabilities / about / contact
-- Company version of The Record, and a Clients & Collaborators list
+- **Formspree endpoint** for this site, into `FORM_ENDPOINT` in `js/main.js`
+- **Interior photography** — services and about currently share the homepage
+  hero at different crops, which is thin for two separate pages
+- **A Work page.** Deliberately not built: there is no reel, no project
+  stills, no case studies yet, and an empty portfolio reads worse to a
+  prospective client than no portfolio link at all
+- **A company version of The Record** — the gekjr.pro stats block, in MageK
+  terms: crews, shows, venues, years
