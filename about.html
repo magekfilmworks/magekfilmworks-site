@@ -107,14 +107,17 @@
       <a href="contact.html" class="btn btn-primary">Start a project</a>
     </div>
   </section>
-  <dialog class="reel" id="reel">
+  <dialog class="reel" id="reel"
+          data-youtube="lQ_MciOESPY"
+          aria-label="The Art of Cutting Live">
     <button type="button" class="reel-close" data-reel-close aria-label="Close">&times;</button>
-    <video class="reel-video" controls playsinline preload="none"
-           poster="images/clip-poster.jpeg">
-      <source src="media/art-of-cutting-live.mp4" type="video/mp4" />
-      <p>Your browser can't play this clip.
-         <a href="media/art-of-cutting-live.mp4">Download it instead.</a></p>
-    </video>
+    <div class="reel-frame" data-reel-frame>
+      <noscript>
+        <a href="https://www.youtube.com/live/lQ_MciOESPY" target="_blank" rel="noopener">
+          Watch The Art of Cutting Live on YouTube
+        </a>
+      </noscript>
+    </div>
   </dialog>
 
 </main>

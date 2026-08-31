@@ -1350,12 +1350,15 @@ html, body { overflow-x: hidden; }
   text-align: left;
 }
 
+/* Same sentence as the contact section's heading, so it takes the same
+   scale. It was running a step larger here, which put a CTA band above
+   the page title it sat under. */
 .cta-band h2 {
-  font-size: clamp(2.4rem, 6.4vw, 4.6rem);
+  font-size: clamp(2.2rem, 5.6vw, 3.8rem);
   font-weight: 700;
   letter-spacing: -0.03em;
-  line-height: 1.02;
-  max-width: 16ch;
+  line-height: 1.03;
+  max-width: 15ch;
   margin-bottom: 20px;
 }
 
@@ -1561,8 +1564,10 @@ html, body { overflow-x: hidden; }
 .cta-band h2 { margin-inline: auto; }
 
 @media (max-width: 640px) {
-  .section-head h2,
-  .cta-band h2 { max-width: 14ch; }
+  /* .cta-band h2 is deliberately not in here: it carries the same
+     sentence as the contact heading, so it keeps the same measure and
+     wraps the same way. */
+  .section-head h2 { max-width: 14ch; }
 }
 
 /* Three quotes, three alignments: the row ranges left, centre, right
@@ -2006,17 +2011,27 @@ video.hero-slide {
   background: rgba(8, 8, 8, 0.88);
 }
 
-.reel-video {
-  display: block;
+/* Stated rather than inferred, so the box is the right shape before the
+   player has loaded anything and nothing jumps when it does. */
+.reel-frame {
+  position: relative;
   width: 100%;
-  height: auto;
-  /* Stated rather than inferred: without it the box is sized from
-     metadata, so it jumps once the clip loads — and shows a letterboxed
-     default before that. */
   aspect-ratio: 16 / 9;
   max-height: 86vh;
   background: #000;
+  display: grid;
+  place-items: center;
 }
+
+.reel-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.reel-frame a { color: var(--ink); }
 
 .reel-close {
   position: absolute;

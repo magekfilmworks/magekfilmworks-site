@@ -49,7 +49,7 @@
       <p class="hero-sub">A production company for brands, associations, and events that need video to actually land — on scale, on budget, on time.</p>
       <button type="button" class="reel-open" data-reel>
         <span class="reel-play" aria-hidden="true"></span>
-        Watch the reel <span class="reel-time">0:38</span>
+        The Art of Cutting Live <span class="reel-time">1:09:07</span>
       </button>
     </div>
     <div class="vignette" aria-hidden="true"></div>
@@ -358,14 +358,17 @@
       </div>
     </div>
   </section>
-  <dialog class="reel" id="reel">
+  <dialog class="reel" id="reel"
+          data-youtube="lQ_MciOESPY"
+          aria-label="The Art of Cutting Live">
     <button type="button" class="reel-close" data-reel-close aria-label="Close">&times;</button>
-    <video class="reel-video" controls playsinline preload="none"
-           poster="images/clip-poster.jpeg">
-      <source src="media/art-of-cutting-live.mp4" type="video/mp4" />
-      <p>Your browser can't play this clip.
-         <a href="media/art-of-cutting-live.mp4">Download it instead.</a></p>
-    </video>
+    <div class="reel-frame" data-reel-frame>
+      <noscript>
+        <a href="https://www.youtube.com/live/lQ_MciOESPY" target="_blank" rel="noopener">
+          Watch The Art of Cutting Live on YouTube
+        </a>
+      </noscript>
+    </div>
   </dialog>
 
 </main>

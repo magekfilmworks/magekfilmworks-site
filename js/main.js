@@ -147,23 +147,45 @@ if (slider) {
 /* ---------- Reel lightbox ----------
    A dialog rather than a hand-rolled overlay: the browser handles the
    focus trap, Escape, and returning focus to the button that opened it.
-   The clip only downloads when someone asks for it — preload="none"
-   keeps 9MB off every first visit. */
-const reelDialog = document.querySelector("#reel");
-const reelVideo = reelDialog && reelDialog.querySelector(".reel-video");
 
-if (reelDialog && reelVideo) {
+   The YouTube player is built on open and torn down on close. Nothing
+   from youtube.com is requested while the page is merely sitting there,
+   which keeps their cookies and their tracking out of a visit where
+   nobody asked to watch anything. Removing the iframe on close is also
+   the only reliable way to stop playback — a hidden iframe keeps going.
+   ------------------------------------------------------------------ */
+const reelDialog = document.querySelector("#reel");
+const reelFrame = reelDialog && reelDialog.querySelector("[data-reel-frame]");
+
+if (reelDialog && reelFrame) {
+  const videoId = reelDialog.dataset.youtube;
+
+  const build = () => {
+    const iframe = document.createElement("iframe");
+    // nocookie host, and no related-video grid from other channels at the end
+    iframe.src =
+      `https://www.youtube-nocookie.com/embed/${videoId}` +
+      "?autoplay=1&rel=0&modestbranding=1&playsinline=1";
+    iframe.title = "The Art of Cutting Live";
+    iframe.allow =
+      "accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    reelFrame.appendChild(iframe);
+  };
+
+  const teardown = () => {
+    const iframe = reelFrame.querySelector("iframe");
+    if (iframe) iframe.remove();
+  };
+
   const open = () => {
+    if (!reelFrame.querySelector("iframe")) build();
     if (typeof reelDialog.showModal === "function") reelDialog.showModal();
     else reelDialog.setAttribute("open", "");
-    reelVideo.play().catch(() => {
-      // Autoplay refused — the controls are right there, so this is fine.
-    });
   };
 
   const close = () => {
-    reelVideo.pause();
-    reelVideo.currentTime = 0;   // next open starts at the top
     if (typeof reelDialog.close === "function") reelDialog.close();
     else reelDialog.removeAttribute("open");
   };
@@ -176,21 +198,18 @@ if (reelDialog && reelVideo) {
     btn.addEventListener("click", close);
   });
 
-  // Clicking the backdrop closes it. The dialog fills its own box, so a
-  // click landing outside the video's rectangle is a click on the backdrop.
+  // A click that lands outside the player rectangle is a backdrop click.
   reelDialog.addEventListener("click", (e) => {
-    const box = reelVideo.getBoundingClientRect();
+    if (e.target.closest("[data-reel-close]")) return;
+    const box = reelFrame.getBoundingClientRect();
     const outside =
       e.clientX < box.left || e.clientX > box.right ||
       e.clientY < box.top || e.clientY > box.bottom;
-    if (outside && e.target !== reelDialog.querySelector("[data-reel-close]")) close();
+    if (outside) close();
   });
 
-  // Escape fires the dialog's own cancel event; stop the video with it.
-  reelDialog.addEventListener("close", () => {
-    reelVideo.pause();
-    reelVideo.currentTime = 0;
-  });
+  // Covers Escape too — the dialog fires close however it was dismissed.
+  reelDialog.addEventListener("close", teardown);
 }
 
 /* ---------- Mobile nav ---------- */
