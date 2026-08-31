@@ -1,0 +1,25 @@
+# AWS Amplify build settings for magekfilmworks.productions
+#
+# This is a plain static site — no framework, no build step — so the
+# "build" phase only runs the stylesheet lint. It fails the deploy on
+# unbalanced braces or duplicate selectors, which is the failure mode
+# the Site Bible flags as the most expensive to trace in a browser.
+#
+# Keeping this file in the repo means the build config is reviewable in
+# a diff rather than living in the Amplify console where nobody sees it.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "Static site — no dependencies to install"
+    build:
+      commands:
+        - python3 tools/lint.py css/style.css
+  artifacts:
+    # No build output directory: the repo root IS the site.
+    baseDirectory: /
+    files:
+      - '**/*'
+  cache:
+    paths: []

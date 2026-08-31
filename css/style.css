@@ -1,0 +1,1075 @@
+/* ============================================================
+   MageK Filmworks — Design tokens
+   Palette: black-on-black studio, one signature accent pulled
+   from a tungsten film light (3200K) — the warm lamp that means
+   "we're rolling." Same structural language as gekjr.pro, its
+   own voice: dark instead of paper, a square REC mark instead
+   of a round tally, amber instead of red.
+   ============================================================ */
+
+:root {
+  /* The deliberate inverse of gekjr.pro. Its --ink (#131313) is this
+     site's --paper; its --paper (#fbfbf9) is this site's --ink. Same
+     token names as the Site Bible so the two stylesheets read as one
+     system: personal site on paper, company site on screen. */
+  --paper: #131313;
+  --paper-raised: #1b1b1a;
+  --paper-sunk: #0c0c0c;
+  --ink: #fbfbf9;
+  --ink-soft: #a09e97;
+  --line: #2c2c2a;
+  --line-soft: #212120;
+  --tally: #e0332b;
+  --tally-dim: rgba(224, 51, 43, 0.16);
+  --tally-glow: rgba(224, 51, 43, 0.38);
+
+  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --maxw: 1100px;
+  --gutter: 24px;
+
+  /* Shared indent for the header wordmark and the footer disc. */
+  --brand-indent: 32px;
+
+  /* Header height — also drives the mobile menu offset and the
+     scroll offset for every in-page anchor. */
+  --header-h: 108px;
+}
+
+* { box-sizing: border-box; }
+
+/* Component display rules (grid/flex/inline-flex) outrank the UA's
+   [hidden] rule, so anything toggled with el.hidden stays visible
+   without this. Every hidden step, reveal block and swapped button
+   depends on it. */
+[hidden] { display: none !important; }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0 0 0.5em;
+  letter-spacing: -0.01em;
+}
+
+p { margin: 0 0 1em; }
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+:focus-visible {
+  outline: 2px solid var(--tally);
+  outline-offset: 3px;
+}
+
+/* ---------- REC mark: the signature element ----------
+   A square, sharp-cornered indicator (vs. gekjr's round
+   tally dot) — the light on the front of a camera, not the
+   one a TD watches. Used sparingly as a section marker. */
+.tally-mark {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: var(--tally);
+  box-shadow: 0 0 0 3px var(--tally-dim);
+  flex: none;
+}
+
+.tally-pulse { animation: tally-pulse 2.4s ease-in-out infinite; }
+
+@keyframes tally-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--tally-dim); opacity: 1; }
+  50% { box-shadow: 0 0 0 6px var(--tally-glow); opacity: 0.7; }
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+
+/* ---------- Viewfinder corners: secondary signature ----------
+   Bracket corners like a camera frame guide. Used around the
+   hero frame and on hover states, never as pure decoration. */
+.frame {
+  position: relative;
+}
+.frame::before,
+.frame::after,
+.frame-tr,
+.frame-bl {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--tally);
+  opacity: 0.85;
+}
+.frame::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.frame::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+.frame-tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.frame-bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+
+/* ---------- Header ---------- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: linear-gradient(180deg, rgba(6, 6, 5, 0.7) 0%, rgba(6, 6, 5, 0.35) 65%, rgba(6, 6, 5, 0) 100%);
+  backdrop-filter: blur(4px);
+  border-bottom: none;
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-h);
+}
+
+/* Nudged in off the gutter so the mark sits inside the column,
+   not hard against its edge. The footer disc uses the same token. */
+.brand { margin-left: var(--brand-indent); }
+
+.brand img { height: 74px; width: auto; }
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.header-nav a {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  transition: color 0.15s ease;
+}
+
+.header-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: 1px solid var(--tally);
+  color: var(--ink) !important;
+  border-radius: 2px;
+}
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--ink);
+  padding: 6px;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .header-nav {
+    display: none;
+    position: absolute;
+    top: var(--header-h);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    background: var(--paper-raised);
+    border-bottom: 1px solid var(--line);
+    padding: 8px var(--gutter) 20px;
+  }
+  .header-nav.is-open { display: flex; }
+  .header-nav a { padding: 12px 0; width: 100%; }
+  .header-cta { margin-top: 8px; }
+
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-right: -10px;
+    padding: 0;
+  }
+}
+
+/* ---------- Hero (full-bleed image) ---------- */
+.hero {
+  position: relative;
+  min-height: 78vh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.28) 0%, rgba(10, 10, 10, 0.52) 55%, rgba(10, 10, 10, 0.94) 100%);
+}
+
+.hero .wrap {
+  position: relative;
+  z-index: 1;
+  /* Size to the widest beat. Left to shrink-to-fit, the flex row
+     settled on the subhead's width and clipped the longest line
+     against the hero's overflow. */
+  width: max-content;
+  display: grid;
+  gap: 20px;
+  padding-top: 60px;
+  padding-bottom: 48px;
+}
+
+.hero .eyebrow { color: #cfcdc5; }
+
+.hero h1 {
+  font-size: clamp(2.1rem, 7vw, 4.2rem);
+  max-width: 14ch;
+  color: #fff;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: var(--tally);
+}
+
+.hero-sub {
+  font-size: 1.08rem;
+  color: #d6d4cc;
+  max-width: 46ch;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 14px 22px;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--tally);
+  color: #0a0a09;
+  border-color: var(--tally);
+  font-weight: 600;
+}
+
+.btn-ghost { color: #fff; border-color: rgba(255,255,255,0.35); }
+
+@media (min-width: 900px) {
+  .hero { min-height: 86vh; }
+}
+
+/* ---------- Section shell ----------
+   scroll-margin-top lives here rather than in its own rule: the header
+   is fixed, so an untreated jump parks the section title underneath it.
+   One rule per selector, per the Bible's duplicate-selector lesson. */
+#top { scroll-margin-top: calc(var(--header-h) + 12px); }
+
+.section {
+  padding: 44px 0;
+  border-bottom: 1px solid var(--line-soft);
+  scroll-margin-top: calc(var(--header-h) + 12px);
+}
+.section:last-of-type { border-bottom: none; }
+
+.section-alt {
+  background: var(--paper-raised);
+}
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.section-head h2 { font-size: clamp(1.5rem, 4vw, 2rem); margin: 0; }
+
+.see-all {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* ---------- Capabilities (editorial list) ----------
+   The Bible's chosen treatment on gekjr.pro: bold heading, paragraph,
+   hairline rule, no boxes and no numbers. Numbering was explicitly
+   rejected there for implying a sequence or ranking that isn't real —
+   these two services are equal weight, not steps. */
+.editorial-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.editorial-list li {
+  padding: 30px 0;
+  border-top: 1px solid var(--line);
+}
+
+.editorial-list li:first-child {
+  border-top: none;
+  padding-top: 6px;
+}
+
+.editorial-list h3 {
+  font-size: 1.32rem;
+  margin-bottom: 10px;
+}
+
+.editorial-list p {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  max-width: 62ch;
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .editorial-list li { padding: 24px 0; }
+  .editorial-list h3 { font-size: 1.18rem; }
+}
+
+/* ---------- Testimonials (red-rule pull-quotes) ----------
+   The Bible's pull-quote component rather than another boxed card —
+   same reasoning as the editorial list: the page reads editorially,
+   and a rule carries the quote without fencing it in. */
+.testimonial-grid {
+  display: grid;
+  gap: 40px;
+}
+
+.testimonial {
+  border-left: 2px solid var(--tally);
+  padding: 4px 0 4px 24px;
+}
+
+.testimonial p {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 16px;
+  max-width: 52ch;
+}
+
+.testimonial cite {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 900px) {
+  .testimonial-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 640px) {
+  .testimonial-grid { gap: 30px; }
+  .testimonial { padding-left: 18px; }
+  .testimonial p { font-size: 1.08rem; }
+}
+
+/* ---------- Contact ----------
+   It's the last section, so on tall screens the page ran out of
+   scroll before the anchor could bring it to the top — the jump
+   stopped short with the section parked mid-page. Giving it a
+   viewport's worth of height means #contact can actually reach
+   the top; the content stays vertically centered in the space. */
+#contact {
+  min-height: calc(100vh - var(--header-h));
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: center;
+}
+
+/* margin:0 auto on a grid item disables stretch and centres it at its
+   max-content width — the same trap the hero hit. Fill the row so the
+   1100px column rule applies and the block lines up with the sections. */
+#contact > .wrap { width: 100%; }
+
+/* vh on mobile can measure against the pre-collapse address-bar
+   height, pushing bottom-anchored content off-screen. dvh as a
+   progressive-enhancement pair, per the Site Bible. */
+@supports (height: 100dvh) {
+  #contact { min-height: calc(100dvh - var(--header-h)); }
+}
+
+/* ---------- Contact ---------- */
+.contact-grid {
+  display: grid;
+  gap: 40px;
+}
+
+.contact-lead h2 { font-size: clamp(1.6rem, 5vw, 2.3rem); max-width: 16ch; }
+.contact-lead p { color: var(--ink-soft); max-width: 42ch; }
+
+.contact-direct {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+.contact-direct a {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+  width: fit-content;
+}
+
+.contact-form {
+  display: grid;
+  gap: 14px;
+}
+
+.contact-form label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  border-radius: 2px;
+}
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--tally);
+}
+
+.contact-form textarea { min-height: 110px; resize: vertical; }
+
+@media (min-width: 900px) {
+  .contact-grid { grid-template-columns: 1fr 1.1fr; }
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  padding: 28px 0 40px;
+}
+
+/* The disc closes the page where the wordmark opens it. */
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: var(--brand-indent);
+}
+
+.footer-brand p { margin: 0; }
+
+.footer-mark {
+  height: 40px;
+  width: auto;
+  flex: none;
+}
+
+.footer-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.footer-social {
+  display: flex;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .footer-grid { flex-direction: row; justify-content: space-between; align-items: center; }
+}
+
+/* ============================================================
+   Mobile & tablet refinements
+   The frame above was drawn desktop-first; this block fits it to
+   small screens without changing the design language — same
+   palette, same type, same REC marks, just sized for a phone.
+   ============================================================ */
+
+h1, h2, h3 { text-wrap: balance; }
+
+/* Never let a wide child push the page sideways. */
+html, body { overflow-x: hidden; }
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1024px) {
+  :root {
+    --brand-indent: 18px;
+    --header-h: 92px;
+  }
+  .brand img { height: 56px; }
+  .section { padding: 56px 0; }
+
+  /* Narrower crop pulls the bright sky behind the eyebrow — lift the scrim. */
+  .hero::after {
+    background: linear-gradient(180deg,
+      rgba(8, 8, 7, 0.42) 0%,
+      rgba(8, 8, 7, 0.62) 45%,
+      rgba(8, 8, 7, 0.93) 100%);
+  }
+  .hero-bg { object-position: 58% 42%; }
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 760px) {
+  :root {
+    --gutter: 20px;
+    /* Flush on phones: the footer stacks, so any indent would
+       misalign the brand row against the social row below it. */
+    --brand-indent: 0px;
+    --header-h: 88px;
+  }
+
+  /* Respect notches and rounded corners in landscape. */
+  .wrap {
+    padding-left: max(var(--gutter), env(safe-area-inset-left));
+    padding-right: max(var(--gutter), env(safe-area-inset-right));
+  }
+
+  /* Header: the mark was locked at 100px and ate the full width. */
+  .brand img { height: 52px; }
+
+  .header-nav {
+    top: var(--header-h);
+    background: var(--paper-sunk);
+    border-bottom: 1px solid var(--line);
+    padding: 6px var(--gutter) 18px;
+  }
+  .header-nav a { padding: 14px 0; }
+  .header-cta {
+    width: fit-content;
+    padding: 12px 20px;
+    margin-top: 10px;
+  }
+
+  /* Hero: svh so mobile browser chrome doesn't crop the frame. */
+  .hero { min-height: 82vh; }
+
+  /* Darker scrim — the headline was landing on open sky. */
+  .hero::after {
+    background: linear-gradient(180deg,
+      rgba(8, 8, 7, 0.55) 0%,
+      rgba(8, 8, 7, 0.68) 42%,
+      rgba(8, 8, 7, 0.94) 100%);
+  }
+
+  /* Favor the stage-left structure over the bright sky. */
+  .hero-bg { object-position: 62% 45%; }
+
+  .hero .wrap {
+    padding-top: 112px;
+    padding-bottom: 40px;
+    gap: 16px;
+  }
+
+  .hero .eyebrow {
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    gap: 7px;
+    margin-bottom: 8px;
+  }
+
+  .hero h1 { max-width: 18ch; }
+  .hero-sub { font-size: 1rem; }
+
+  /* Equal-width buttons read as a pair instead of a ragged row. */
+  /* justify-items:start on the hero grid shrinks this row, which
+     would undo the equal-width button pair — hold it full width. */
+  .hero-actions { gap: 10px; width: 100%; }
+  .hero-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding: 15px 12px;
+    font-size: 0.76rem;
+  }
+
+  /* Sections: tighter rhythm, roomier cards. */
+  .section { padding: 44px 0; }
+  .section-head { margin-bottom: 18px; }
+
+
+
+  .contact-grid { gap: 32px; }
+  .contact-lead h2 { max-width: 20ch; }
+  .contact-direct { gap: 2px; }
+  .contact-direct a { padding: 8px 0; font-size: 1.08rem; }
+
+  .contact-form input,
+  .contact-form textarea { font-size: 16px; } /* stops iOS zoom-on-focus */
+  .contact-form .btn { justify-self: stretch; justify-content: center; }
+
+  .site-footer { padding: 24px 0 32px; }
+  .footer-grid { gap: 18px; }
+  .footer-brand { gap: 12px; }
+  .footer-mark { height: 34px; }
+  .footer-social { flex-wrap: wrap; gap: 14px; }
+  .footer-social a { padding: 4px 0; }
+}
+
+/* ---------- Narrow phones ---------- */
+@media (max-width: 380px) {
+  .hero .eyebrow { font-size: 0.58rem; }
+  .hero-actions { flex-direction: column; }
+  .hero-actions .btn { flex: none; width: 100%; }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 760px) {
+    .hero { min-height: 82dvh; }
+  }
+}
+
+/* ============================================================
+   Client intake wizard
+   Four short steps instead of one long form. Same materials as
+   the rest of the page: mono labels, square marks, 2px radii,
+   tungsten only where it means "this is selected" or "this is
+   the way forward".
+   ============================================================ */
+
+.contact-note {
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  max-width: 40ch;
+}
+
+/* ---------- Progress ---------- */
+.wizard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.wizard-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  opacity: 0.55;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+/* Square marks, same vocabulary as the section RECs. */
+.wizard-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--line);
+  flex: none;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wizard-steps li.is-done { opacity: 0.8; }
+.wizard-steps li.is-done .wizard-dot { background: var(--ink-soft); }
+
+.wizard-steps li.is-current {
+  opacity: 1;
+  color: var(--ink);
+}
+.wizard-steps li.is-current .wizard-dot {
+  background: var(--tally);
+  box-shadow: 0 0 0 3px var(--tally-dim);
+}
+
+.wizard-count {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Steps ---------- */
+.contact-form.intake { gap: 22px; }
+
+.step {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.step-legend {
+  font-family: var(--font-display);
+  font-size: 1.18rem;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 0;
+  margin-bottom: 2px;
+}
+
+.field { display: grid; gap: 8px; min-width: 0; }
+
+.field-row {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .field-row { grid-template-columns: 1fr 1fr; }
+}
+
+/* Beats the base .contact-form label rule. */
+.contact-form .field-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  margin-bottom: 0;
+}
+
+.contact-form .field-label em {
+  font-style: normal;
+  color: var(--tally);
+  margin-left: 6px;
+  font-size: 0.92em;
+}
+
+.field-hint {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 2px 0 0;
+  max-width: 52ch;
+}
+
+.field-error {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: #ff7a72;
+  margin: 0;
+}
+.field-error.is-shown { display: block; }
+
+.contact-form input.is-invalid,
+.contact-form select.is-invalid { border-color: #ff7a72; }
+
+/* ---------- Select ---------- */
+.contact-form select {
+  width: 100%;
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  padding: 12px 38px 12px 14px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  border-radius: 2px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23a8a69f' stroke-width='1.6' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+.contact-form select:focus {
+  outline: none;
+  border-color: var(--tally);
+}
+
+.contact-form input[type="date"] { min-height: 45px; }
+
+/* ---------- Option chips ---------- */
+.opt-grid { display: grid; gap: 8px; }
+
+@media (min-width: 480px) {
+  .opt-grid-2 { grid-template-columns: 1fr 1fr; }
+  .opt-grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+.contact-form .opt {
+  display: block;
+  position: relative;
+  margin: 0;
+  min-width: 0;
+}
+
+/* Kept in the layout for hit area and focus, visually replaced
+   by the chip so the control matches the rest of the page. */
+.contact-form .opt input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.contact-form .opt span {
+  display: flex;
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: normal;
+  align-items: center;
+  min-height: 46px;
+  padding: 10px 14px;
+  background: var(--paper-sunk);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+
+.contact-form .opt input:checked + span {
+  border-color: var(--tally);
+  background: var(--tally-dim);
+  color: var(--ink);
+}
+
+.contact-form .opt input:focus-visible + span {
+  outline: 2px solid var(--tally);
+  outline-offset: 2px;
+}
+
+/* ---------- Actions ---------- */
+.wizard-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.wizard-actions .btn { cursor: pointer; }
+
+.form-status {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+  margin: 0;
+  min-height: 1em;
+}
+.form-status.is-error { color: #ff7a72; }
+
+/* ---------- Confirmation ---------- */
+.intake-done {
+  border: 1px solid var(--tally);
+  background: var(--paper-sunk);
+  padding: 32px 28px;
+  border-radius: 2px;
+  align-self: start;
+}
+
+.intake-done h3 { font-size: 1.35rem; margin-bottom: 12px; }
+.intake-done p { color: var(--ink-soft); margin-bottom: 10px; }
+.intake-done p:last-child { margin-bottom: 0; }
+
+.intake-done-direct a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--tally);
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 760px) {
+  .wizard-head { gap: 10px; padding-bottom: 14px; }
+  .wizard-steps { gap: 12px; }
+  .wizard-steps li { font-size: 0.66rem; gap: 6px; }
+  .step { gap: 18px; }
+  .step-legend { font-size: 1.08rem; }
+  .field-row { gap: 18px; }
+  .contact-form select { font-size: 16px; }
+  .contact-form .opt span { font-size: 0.95rem; }
+  .wizard-actions { gap: 10px; }
+  .wizard-actions .btn { flex: 1 1 auto; justify-content: center; }
+  .intake-done { padding: 26px 20px; }
+}
+
+/* Spam trap — off-screen rather than display:none, which some bots skip. */
+.honey {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Anchoring the wizard when a step changes. */
+#intake-form { scroll-margin-top: calc(var(--header-h) + 20px); }
+
+/* ============================================================
+   Hero sequence
+   The pitch line arrives as three beats over the stage photo,
+   in the order the work actually happens: shoot, cut, put it
+   live. Each line rises on its own beat, the set holds long
+   enough to read, then clears and runs again.
+   ============================================================ */
+
+.hero h1.hero-seq {
+  font-size: clamp(1.6rem, 6.2vw, 4.2rem);
+  line-height: 1.08;
+  max-width: none;
+  color: #fff;
+}
+
+.seq-line {
+  display: block;
+  /* Each beat is one line or it isn't a beat — a wrapped clause
+     breaks the rhythm and the block's height. */
+  white-space: nowrap;
+  /* Every line holds its space at all times — only opacity and
+     transform animate, so the hero never changes height and the
+     subhead below it never shifts. */
+  animation: seq-beat 9s ease-in-out infinite;
+  opacity: 0;
+}
+
+.seq-line:nth-child(1) { animation-delay: 0s; }
+.seq-line:nth-child(2) { animation-delay: 0.75s; }
+.seq-line:nth-child(3) { animation-delay: 1.5s; }
+
+.seq-line-accent { color: var(--tally); }
+
+@keyframes seq-beat {
+  0%   { opacity: 0; transform: translate3d(0, 16px, 0); }
+  7%   { opacity: 1; transform: translate3d(0, 0, 0); }
+  64%  { opacity: 1; transform: translate3d(0, 0, 0); }
+  73%  { opacity: 0; transform: translate3d(0, -12px, 0); }
+  100% { opacity: 0; transform: translate3d(0, -12px, 0); }
+}
+
+/* Motion is the whole point here, so the reduced-motion fallback is
+   the finished sentence rather than a permanently blank hero. */
+@media (prefers-reduced-motion: reduce) {
+  .seq-line {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ============================================================
+   Hover states
+   Scoped to real pointers. On touch, plain :hover fakes a
+   hover-in with no hover-out and the state sticks — the Site
+   Bible logged this on gekjr.pro; this build had inherited it
+   on every one of these rules.
+   ============================================================ */
+
+@media (hover: hover) {
+  .header-nav a:hover { color: var(--ink); }
+  .header-cta:hover { background: var(--tally-dim); }
+  .btn-primary:hover { background: #ef4a42; }
+  .btn-ghost:hover { border-color: var(--tally); color: var(--tally); }
+  .see-all:hover { color: var(--tally); }
+  .contact-direct a:hover { border-bottom-color: var(--tally); color: var(--tally); }
+  .footer-social a:hover { color: var(--tally); }
+  .contact-form .opt:hover span { border-color: var(--ink-soft); color: var(--ink); }
+}
