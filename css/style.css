@@ -1126,9 +1126,11 @@ html, body { overflow-x: hidden; }
   font-size: clamp(1.6rem, 5.9vw, 3.5rem);
   line-height: 1.05;
   max-width: none;
-  /* Toned off pure white. Warm rather than grey, so it sits with the
-     tally red instead of going cold against it. */
-  color: #e6e2da;
+  /* The same token as body copy on every dark section, rather than a
+     hardcoded colour of its own — so the hero and the page read as one
+     white instead of two that nearly match. The deepened scrim behind
+     it is what pays for the extra brightness. */
+  color: var(--ink);
 }
 
 /* The opening beat. Set 2x the others, the relationship in the sketch —
