@@ -20,9 +20,9 @@
   --ink-faint: #6c6a65;
   --line: #2c2c2a;
   --line-soft: #212120;
-  --tally: #e0332b;
-  --tally-dim: rgba(224, 51, 43, 0.16);
-  --tally-glow: rgba(224, 51, 43, 0.38);
+  --tally: #df4929;
+  --tally-dim: rgba(223, 73, 41, 0.16);
+  --tally-glow: rgba(223, 73, 41, 0.38);
 
   --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
   --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
@@ -129,15 +129,16 @@ p { margin: 0 0 1em; }
 .frame-bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
 
 /* ---------- Header ---------- */
+/* Solid, and the same ground as the page. The old gradient scrim read
+   as a separate bar floating over the site; this reads as the top of
+   the page itself, which suits a flat single-ground layout. */
 .site-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50;
-  background: linear-gradient(180deg, rgba(6, 6, 5, 0.7) 0%, rgba(6, 6, 5, 0.35) 65%, rgba(6, 6, 5, 0) 100%);
-  backdrop-filter: blur(4px);
-  border-bottom: none;
+  background: var(--paper);
 }
 
 .site-header .wrap {
@@ -875,13 +876,13 @@ html, body { overflow-x: hidden; }
   font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.03em;
-  color: #ff7a72;
+  color: #ff8a6a;
   margin: 0;
 }
 .field-error.is-shown { display: block; }
 
 .contact-form input.is-invalid,
-.contact-form select.is-invalid { border-color: #ff7a72; }
+.contact-form select.is-invalid { border-color: #ff8a6a; }
 
 /* ---------- Select ---------- */
 .contact-form select {
@@ -980,7 +981,7 @@ html, body { overflow-x: hidden; }
   margin: 0;
   min-height: 1em;
 }
-.form-status.is-error { color: #ff7a72; }
+.form-status.is-error { color: #ff8a6a; }
 
 /* ---------- Confirmation ---------- */
 .intake-done {
@@ -1090,12 +1091,12 @@ html, body { overflow-x: hidden; }
 @media (hover: hover) {
   .footer-nav a:hover { color: var(--tally); }
   .clients-grid a:hover { color: var(--ink); }
-  .clients-grid .is-pinned:hover { color: #ef4a42; }
+  .clients-grid .is-pinned:hover { color: #ef5c3d; }
   .crew a:hover { border-bottom-color: var(--tally); }
   .clients summary:hover .clients-cue { border-color: var(--ink); }
   .header-nav a:hover { color: var(--ink); }
   .header-cta:hover { background: var(--tally-dim); }
-  .btn-primary:hover { background: #ef4a42; }
+  .btn-primary:hover { background: #ef5c3d; }
   .btn-ghost:hover { border-color: var(--tally); color: var(--tally); }
   .see-all:hover { color: var(--tally); }
   .contact-direct a:hover { border-bottom-color: var(--tally); color: var(--tally); }
