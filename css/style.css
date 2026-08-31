@@ -1102,13 +1102,14 @@ html, body { overflow-x: hidden; }
   /* Every line holds its space at all times — only opacity and
      transform animate, so the hero never changes height and the
      subhead below it never shifts. */
-  animation: seq-beat 9s ease-in-out infinite;
+  animation: seq-beat 12s ease-in-out infinite;
   opacity: 0;
 }
 
 .seq-line:nth-child(1) { animation-delay: 0s; }
 .seq-line:nth-child(2) { animation-delay: 0.75s; }
 .seq-line:nth-child(3) { animation-delay: 1.5s; }
+.seq-line:nth-child(4) { animation-delay: 2.25s; }
 
 .seq-line-accent { color: var(--tally); }
 
@@ -1439,7 +1440,7 @@ html, body { overflow-x: hidden; }
        to 1510px on a 1440px screen — wider than the viewport, which
        pushed the right-hand slate off the edge. Deriving height from
        viewport width keeps the width authoritative. */
-    height: clamp(calc(var(--header-h) + 556px), calc(100vw / 2.39), 80vh);
+    height: clamp(calc(var(--header-h) + 672px), calc(100vw / 2.39), 86vh);
     min-height: 0;
   }
 }
@@ -1596,13 +1597,13 @@ html, body { overflow-x: hidden; }
 
 .section--paper,
 .section--grey {
-  /* --ink-faint at #67655f clears 4.5:1 on both light grounds, and the
-     accent darkens to #b8351b for type — buttons and marks keep the
+  /* --ink-faint at #625f5a clears 4.5:1 on both light grounds, and the
+     accent darkens to #b23219 for type — buttons and marks keep the
      exact logo red, which is legible as a fill but not as small text. */
-  --ink-faint: #67655f;
-  --tally-ink: #b8351b;
-  --paper-raised: #ffffff;
-  --paper-sunk: #f1f0ec;
+  --ink-faint: #625f5a;
+  --tally-ink: #b23219;
+  --paper-raised: #f8f7f3;
+  --paper-sunk: #e9e8e2;
   --ink: #131313;
   --ink-soft: #4a4a48;
   --ink-faint: #7a7873;
@@ -1613,8 +1614,8 @@ html, body { overflow-x: hidden; }
   color: var(--ink);
 }
 
-.section--paper { --paper: #fbfbf9; }
-.section--grey  { --paper: #e9e8e3; --paper-sunk: #f6f5f2; --line: #d8d6cf; }
+.section--paper { --paper: #f2f1ec; }
+.section--grey  { --paper: #e2e0da; --paper-sunk: #eeece7; --line: #cfcdc6; }
 
 /* On a light ground the ghost button needs a real edge; on dark it was
    borrowing the photograph behind it. */
@@ -1691,25 +1692,25 @@ html, body { overflow-x: hidden; }
 /* Light cells carry gekjr.pro's paper values and the readable
    secondary/accent pair worked out for light grounds. */
 .panel--light {
-  --paper: #fbfbf9;
-  --paper-raised: #ffffff;
-  --paper-sunk: #f1f0ec;
+  --paper: #f2f1ec;
+  --paper-raised: #f8f7f3;
+  --paper-sunk: #e9e8e2;
   --ink: #131313;
   --ink-soft: #4a4a48;
-  --ink-faint: #67655f;
+  --ink-faint: #625f5a;
   --line: #e2e0da;
-  --tally-ink: #b8351b;
+  --tally-ink: #b23219;
 }
 
 .panel--grey {
-  --paper: #e9e8e3;
-  --paper-raised: #ffffff;
-  --paper-sunk: #f6f5f2;
+  --paper: #e2e0da;
+  --paper-raised: #f2f1ec;
+  --paper-sunk: #eeece7;
   --ink: #131313;
   --ink-soft: #4a4a48;
-  --ink-faint: #67655f;
+  --ink-faint: #625f5a;
   --line: #d8d6cf;
-  --tally-ink: #b8351b;
+  --tally-ink: #b23219;
 }
 
 /* One cell goes to true black. Used once per page, on the panel
@@ -1910,7 +1911,7 @@ html, body { overflow-x: hidden; }
    copy block a line taller than the frame was sized to hold. The floor
    rises for exactly that band. */
 @media (min-width: 900px) and (max-width: 1139px) {
-  .hero { height: clamp(calc(var(--header-h) + 648px), calc(100vw / 2.39), 86vh); }
+  .hero { height: clamp(calc(var(--header-h) + 748px), calc(100vw / 2.39), 92vh); }
 }
 
 
