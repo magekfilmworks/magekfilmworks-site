@@ -15,12 +15,11 @@ maintainable without a dev team.
 ## Layout
 
 ```
-index.html            hero, services summary, testimonials
-services.html         full capability detail
+index.html            hero slider, the service panels, testimonials, intake form
 about.html            mission, crew, clients & collaborators
 contact.html          the client intake wizard
 css/style.css         one stylesheet, token-driven
-js/main.js            nav, footer year, clients disclosure, intake wizard
+js/main.js            hero slider, nav, footer year, clients disclosure, intake wizard
 images/               photography and logo lockups
 amplify.yml           build config, version-controlled rather than clicked in
 tools/lint.py         stylesheet guard
@@ -158,8 +157,8 @@ falls back to opening a prefilled email so nothing is silently dropped.
 ## Outstanding
 
 - **Formspree endpoint** for this site, into `FORM_ENDPOINT` in `js/main.js`
-- **Interior photography** — services and about currently share the homepage
-  hero at different crops, which is thin for two separate pages
+- **About still uses the old section layout** — the panel grid is homepage-only,
+  so the two pages don't yet read as one site
 - **A Work page.** Deliberately not built: there is no reel, no project
   stills, no case studies yet, and an empty portfolio reads worse to a
   prospective client than no portfolio link at all

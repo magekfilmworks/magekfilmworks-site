@@ -16,7 +16,7 @@ frontend:
     build:
       commands:
         - python3 tools/lint.py css/style.css
-        - python3 tools/lint_chrome.py index.html services.html about.html contact.html
+        - python3 tools/lint_chrome.py index.html about.html contact.html
   artifacts:
     # No build output directory: the repo root IS the site.
     baseDirectory: /

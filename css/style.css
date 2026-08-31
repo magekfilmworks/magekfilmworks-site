@@ -245,11 +245,14 @@ p { margin: 0 0 1em; }
   object-position: center 40%;
 }
 
+/* The frame is no longer dimmed. The photograph runs at full opacity and
+   is thrown out of focus instead, so the type sits in front of it the way
+   a title sits over a rack-focus pull rather than over a grey wash. */
 .hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.28) 0%, rgba(10, 10, 10, 0.52) 55%, rgba(10, 10, 10, 0.94) 100%);
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.1) 0%, rgba(10, 10, 10, 0.16) 55%, rgba(10, 10, 10, 0.5) 100%);
 }
 
 .hero .wrap {
@@ -1415,10 +1418,10 @@ html, body { overflow-x: hidden; }
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: radial-gradient(120% 92% at 50% 44%,
-    rgba(0, 0, 0, 0) 42%,
-    rgba(0, 0, 0, 0.34) 78%,
-    rgba(0, 0, 0, 0.62) 100%);
+  background: radial-gradient(118% 90% at 50% 44%,
+    rgba(0, 0, 0, 0) 34%,
+    rgba(0, 0, 0, 0.38) 74%,
+    rgba(0, 0, 0, 0.68) 100%);
 }
 
 /* Scope ratio on wide screens. 2.39:1 is the frame a feature is shot
@@ -1721,8 +1724,9 @@ html, body { overflow-x: hidden; }
 .panel-lead {
   color: var(--ink-soft);
   font-size: clamp(1rem, 1.4vw, 1.15rem);
-  max-width: 34ch;
-  margin: 20px 0 0;
+  max-width: 38ch;
+  /* The title runs up to 86px, so 20px underneath read as crowding. */
+  margin: 30px 0 0;
 }
 
 .panel-label {
@@ -1829,9 +1833,24 @@ html, body { overflow-x: hidden; }
   object-fit: cover;
   object-position: center 46%;
   opacity: 0;
+  /* Defocused, and scaled a touch past the frame so the blur has pixels
+     to sample at the edges instead of feathering into nothing. */
+  /* Blur alone removes detail, not luminance — white type measured 1.6:1
+     over the bright patches of the switcher frame. The exposure comes
+     down on the photograph itself rather than by laying grey over it, so
+     it still reads as a photograph rather than as one behind fog. */
+  filter: blur(12px) brightness(0.56) contrast(1.06);
+  transform: scale(1.06);
+  /* Same curve and duration as a beat of the headline sequence, so the
+     frame and the words change together rather than on separate clocks. */
+  transition: opacity 630ms ease-in-out;
 }
 
 .hero-slide.is-active { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slide { transition: none; }
+}
 
 .hero-slide:nth-child(2) { object-position: center 58%; }
 .hero-slide:nth-child(3) { object-position: center 50%; }
