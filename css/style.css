@@ -257,18 +257,28 @@ p { margin: 0 0 1em; }
   content: "";
   position: absolute;
   inset: 0;
-  /* Shadows carry most of the legibility now, so this only has to close
-     the gap on the brightest frames rather than darken everything. */
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.34) 0%, rgba(10, 10, 10, 0.42) 55%, rgba(10, 10, 10, 0.74) 100%);
+  /* Shadows carry most of the legibility; this closes the gap on the
+     brightest frames. Deepened just enough to pay for toning the type
+     off pure white: measured against all four frames, #e6e2da over this
+     scrim reads at 2.38:1 worst-case, where pure white over the old one
+     managed 2.30 — so the softer colour costs nothing. Going further
+     would clear the 3:1 large-text threshold, but only by darkening the
+     photographs more than the type problem justifies. */
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.44) 0%, rgba(10, 10, 10, 0.54) 55%, rgba(10, 10, 10, 0.78) 100%);
 }
 
 .hero .wrap {
   position: relative;
   z-index: 1;
-  /* Size to the widest beat. Left to shrink-to-fit, the flex row
-     settled on the subhead's width and clipped the longest line
-     against the hero's overflow. */
-  width: max-content;
+  /* Full width, not max-content. As a shrink-to-fit flex item it was
+     only as wide as its longest line, and `margin: 0 auto` then centred
+     that box — so the hero's left edge floated with the copy instead of
+     sitting on the site's content axis, drifting 168px right of the
+     header logo at 1440 and a different distance at every width. The
+     original max-content was there to stop a long line clipping; the
+     column is 1012px wide and the longest line is 644px, so there is
+     nothing left to clip. */
+  width: 100%;
   display: grid;
   gap: 15px;
   /* The frame is a fixed height and the copy sits at its foot, so this
@@ -682,7 +692,8 @@ html, body { overflow-x: hidden; }
     /* Flush on phones: the footer stacks, so any indent would
        misalign the brand row against the social row below it. */
     --brand-indent: 0px;
-    --header-h: 88px;
+    /* Taller, to carry the bigger mark with the same air around it. */
+    --header-h: 108px;
   }
 
   /* Respect notches and rounded corners in landscape. */
@@ -691,8 +702,11 @@ html, body { overflow-x: hidden; }
     padding-right: max(var(--gutter), env(safe-area-inset-right));
   }
 
-  /* Header: the mark was locked at 100px and ate the full width. */
-  .brand img { height: 58px; }
+  /* The limit on phones is width, not height: the lockup is 3.38:1, so
+     every pixel of height costs 3.4 of width, and the hamburger is
+     fixed at the other end of the bar. 76px is the largest that still
+     clears the toggle at 375. Narrow phones step down below. */
+  .brand img { height: 76px; }
 
   .header-nav {
     top: var(--header-h);
@@ -777,6 +791,17 @@ html, body { overflow-x: hidden; }
   .hero .eyebrow { font-size: 0.58rem; }
   .hero-actions { flex-direction: column; }
   .hero-actions .btn { flex: none; width: 100%; }
+}
+
+/* At 360 and below a 76px mark runs into the hamburger — they actually
+   collide at 344 — so the mark and the bar step back down together.
+   The step is at 370 rather than 380 because 375 (iPhone SE, 8) still
+   clears the toggle by 28px at full size, and that is a common enough
+   screen to be worth the extra query. This block sits after the 760px
+   one on purpose: same specificity, so source order decides. */
+@media (max-width: 370px) {
+  :root { --header-h: 94px; }
+  .brand img { height: 62px; }
 }
 
 @supports (height: 100dvh) {
@@ -1101,15 +1126,21 @@ html, body { overflow-x: hidden; }
   font-size: clamp(1.6rem, 5.9vw, 3.5rem);
   line-height: 1.05;
   max-width: none;
-  color: #fff;
+  /* Toned off pure white. Warm rather than grey, so it sits with the
+     tally red instead of going cold against it. */
+  color: #e6e2da;
 }
 
-/* The constant. Set 2x the beats, the relationship in the sketch —
-   dominant enough to read as the subject the whole list hangs off,
-   not merely a larger first line. */
+/* The opening beat. Set 2x the others, the relationship in the sketch —
+   dominant enough to read as the subject the whole list hangs off, not
+   merely a larger first line. It rises first and clears with the rest,
+   so each cycle starts from an empty frame. */
 .seq-we {
   display: block;
   font-size: 2em;
+  animation: seq-beat 12s ease-in-out infinite;
+  animation-delay: 0s;
+  opacity: 0;
   line-height: 0.92;
   letter-spacing: -0.045em;
   margin-bottom: 0.06em;
@@ -1132,10 +1163,10 @@ html, body { overflow-x: hidden; }
   opacity: 0;
 }
 
-.seq-line:nth-child(1) { animation-delay: 0s; }
-.seq-line:nth-child(2) { animation-delay: 0.75s; }
-.seq-line:nth-child(3) { animation-delay: 1.5s; }
-.seq-line:nth-child(4) { animation-delay: 2.25s; }
+.seq-line:nth-child(1) { animation-delay: 0.75s; }
+.seq-line:nth-child(2) { animation-delay: 1.5s; }
+.seq-line:nth-child(3) { animation-delay: 2.25s; }
+.seq-line:nth-child(4) { animation-delay: 3s; }
 
 .seq-line-accent { color: var(--tally); }
 
@@ -1658,6 +1689,113 @@ html, body { overflow-x: hidden; }
 
 .section--paper { --paper: #f2f1ec; }
 .section--grey  { --paper: #e2e0da; --paper-sunk: #eeece7; --line: #cfcdc6; }
+
+/* True black, matching .panel--void so the page closes on the same
+   ground the checkerboard uses.
+
+   The one inversion that matters: on the page's own #131313 a form
+   field recedes into --paper-sunk, which is darker than its
+   surroundings. Against black there is nothing darker to recede into,
+   so the field has to lift instead — --paper-sunk goes lighter than
+   the ground it sits on, and the border comes up with it. Keep the
+   name; the role is what flips. */
+.section--void {
+  --paper: #000;
+  --paper-sunk: #141413;
+  --paper-raised: #1a1a18;
+  --line: #302f2c;
+  --line-soft: #201f1d;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------------
+   Split ground: reading copy on paper, the form on black.
+
+   The boundary has to land inside the 40px grid gutter, not at an
+   arbitrary 50%. The wrap is a 1100px column centred in the viewport
+   with a 44px gutter, and the grid runs 1fr / 1.1fr with 40px between,
+   so the middle of that gutter sits at
+
+     (100vw - 1100)/2 + 44 + (1012 - 40) / 2.1 + 20  =  50vw - 23px
+
+   Below 1100 the wrap stops centring and the arithmetic drifts a few
+   pixels, but a few pixels inside a 40px gutter is still inside the
+   gutter — measured at every width rather than assumed.
+   ------------------------------------------------------------------ */
+@media (min-width: 900px) {
+  .section--split {
+    background: linear-gradient(90deg,
+      var(--paper) 0 calc(50% - 23px),
+      #000 calc(50% - 23px) 100%);
+  }
+
+  /* The form sits on black inside an otherwise light section, so it
+     takes the dark palette back. Same inversion as .section--void:
+     against black a field has to lift rather than recede, so
+     --paper-sunk goes lighter than the ground behind it. */
+  .section--split .contact-form {
+    --paper: #000;
+    --paper-raised: #1a1a18;
+    --paper-sunk: #141413;
+    --ink: #fbfbf9;
+    --ink-soft: #a09e97;
+    --ink-faint: #6c6a65;
+    --line: #302f2c;
+    --line-soft: #201f1d;
+    --tally-ink: var(--tally);
+    color: var(--ink);
+    padding-left: 40px;
+  }
+
+  /* The light-ground overrides further down key off .section--paper,
+     which this section still carries — so the form would inherit a
+     light-ground inset shadow and a dark select arrow on black. Put
+     the dark-ground versions back. */
+  .section--split .contact-form input,
+  .section--split .contact-form select,
+  .section--split .contact-form textarea,
+  .section--split .contact-form .opt span {
+    box-shadow: inset 0 1px 0 rgba(251, 251, 249, 0.05);
+  }
+
+  .section--split .contact-form select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23a09e97' stroke-width='1.6' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  }
+}
+
+/* Stacked, a vertical split would cut across both blocks instead of
+   between them. The form becomes a black band across the full width,
+   bled out past the gutter so it reads as its own ground. */
+@media (max-width: 899px) {
+  .section--split .contact-form {
+    --paper: #000;
+    --paper-raised: #1a1a18;
+    --paper-sunk: #141413;
+    --ink: #fbfbf9;
+    --ink-soft: #a09e97;
+    --ink-faint: #6c6a65;
+    --line: #302f2c;
+    --line-soft: #201f1d;
+    --tally-ink: var(--tally);
+    background: #000;
+    color: var(--ink);
+    margin-left: calc(-1 * var(--gutter));
+    margin-right: calc(-1 * var(--gutter));
+    padding: 36px var(--gutter);
+  }
+
+  .section--split .contact-form input,
+  .section--split .contact-form select,
+  .section--split .contact-form textarea,
+  .section--split .contact-form .opt span {
+    box-shadow: inset 0 1px 0 rgba(251, 251, 249, 0.05);
+  }
+
+  .section--split .contact-form select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23a09e97' stroke-width='1.6' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  }
+}
 
 /* On a light ground the ghost button needs a real edge; on dark it was
    borrowing the photograph behind it. */
