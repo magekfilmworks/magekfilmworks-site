@@ -1086,9 +1086,11 @@ html, body { overflow-x: hidden; }
 
 .seq-line {
   display: block;
-  /* Each beat is one line or it isn't a beat — a wrapped clause
-     breaks the rhythm and the block's height. */
-  white-space: nowrap;
+  /* Each beat wants to be one line — a wrapped clause breaks the
+     rhythm. But "And we produce live content." is 28 characters, and
+     holding it on one line below ~1140px would mean shrinking the type
+     to about 24px. Big type wins; the beat wraps instead. */
+  white-space: normal;
   /* Every line holds its space at all times — only opacity and
      transform animate, so the hero never changes height and the
      subhead below it never shifts. */
@@ -1863,8 +1865,9 @@ html, body { overflow-x: hidden; }
   background: var(--tally);
 }
 
-/* A tick already passed stays filled; the live one fills across the hold. */
-.hero-tick.is-done i { width: 100%; }
+/* Only the live tick carries orange. A finished one drops back to the
+   normal rail, so the bar reads as "loading now" rather than as a
+   progress meter that accumulates. */
 
 @media (max-width: 760px) {
   .hero-progress { bottom: 44px; gap: 5px; }
@@ -1872,4 +1875,18 @@ html, body { overflow-x: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-tick i { transition: none !important; }
+}
+
+
+/* Wide enough to hold the longest beat on one line: above this the
+   sequence reads as three lines, below it the third beat wraps. */
+@media (min-width: 1140px) {
+  .seq-line { white-space: nowrap; }
+}
+
+/* Between 900 and 1139 the third beat wraps to two lines, which makes the
+   copy block a line taller than the frame was sized to hold. The floor
+   rises for exactly that band. */
+@media (min-width: 900px) and (max-width: 1139px) {
+  .hero { height: clamp(calc(var(--header-h) + 648px), calc(100vw / 2.39), 86vh); }
 }

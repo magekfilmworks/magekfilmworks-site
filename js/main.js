@@ -30,18 +30,15 @@ if (slider) {
     ticks.forEach((tick, i) => {
       const fill = tick.querySelector("i");
       if (!fill) return;
-      if (i < index) {
-        tick.classList.add("is-done");
-        fill.style.transition = "none";
-        fill.style.width = "100%";
-      } else if (i > index) {
-        tick.classList.remove("is-done");
+      if (i !== index) {
+        // A tick that has finished drops back to its normal state rather
+        // than staying filled, so orange only ever marks the slide that
+        // is loading right now.
         fill.style.transition = "none";
         fill.style.width = "0%";
       } else {
         // The live tick: reset to zero with no transition, force the
         // browser to commit that, then animate across the hold.
-        tick.classList.remove("is-done");
         fill.style.transition = "none";
         fill.style.width = "0%";
         void fill.offsetWidth;
