@@ -252,7 +252,7 @@ p { margin: 0 0 1em; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.1) 0%, rgba(10, 10, 10, 0.16) 55%, rgba(10, 10, 10, 0.5) 100%);
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0) 0%, rgba(10, 10, 10, 0) 52%, rgba(10, 10, 10, 0.72) 100%);
 }
 
 .hero .wrap {
@@ -286,8 +286,16 @@ p { margin: 0 0 1em; }
 
 .hero-sub {
   font-size: clamp(1.12rem, 3.4vw, 1.35rem);
-  color: #d6d4cc;
   max-width: 46ch;
+  /* Inline, so every wrapped line gets its own band rather than one box
+     around the paragraph; clone keeps the padding on each fragment. */
+  display: inline;
+  background: rgba(14, 14, 14, 0.9);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.16em 0.42em;
+  color: var(--ink);
+  line-height: 1.85;
 }
 
 .hero-actions {
@@ -1835,12 +1843,9 @@ html, body { overflow-x: hidden; }
   opacity: 0;
   /* Defocused, and scaled a touch past the frame so the blur has pixels
      to sample at the edges instead of feathering into nothing. */
-  /* Blur alone removes detail, not luminance — white type measured 1.6:1
-     over the bright patches of the switcher frame. The exposure comes
-     down on the photograph itself rather than by laying grey over it, so
-     it still reads as a photograph rather than as one behind fog. */
-  filter: blur(5px) brightness(0.54) contrast(1.06);
-  transform: scale(1.03);
+  /* Full opacity, undimmed and in focus. The type carries its own ground
+     now, so nothing has to be done to the photograph to keep it legible. */
+  filter: none;
   /* Same curve and duration as a beat of the headline sequence, so the
      frame and the words change together rather than on separate clocks. */
   transition: opacity 630ms ease-in-out;
@@ -1913,4 +1918,37 @@ html, body { overflow-x: hidden; }
 /* Nine cells leave the last row half empty. Rather than inventing a tenth
    panel to fill it, the closing quote takes the whole width. */
 @media (min-width: 900px) {
+}
+
+
+/* ============================================================
+   Banded hero type
+   Each line of the headline and each line of the subhead carries
+   its own ground, the way a lower third does. It lets the frame
+   run undimmed underneath — the type is legible because it sits
+   on something, not because the photograph was darkened.
+   ============================================================ */
+
+.hero .seq-line {
+  display: block;
+  /* Shrink-wrapped, so the band ends where the words end rather than
+     running the width of the block. */
+  width: fit-content;
+  background: rgba(14, 14, 14, 0.9);
+  padding: 0.04em 0.26em 0.1em;
+  margin-bottom: 0.08em;
+}
+
+/* The last beat is the claim, so it takes the accent as its ground and
+   white as its ink — the strongest contrast pair on the page. */
+.hero .seq-line-accent {
+  background: var(--tally);
+  color: #ffffff;
+}
+
+.hero .vignette { display: none; }
+
+@media (max-width: 760px) {
+  .hero .seq-line { padding: 0.04em 0.2em 0.1em; }
+  .hero-sub { padding: 0.14em 0.34em; }
 }
