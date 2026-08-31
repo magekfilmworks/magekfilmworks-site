@@ -1839,8 +1839,8 @@ html, body { overflow-x: hidden; }
      over the bright patches of the switcher frame. The exposure comes
      down on the photograph itself rather than by laying grey over it, so
      it still reads as a photograph rather than as one behind fog. */
-  filter: blur(12px) brightness(0.56) contrast(1.06);
-  transform: scale(1.06);
+  filter: blur(5px) brightness(0.54) contrast(1.06);
+  transform: scale(1.03);
   /* Same curve and duration as a beat of the headline sequence, so the
      frame and the words change together rather than on separate clocks. */
   transition: opacity 630ms ease-in-out;
@@ -1908,4 +1908,9 @@ html, body { overflow-x: hidden; }
    rises for exactly that band. */
 @media (min-width: 900px) and (max-width: 1139px) {
   .hero { height: clamp(calc(var(--header-h) + 648px), calc(100vw / 2.39), 86vh); }
+}
+
+/* Nine cells leave the last row half empty. Rather than inventing a tenth
+   panel to fill it, the closing quote takes the whole width. */
+@media (min-width: 900px) {
 }
