@@ -44,7 +44,7 @@
   --gutter: 44px;
 
   /* Shared indent for the header wordmark and the footer disc. */
-  --brand-indent: 32px;
+  --brand-indent: 16px;
 
   /* Header height — also drives the mobile menu offset and the
      scroll offset for every in-page anchor. */
@@ -157,11 +157,16 @@ p { margin: 0 0 1em; }
   height: var(--header-h);
 }
 
-/* Nudged in off the gutter so the mark sits inside the column,
-   not hard against its edge. The footer disc uses the same token. */
+/* Nudged in off the gutter so the mark sits inside the column, not hard
+   against its edge. The footer disc uses the same token, so the two
+   stay on one line.
+
+   Note the visible gap runs ~3px wider than this value: the lockup PNG
+   carries about 1% of transparent margin on its left edge. That is in
+   the file, not the CSS, so it is left alone. */
 .brand { margin-left: var(--brand-indent); }
 
-.brand img { height: 74px; width: auto; }
+.brand img { height: 84px; width: auto; }
 
 .header-nav {
   display: flex;
@@ -654,10 +659,10 @@ html, body { overflow-x: hidden; }
 /* ---------- Tablet ---------- */
 @media (max-width: 1024px) {
   :root {
-    --brand-indent: 18px;
+    --brand-indent: 10px;
     --header-h: 92px;
   }
-  .brand img { height: 56px; }
+  .brand img { height: 64px; }
   .section { padding: 72px 0; }
 
   /* Narrower crop pulls the bright sky behind the eyebrow — lift the scrim. */
@@ -687,7 +692,7 @@ html, body { overflow-x: hidden; }
   }
 
   /* Header: the mark was locked at 100px and ate the full width. */
-  .brand img { height: 52px; }
+  .brand img { height: 58px; }
 
   .header-nav {
     top: var(--header-h);
