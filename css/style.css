@@ -261,8 +261,11 @@ p { margin: 0 0 1em; }
   width: max-content;
   display: grid;
   gap: 20px;
-  padding-top: 60px;
-  padding-bottom: 48px;
+  /* The frame is a fixed height and the copy sits at its foot, so this
+     reserved band is the only thing keeping the headline out from under
+     the fixed header. */
+  padding-top: calc(var(--header-h) + 24px);
+  padding-bottom: 96px;
 }
 
 .hero .eyebrow { color: #cfcdc5; }
@@ -706,8 +709,8 @@ html, body { overflow-x: hidden; }
   .hero-bg { object-position: 62% 45%; }
 
   .hero .wrap {
-    padding-top: 112px;
-    padding-bottom: 40px;
+    padding-top: calc(var(--header-h) + 20px);
+    padding-bottom: 78px;
     gap: 16px;
   }
 
@@ -1426,10 +1429,9 @@ html, body { overflow-x: hidden; }
        to 1510px on a 1440px screen — wider than the viewport, which
        pushed the right-hand slate off the edge. Deriving height from
        viewport width keeps the width authoritative. */
-    height: clamp(calc(var(--header-h) + 430px), calc(100vw / 2.39), 88vh);
+    height: clamp(calc(var(--header-h) + 540px), calc(100vw / 2.39), 92vh);
     min-height: 0;
   }
-  .hero .wrap { padding-top: calc(var(--header-h) + 26px); }
 }
 
 /* The slate: mono, small, at the foot of the frame. Left is where the
@@ -1650,6 +1652,11 @@ html, body { overflow-x: hidden; }
 .panels {
   display: grid;
   grid-template-columns: 1fr;
+  /* A 2px rule between cells, drawn by letting the container's own
+     colour show through the gap. Reads as a grid rather than as blocks
+     butted together, and works on light and dark cells alike. */
+  gap: 2px;
+  background: #2c2c2a;
 }
 
 @media (min-width: 900px) {
@@ -1792,4 +1799,71 @@ html, body { overflow-x: hidden; }
 @media (hover: hover) {
   .panel--light .btn-ghost:hover,
   .panel--grey .btn-ghost:hover { border-color: var(--tally); color: var(--tally); }
+}
+
+/* ============================================================
+   Hero slider
+   Hard cuts, no crossfade — the same choice gekjr.pro's Site
+   Bible records, and the right one for frames from a live show.
+   A segmented bar underneath fills across the hold, so the page
+   shows its own progression rather than cutting without warning.
+   ============================================================ */
+
+.hero-slider {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+  opacity: 0;
+}
+
+.hero-slide.is-active { opacity: 1; }
+
+.hero-slide:nth-child(2) { object-position: center 58%; }
+.hero-slide:nth-child(3) { object-position: center 50%; }
+.hero-slide:nth-child(4) { object-position: 46% 42%; }
+
+/* ---------- the load bar ---------- */
+.hero-progress {
+  position: absolute;
+  z-index: 2;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 52px;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.hero-tick {
+  flex: 1;
+  height: 2px;
+  background: rgba(251, 251, 249, 0.22);
+  overflow: hidden;
+}
+
+.hero-tick i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--tally);
+}
+
+/* A tick already passed stays filled; the live one fills across the hold. */
+.hero-tick.is-done i { width: 100%; }
+
+@media (max-width: 760px) {
+  .hero-progress { bottom: 44px; gap: 5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-tick i { transition: none !important; }
 }

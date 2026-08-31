@@ -12,6 +12,78 @@
 const FORM_ENDPOINT = "";
 const CONTACT_EMAIL = "hello@magekfilmworks.com";
 
+/* ---------- Hero slider ----------
+   Hard cuts between frames, with a segmented bar that fills across each
+   hold so the page shows where it is in the sequence. Swipeable, and it
+   stops entirely for anyone who has asked for reduced motion. */
+const slider = document.querySelector(".hero-slider");
+
+if (slider) {
+  const slides = Array.from(slider.querySelectorAll(".hero-slide"));
+  const ticks = Array.from(document.querySelectorAll(".hero-tick"));
+  const hold = Number(slider.dataset.hold) || 4200;
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let index = 0;
+  let timer = null;
+
+  const paintTicks = () => {
+    ticks.forEach((tick, i) => {
+      const fill = tick.querySelector("i");
+      if (!fill) return;
+      if (i < index) {
+        tick.classList.add("is-done");
+        fill.style.transition = "none";
+        fill.style.width = "100%";
+      } else if (i > index) {
+        tick.classList.remove("is-done");
+        fill.style.transition = "none";
+        fill.style.width = "0%";
+      } else {
+        // The live tick: reset to zero with no transition, force the
+        // browser to commit that, then animate across the hold.
+        tick.classList.remove("is-done");
+        fill.style.transition = "none";
+        fill.style.width = "0%";
+        void fill.offsetWidth;
+        fill.style.transition = still ? "none" : `width ${hold}ms linear`;
+        fill.style.width = "100%";
+      }
+    });
+  };
+
+  const show = (next) => {
+    index = (next + slides.length) % slides.length;
+    slides.forEach((s, i) => s.classList.toggle("is-active", i === index));
+    paintTicks();
+  };
+
+  const start = () => {
+    if (still || slides.length < 2) return;
+    clearInterval(timer);
+    timer = setInterval(() => show(index + 1), hold);
+  };
+
+  show(0);
+  start();
+
+  // Swipe, so the frames are browsable rather than only watchable.
+  let touchX = null;
+  slider.addEventListener("touchstart", (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+  slider.addEventListener("touchend", (e) => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 44) { show(index + (dx < 0 ? 1 : -1)); start(); }
+    touchX = null;
+  }, { passive: true });
+
+  // Nothing advances while the tab is hidden — otherwise you come back
+  // to a bar that has run on without you.
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) clearInterval(timer);
+    else { paintTicks(); start(); }
+  });
+}
+
 /* ---------- Mobile nav ---------- */
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector(".header-nav");
