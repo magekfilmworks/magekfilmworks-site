@@ -98,6 +98,14 @@ p { margin: 0 0 1em; }
   padding: 0 var(--gutter);
 }
 
+/* The masthead and the colophon span the page; the content column does
+   not. So the mark sits on the page's own left margin rather than on
+   the text column's, which is the point — a wordmark that lines up with
+   the body copy reads as part of it. The gutter is still respected, so
+   the mark is never hard against the edge, and the footer carries the
+   same class so the two brand marks stay on one line as before. */
+.wrap--bleed { max-width: none; }
+
 :focus-visible {
   outline: 2px solid var(--tally);
   outline-offset: 3px;
