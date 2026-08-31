@@ -1545,3 +1545,20 @@ html, body { overflow-x: hidden; }
   .section-head h2,
   .cta-band h2 { max-width: 14ch; }
 }
+
+/* Three quotes, three alignments: the row ranges left, centre, right
+   across the page. The middle one holds the axis the rest of the
+   section is centred on. */
+.testimonial:first-child {
+  text-align: left;
+}
+.testimonial:first-child p,
+.testimonial:first-child cite { margin-inline: 0; }
+
+.testimonial:last-child {
+  text-align: right;
+}
+.testimonial:last-child p {
+  margin-inline-start: auto;
+  margin-inline-end: 0;
+}
