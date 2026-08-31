@@ -115,11 +115,247 @@
     </div>
   </section>
 
-  <section class="section cta-band">
-    <div class="wrap">
-      <h2>Tell us about your next project.</h2>
-      <p>Scripted video, a live event, or something in between — we'll help you figure out what it takes.</p>
-      <a href="contact.html" class="btn btn-primary">Start a project</a>
+  <section class="section" id="contact" id="contact">
+    <div class="wrap contact-grid">
+      <div class="contact-lead">
+        <div class="eyebrow">Get in touch</div>
+        <h2>Tell us about your next project.</h2>
+        <p>Scripted video, a live event, or something in between — we'll help you figure out what it takes.</p>
+        <p class="contact-note">The more you can tell us here, the closer our first number will be to the real one. Four short steps, about two minutes.</p>
+        <div class="contact-direct">
+          <a href="mailto:hello@magekfilmworks.com">hello@magekfilmworks.com</a>
+          <a href="https://wa.me/12023706109">+1 (202) 370-6109</a>
+        </div>
+      </div>
+
+      <form class="contact-form intake" id="intake-form" novalidate>
+        <div class="wizard-head">
+          <ol class="wizard-steps" id="wizard-steps">
+            <li data-step="1" class="is-current"><span class="wizard-dot"></span>Project</li>
+            <li data-step="2"><span class="wizard-dot"></span>Logistics</li>
+            <li data-step="3"><span class="wizard-dot"></span>Budget</li>
+            <li data-step="4"><span class="wizard-dot"></span>You</li>
+          </ol>
+          <p class="wizard-count"><span id="wizard-current">01</span> / 04</p>
+        </div>
+
+        <!-- 01 ------------------------------------------------------ -->
+        <fieldset class="step" data-step="1">
+          <legend class="step-legend">What are we making?</legend>
+
+          <div class="field">
+            <span class="field-label">Type of project <em>required</em></span>
+            <div class="opt-grid opt-grid-2">
+              <label class="opt"><input type="radio" name="project_type" value="Video production" required /><span>Video production</span></label>
+              <label class="opt"><input type="radio" name="project_type" value="Multicam live production" /><span>Multicam live</span></label>
+              <label class="opt"><input type="radio" name="project_type" value="Both" /><span>Both</span></label>
+              <label class="opt"><input type="radio" name="project_type" value="Not sure yet" /><span>Not sure yet</span></label>
+            </div>
+            <p class="field-error" data-for="project_type">Pick one so we know who to put on it.</p>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="use_case">What's it for</label>
+            <select id="use_case" name="use_case">
+              <option value="">Select one</option>
+              <option>Brand or promotional film</option>
+              <option>Conference or annual meeting</option>
+              <option>Event coverage</option>
+              <option>Training or internal comms</option>
+              <option>Testimonial or interview series</option>
+              <option>Press event or announcement</option>
+              <option>Concert or performance</option>
+              <option>Something else</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <span class="field-label">Deliverables you need</span>
+            <div class="opt-grid opt-grid-2">
+              <label class="opt"><input type="checkbox" name="deliverables" value="Finished edit" /><span>Finished edit</span></label>
+              <label class="opt"><input type="checkbox" name="deliverables" value="Live stream" /><span>Live stream</span></label>
+              <label class="opt"><input type="checkbox" name="deliverables" value="Social cutdowns" /><span>Social cutdowns</span></label>
+              <label class="opt"><input type="checkbox" name="deliverables" value="Highlight reel" /><span>Highlight reel</span></label>
+              <label class="opt"><input type="checkbox" name="deliverables" value="Raw footage" /><span>Raw footage</span></label>
+              <label class="opt"><input type="checkbox" name="deliverables" value="Captions or subtitles" /><span>Captions</span></label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="brief">Tell us about it</label>
+            <textarea id="brief" name="brief" placeholder="What's happening, who it's for, and what you want people to walk away with."></textarea>
+          </div>
+        </fieldset>
+
+        <!-- 02 ------------------------------------------------------ -->
+        <fieldset class="step" data-step="2" hidden>
+          <legend class="step-legend">Where and when does it happen?</legend>
+
+          <div class="field">
+            <label class="field-label" for="location">Location or venue</label>
+            <input type="text" id="location" name="location" placeholder="Washington, D.C. — or wherever it's shooting" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="shoot_days">Shoot days</label>
+              <select id="shoot_days" name="shoot_days">
+                <option value="">Select one</option>
+                <option>Half day</option>
+                <option>1 day</option>
+                <option>2 days</option>
+                <option>3 to 5 days</option>
+                <option>More than 5</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="setting">Setting</label>
+              <select id="setting" name="setting">
+                <option value="">Select one</option>
+                <option>On location</option>
+                <option>Studio</option>
+                <option>Both</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label">Streaming it live?</span>
+            <div class="opt-grid opt-grid-3">
+              <label class="opt"><input type="radio" name="streaming" value="Yes" data-reveal="stream-detail" /><span>Yes</span></label>
+              <label class="opt"><input type="radio" name="streaming" value="No" /><span>No</span></label>
+              <label class="opt"><input type="radio" name="streaming" value="Not sure" data-reveal="stream-detail" /><span>Not sure</span></label>
+            </div>
+          </div>
+
+          <div class="field reveal" id="stream-detail" hidden>
+            <span class="field-label">Where to</span>
+            <div class="opt-grid opt-grid-3">
+              <label class="opt"><input type="checkbox" name="platforms" value="YouTube" /><span>YouTube</span></label>
+              <label class="opt"><input type="checkbox" name="platforms" value="Facebook" /><span>Facebook</span></label>
+              <label class="opt"><input type="checkbox" name="platforms" value="LinkedIn" /><span>LinkedIn</span></label>
+              <label class="opt"><input type="checkbox" name="platforms" value="Vimeo" /><span>Vimeo</span></label>
+              <label class="opt"><input type="checkbox" name="platforms" value="Private embed" /><span>Private embed</span></label>
+              <label class="opt"><input type="checkbox" name="platforms" value="Zoom or Teams" /><span>Zoom / Teams</span></label>
+            </div>
+            <p class="field-hint">Every show we run has a redundant backup path underneath it, whichever platform you land on.</p>
+          </div>
+        </fieldset>
+
+        <!-- 03 ------------------------------------------------------ -->
+        <fieldset class="step" data-step="3" hidden>
+          <legend class="step-legend">Budget and dates.</legend>
+
+          <div class="field">
+            <span class="field-label">Budget range</span>
+            <div class="opt-grid opt-grid-2">
+              <label class="opt"><input type="radio" name="budget" value="Under $5,000" /><span>Under $5k</span></label>
+              <label class="opt"><input type="radio" name="budget" value="$5,000 to $15,000" /><span>$5k &ndash; $15k</span></label>
+              <label class="opt"><input type="radio" name="budget" value="$15,000 to $35,000" /><span>$15k &ndash; $35k</span></label>
+              <label class="opt"><input type="radio" name="budget" value="$35,000 to $75,000" /><span>$35k &ndash; $75k</span></label>
+              <label class="opt"><input type="radio" name="budget" value="Over $75,000" /><span>$75k +</span></label>
+              <label class="opt"><input type="radio" name="budget" value="Not sure yet" /><span>Not sure yet</span></label>
+            </div>
+            <p class="field-hint">A range is enough. It tells us what's buildable before we waste your time on a scope you'd never approve.</p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="shoot_date">Target shoot date</label>
+              <input type="date" id="shoot_date" name="shoot_date" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="delivery_date">Delivery deadline</label>
+              <input type="date" id="delivery_date" name="delivery_date" />
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label">How firm are those dates?</span>
+            <div class="opt-grid opt-grid-3">
+              <label class="opt"><input type="radio" name="date_flex" value="Locked" /><span>Locked</span></label>
+              <label class="opt"><input type="radio" name="date_flex" value="Some flexibility" /><span>Some give</span></label>
+              <label class="opt"><input type="radio" name="date_flex" value="Flexible" /><span>Flexible</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 04 ------------------------------------------------------ -->
+        <fieldset class="step" data-step="4" hidden>
+          <legend class="step-legend">Who are we talking to?</legend>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="name">Name <em>required</em></label>
+              <input type="text" id="name" name="name" autocomplete="name" required />
+              <p class="field-error" data-for="name">We need a name to reply to.</p>
+            </div>
+            <div class="field">
+              <label class="field-label" for="email">Email <em>required</em></label>
+              <input type="email" id="email" name="email" autocomplete="email" required />
+              <p class="field-error" data-for="email">Check that address — we can't reach you otherwise.</p>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="company">Organization</label>
+              <input type="text" id="company" name="company" autocomplete="organization" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field-label" for="role">Your role</label>
+              <input type="text" id="role" name="role" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="referral">How'd you find us</label>
+              <select id="referral" name="referral">
+                <option value="">Select one</option>
+                <option>Referral from a client</option>
+                <option>We've worked together before</option>
+                <option>Google or search</option>
+                <option>Social media</option>
+                <option>Saw us at an event</option>
+                <option>Something else</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="extra">Anything else we should know</label>
+            <textarea id="extra" name="extra" placeholder="Access constraints, a deck to share, a reference you like — whatever helps."></textarea>
+          </div>
+        </fieldset>
+
+        <!-- Spam trap: real people never see it, bots fill it in. -->
+        <p class="honey" aria-hidden="true">
+          <label for="company_url">Leave this empty</label>
+          <input type="text" id="company_url" name="_gotcha" tabindex="-1" autocomplete="off" />
+        </p>
+
+        <div class="wizard-actions">
+          <button type="button" class="btn btn-ghost" id="wizard-back" hidden>Back</button>
+          <button type="button" class="btn btn-primary" id="wizard-next">Next</button>
+          <button type="submit" class="btn btn-primary" id="wizard-send" hidden>Send inquiry</button>
+        </div>
+
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="intake-done" id="intake-done" hidden>
+        <div class="eyebrow">Received</div>
+        <h3>Thanks — that's everything we need to start.</h3>
+        <p>We read every inquiry ourselves. Expect a reply within one business day, usually with a question or two and a rough number.</p>
+        <p class="intake-done-direct">Need us sooner? <a href="https://wa.me/12023706109">+1 (202) 370-6109</a></p>
+      </div>
     </div>
   </section>
 </main>
@@ -130,17 +366,9 @@
       <img src="images/logo-icon.png" alt="" class="footer-mark" />
       <p>&copy; <span class="year"></span> MageK Filmworks. All rights reserved.</p>
     </div>
-    <nav class="footer-nav">
-      <a href="index.html">Home</a>
-      <a href="services.html">Services</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Start a project</a>
-      <a href="https://gekjr.pro">gekjr.pro</a>
-    </nav>
     <div class="footer-social">
-      <a href="https://facebook.com/magekfilmworks" target="_blank" rel="noopener">Facebook</a>
-      <a href="https://instagram.com/magekfilmworks" target="_blank" rel="noopener">Instagram</a>
       <a href="https://www.linkedin.com/company/magek-filmworks/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://gekjr.pro">gekjr.pro</a>
     </div>
   </div>
 </footer>

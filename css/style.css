@@ -1089,7 +1089,6 @@ html, body { overflow-x: hidden; }
    ============================================================ */
 
 @media (hover: hover) {
-  .footer-nav a:hover { color: var(--tally); }
   .clients-grid a:hover { color: var(--ink); }
   .clients-grid .is-pinned:hover { color: #ef5c3d; }
   .crew a:hover { border-bottom-color: var(--tally); }
@@ -1308,18 +1307,6 @@ html, body { overflow-x: hidden; }
   max-width: 44ch;
   margin-bottom: 22px;
 }
-
-/* ============================================================
-   Footer nav — the second copy of the site map
-   ============================================================ */
-
-.footer-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.footer-nav a { white-space: nowrap; }
 
 /* Current page marker, header and footer alike. */
 /* Current page reads by weight and colour, not a rule under it. */
