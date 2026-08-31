@@ -1932,3 +1932,114 @@ html, body { overflow-x: hidden; }
     0 0 42px rgba(0, 0, 0, 0.42);
 }
 
+
+/* The video slide sits in the same stack as the photographs and is
+   cropped the same way. Poster shows while the clip loads. */
+video.hero-slide {
+  object-fit: cover;
+  object-position: center 50%;
+  background: var(--paper);
+}
+
+/* ============================================================
+   Reel lightbox
+   The clip lives here rather than in the slider: a 38-second
+   slide stalls the rotation, and a browser that can't start it
+   stalls the rotation for good. In a dialog it plays with sound,
+   under the viewer's control, while the frames keep moving.
+   ============================================================ */
+
+.reel-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  /* The hero wrap is a grid, so the flex property does nothing here and
+     the button stretched the full column width. */
+  justify-self: start;
+  margin-top: 26px;
+  padding: 12px 20px 12px 16px;
+  background: rgba(14, 14, 14, 0.58);
+  border: 1px solid rgba(251, 251, 249, 0.35);
+  border-radius: 2px;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+/* A solid triangle, drawn with borders — no icon file to load. */
+.reel-play {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 6px 0 6px 10px;
+  border-color: transparent transparent transparent var(--tally);
+  flex: none;
+}
+
+.reel-time {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .reel-open:hover {
+    background: rgba(14, 14, 14, 0.78);
+    border-color: var(--tally);
+  }
+}
+
+.reel {
+  width: min(1180px, 94vw);
+  max-height: 90vh;
+  padding: 0;
+  border: none;
+  background: #000;
+  color: var(--ink);
+  overflow: visible;
+}
+
+.reel::backdrop {
+  background: rgba(8, 8, 8, 0.88);
+}
+
+.reel-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* Stated rather than inferred: without it the box is sized from
+     metadata, so it jumps once the clip loads — and shows a letterboxed
+     default before that. */
+  aspect-ratio: 16 / 9;
+  max-height: 86vh;
+  background: #000;
+}
+
+.reel-close {
+  position: absolute;
+  top: -44px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  background: none;
+  border: none;
+  color: var(--ink);
+  font-size: 1.9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .reel-close:hover { color: var(--tally); }
+}
+
+@media (max-width: 760px) {
+  .reel { width: 96vw; }
+  .reel-close { top: -40px; }
+  .reel-open { font-size: 0.74rem; padding: 11px 16px 11px 14px; margin-top: 22px; }
+}

@@ -26,42 +26,99 @@ if (slider) {
   let index = 0;
   let timer = null;
 
-  const paintTicks = () => {
-    ticks.forEach((tick, i) => {
-      const fill = tick.querySelector("i");
-      if (!fill) return;
-      if (i !== index) {
-        // A tick that has finished drops back to its normal state rather
-        // than staying filled, so orange only ever marks the slide that
-        // is loading right now.
-        fill.style.transition = "none";
-        fill.style.width = "0%";
-      } else {
-        // The live tick: reset to zero with no transition, force the
-        // browser to commit that, then animate across the hold.
-        fill.style.transition = "none";
-        fill.style.width = "0%";
-        void fill.offsetWidth;
-        fill.style.transition = still ? "none" : `width ${hold}ms linear`;
-        fill.style.width = "100%";
-      }
-    });
+  const isVideo = (el) => el && el.tagName === "VIDEO";
+
+  const resetTick = (i) => {
+    const fill = ticks[i] && ticks[i].querySelector("i");
+    if (!fill) return;
+    fill.style.transition = "none";
+    fill.style.width = "0%";
+  };
+
+  // A photograph's tick is animated by CSS across a fixed hold. A video's
+  // is driven by the video's own clock, so the bar measures the clip
+  // rather than guessing at it — and it stays honest if playback stalls
+  // while buffering.
+  const runTick = (i, ms) => {
+    const fill = ticks[i] && ticks[i].querySelector("i");
+    if (!fill) return;
+    fill.style.transition = "none";
+    fill.style.width = "0%";
+    void fill.offsetWidth;
+    fill.style.transition = still ? "none" : `width ${ms}ms linear`;
+    fill.style.width = "100%";
+  };
+
+  const trackVideo = (video, i) => {
+    const fill = ticks[i] && ticks[i].querySelector("i");
+    if (!fill) return;
+    fill.style.transition = "none";
+    const onTime = () => {
+      if (!video.duration) return;
+      fill.style.width = `${(video.currentTime / video.duration) * 100}%`;
+    };
+    video.addEventListener("timeupdate", onTime);
+    video.__onTime = onTime;
+  };
+
+  const untrackVideo = (video) => {
+    if (video && video.__onTime) {
+      video.removeEventListener("timeupdate", video.__onTime);
+      delete video.__onTime;
+    }
   };
 
   const show = (next) => {
+    const leaving = slides[index];
+    if (isVideo(leaving)) {
+      leaving.pause();
+      untrackVideo(leaving);
+    }
+
     index = (next + slides.length) % slides.length;
     slides.forEach((s, i) => s.classList.toggle("is-active", i === index));
-    paintTicks();
+    ticks.forEach((_, i) => { if (i !== index) resetTick(i); });
+
+    clearTimeout(timer);
+    const current = slides[index];
+
+    if (isVideo(current)) {
+      resetTick(index);
+      trackVideo(current, index);
+      if (still) return;              // no autoplay for reduced motion
+      current.currentTime = 0;
+      const play = current.play();
+      if (play && play.catch) {
+        // Autoplay refused (a data-saver setting, say). Don't strand the
+        // slider on a frame that will never advance — treat it as a
+        // still and move on after the normal hold.
+        play.catch(() => {
+          runTick(index, hold);
+          timer = setTimeout(() => show(index + 1), hold);
+        });
+      }
+      return;
+    }
+
+    runTick(index, hold);
+    if (!still && slides.length > 1) {
+      timer = setTimeout(() => show(index + 1), hold);
+    }
   };
+
+  // A video slide ends when the clip does, not on a timer.
+  slides.filter(isVideo).forEach((video) => {
+    video.addEventListener("ended", () => {
+      if (slides[index] === video) show(index + 1);
+    });
+  });
 
   const start = () => {
     if (still || slides.length < 2) return;
-    clearInterval(timer);
-    timer = setInterval(() => show(index + 1), hold);
+    show(index);
   };
 
   show(0);
-  start();
 
   // Swipe, so the frames are browsable rather than only watchable.
   let touchX = null;
@@ -69,15 +126,70 @@ if (slider) {
   slider.addEventListener("touchend", (e) => {
     if (touchX === null) return;
     const dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 44) { show(index + (dx < 0 ? 1 : -1)); start(); }
+    if (Math.abs(dx) > 44) show(index + (dx < 0 ? 1 : -1));
     touchX = null;
   }, { passive: true });
 
-  // Nothing advances while the tab is hidden — otherwise you come back
-  // to a bar that has run on without you.
+  // Nothing advances while the tab is hidden — otherwise you come back to
+  // a bar that has run on without you, or a clip that played to an empty
+  // room.
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden) clearInterval(timer);
-    else { paintTicks(); start(); }
+    const current = slides[index];
+    if (document.hidden) {
+      clearTimeout(timer);
+      if (isVideo(current)) current.pause();
+    } else {
+      show(index);
+    }
+  });
+}
+
+/* ---------- Reel lightbox ----------
+   A dialog rather than a hand-rolled overlay: the browser handles the
+   focus trap, Escape, and returning focus to the button that opened it.
+   The clip only downloads when someone asks for it — preload="none"
+   keeps 9MB off every first visit. */
+const reelDialog = document.querySelector("#reel");
+const reelVideo = reelDialog && reelDialog.querySelector(".reel-video");
+
+if (reelDialog && reelVideo) {
+  const open = () => {
+    if (typeof reelDialog.showModal === "function") reelDialog.showModal();
+    else reelDialog.setAttribute("open", "");
+    reelVideo.play().catch(() => {
+      // Autoplay refused — the controls are right there, so this is fine.
+    });
+  };
+
+  const close = () => {
+    reelVideo.pause();
+    reelVideo.currentTime = 0;   // next open starts at the top
+    if (typeof reelDialog.close === "function") reelDialog.close();
+    else reelDialog.removeAttribute("open");
+  };
+
+  document.querySelectorAll("[data-reel]").forEach((btn) => {
+    btn.addEventListener("click", open);
+  });
+
+  reelDialog.querySelectorAll("[data-reel-close]").forEach((btn) => {
+    btn.addEventListener("click", close);
+  });
+
+  // Clicking the backdrop closes it. The dialog fills its own box, so a
+  // click landing outside the video's rectangle is a click on the backdrop.
+  reelDialog.addEventListener("click", (e) => {
+    const box = reelVideo.getBoundingClientRect();
+    const outside =
+      e.clientX < box.left || e.clientX > box.right ||
+      e.clientY < box.top || e.clientY > box.bottom;
+    if (outside && e.target !== reelDialog.querySelector("[data-reel-close]")) close();
+  });
+
+  // Escape fires the dialog's own cancel event; stop the video with it.
+  reelDialog.addEventListener("close", () => {
+    reelVideo.pause();
+    reelVideo.currentTime = 0;
   });
 }
 
