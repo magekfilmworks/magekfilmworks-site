@@ -260,12 +260,12 @@ p { margin: 0 0 1em; }
      against the hero's overflow. */
   width: max-content;
   display: grid;
-  gap: 20px;
+  gap: 15px;
   /* The frame is a fixed height and the copy sits at its foot, so this
      reserved band is the only thing keeping the headline out from under
      the fixed header. */
-  padding-top: calc(var(--header-h) + 24px);
-  padding-bottom: 96px;
+  padding-top: calc(var(--header-h) + 84px);
+  padding-bottom: 72px;
 }
 
 .hero .eyebrow { color: #cfcdc5; }
@@ -709,7 +709,7 @@ html, body { overflow-x: hidden; }
   .hero-bg { object-position: 62% 45%; }
 
   .hero .wrap {
-    padding-top: calc(var(--header-h) + 20px);
+    padding-top: calc(var(--header-h) + 52px);
     padding-bottom: 78px;
     gap: 16px;
   }
@@ -1429,7 +1429,7 @@ html, body { overflow-x: hidden; }
        to 1510px on a 1440px screen — wider than the viewport, which
        pushed the right-hand slate off the edge. Deriving height from
        viewport width keeps the width authoritative. */
-    height: clamp(calc(var(--header-h) + 540px), calc(100vw / 2.39), 92vh);
+    height: clamp(calc(var(--header-h) + 556px), calc(100vw / 2.39), 80vh);
     min-height: 0;
   }
 }
@@ -1666,9 +1666,13 @@ html, body { overflow-x: hidden; }
 .panel {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: clamp(38px, 5.4vw, 84px);
-  min-height: clamp(320px, 30vw, 480px);
+  /* Top-aligned, not centred. Grid rows take the height of their tallest
+     cell, so centring pushed a short panel's content down into dead space
+     — on a 16-inch screen that put "What we do" below the fold while the
+     empty half of its cell sat above it. */
+  justify-content: flex-start;
+  padding: clamp(34px, 4.4vw, 68px);
+  min-height: clamp(280px, 24vw, 400px);
   background: var(--paper);
   color: var(--ink);
 }
@@ -1845,8 +1849,10 @@ html, body { overflow-x: hidden; }
 
 .hero-tick {
   flex: 1;
-  height: 2px;
-  background: rgba(251, 251, 249, 0.22);
+  height: 3px;
+  /* Normal state: a visible neutral rail, so the bar reads as a scale
+     even before anything fills it. Orange means loaded, nothing else. */
+  background: rgba(251, 251, 249, 0.34);
   overflow: hidden;
 }
 
