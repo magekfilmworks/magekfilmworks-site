@@ -252,7 +252,9 @@ p { margin: 0 0 1em; }
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0) 0%, rgba(10, 10, 10, 0) 52%, rgba(10, 10, 10, 0.72) 100%);
+  /* Shadows carry most of the legibility now, so this only has to close
+     the gap on the brightest frames rather than darken everything. */
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.34) 0%, rgba(10, 10, 10, 0.42) 55%, rgba(10, 10, 10, 0.74) 100%);
 }
 
 .hero .wrap {
@@ -286,16 +288,11 @@ p { margin: 0 0 1em; }
 
 .hero-sub {
   font-size: clamp(1.12rem, 3.4vw, 1.35rem);
+  color: #d6d4cc;
   max-width: 46ch;
-  /* Inline, so every wrapped line gets its own band rather than one box
-     around the paragraph; clone keeps the padding on each fragment. */
-  display: inline;
-  background: rgba(14, 14, 14, 0.9);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  padding: 0.16em 0.42em;
-  color: var(--ink);
-  line-height: 1.85;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.7),
+    0 2px 10px rgba(0, 0, 0, 0.6);
 }
 
 .hero-actions {
@@ -1467,6 +1464,7 @@ html, body { overflow-x: hidden; }
   color: rgba(251, 251, 249, 0.5);
   font-variant-numeric: tabular-nums;
   pointer-events: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .slate span { white-space: nowrap; }
@@ -1843,8 +1841,8 @@ html, body { overflow-x: hidden; }
   opacity: 0;
   /* Defocused, and scaled a touch past the frame so the blur has pixels
      to sample at the edges instead of feathering into nothing. */
-  /* Full opacity, undimmed and in focus. The type carries its own ground
-     now, so nothing has to be done to the photograph to keep it legible. */
+  /* Sharp and undimmed. The type carries a shadow instead, so the frame
+     is a photograph rather than a darkened backdrop. */
   filter: none;
   /* Same curve and duration as a beat of the headline sequence, so the
      frame and the words change together rather than on separate clocks. */
@@ -1915,40 +1913,21 @@ html, body { overflow-x: hidden; }
   .hero { height: clamp(calc(var(--header-h) + 648px), calc(100vw / 2.39), 86vh); }
 }
 
-/* Nine cells leave the last row half empty. Rather than inventing a tenth
-   panel to fill it, the closing quote takes the whole width. */
-@media (min-width: 900px) {
-}
 
 
 /* ============================================================
-   Banded hero type
-   Each line of the headline and each line of the subhead carries
-   its own ground, the way a lower third does. It lets the frame
-   run undimmed underneath — the type is legible because it sits
-   on something, not because the photograph was darkened.
+   Shadowed hero type
+   A layered shadow rather than a single soft blur: a tight, dark
+   one to hold the letterform edge against detail directly behind
+   it, and a wide, faint one to sink the whole line away from the
+   frame. Cheaper than darkening the photograph, and it travels
+   with the type rather than sitting over the picture.
    ============================================================ */
 
-.hero .seq-line {
-  display: block;
-  /* Shrink-wrapped, so the band ends where the words end rather than
-     running the width of the block. */
-  width: fit-content;
-  background: rgba(14, 14, 14, 0.9);
-  padding: 0.04em 0.26em 0.1em;
-  margin-bottom: 0.08em;
+.hero h1 .seq-line {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.62),
+    0 3px 10px rgba(0, 0, 0, 0.55),
+    0 0 42px rgba(0, 0, 0, 0.42);
 }
 
-/* The last beat is the claim, so it takes the accent as its ground and
-   white as its ink — the strongest contrast pair on the page. */
-.hero .seq-line-accent {
-  background: var(--tally);
-  color: #ffffff;
-}
-
-.hero .vignette { display: none; }
-
-@media (max-width: 760px) {
-  .hero .seq-line { padding: 0.04em 0.2em 0.1em; }
-  .hero-sub { padding: 0.14em 0.34em; }
-}
