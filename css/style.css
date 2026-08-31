@@ -330,7 +330,8 @@ p { margin: 0 0 1em; }
 .section-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: center;
+  text-align: center;
   gap: 16px;
   margin-bottom: 42px;
   flex-wrap: wrap;
@@ -1438,4 +1439,68 @@ html, body { overflow-x: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero::before, .split-hero-media::before { opacity: 0.1; }
+}
+
+/* ============================================================
+   Centred lower sections
+   Everything below the frame is centred on the page axis. The
+   rundown gives up its three-column grid to do it — the ID and
+   meta stack above the name instead of sitting beside it — so
+   the structure survives as a label group rather than columns.
+
+   Form controls stay left-aligned inside the centred column:
+   centred field labels force the eye to re-find the start of
+   every line, which measurably slows form completion.
+   ============================================================ */
+
+.rundown-row,
+.rundown-tight .rundown-row {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.rd-id { padding-top: 0; }
+.rd-meta { padding-top: 2px; margin-bottom: 8px; }
+.rd-body { display: grid; justify-items: center; }
+.rd-body p,
+.rd-systems { margin-inline: auto; }
+
+.testimonial { text-align: center; }
+.testimonial p { margin-inline: auto; }
+
+.about-lead { text-align: center; }
+.about-lead .mission,
+.about-lead p { margin-inline: auto; }
+
+.clients summary { justify-content: center; }
+.clients-grid { text-align: center; }
+
+.cta-band { text-align: center; }
+.cta-band h2,
+.cta-band p { margin-inline: auto; }
+
+.contact-lead { text-align: center; }
+.contact-lead h1,
+.contact-lead h2,
+.contact-lead p { margin-inline: auto; }
+.contact-direct { align-items: center; }
+
+.contact-page .contact-lead h1 { max-width: 20ch; }
+
+/* The intake form itself keeps its reading order. */
+.contact-form { text-align: left; }
+.wizard-head { justify-content: center; }
+.wizard-actions { justify-content: center; }
+.intake-done { text-align: center; }
+
+/* On a phone the step strip and the counter were competing for one line. */
+@media (max-width: 640px) {
+  .wizard-head {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .wizard-steps { justify-content: center; }
 }
