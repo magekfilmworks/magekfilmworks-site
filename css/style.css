@@ -382,17 +382,17 @@ p { margin: 0 0 1em; }
 
 .rd-id {
   font-family: var(--font-mono);
-  font-size: 0.74rem;
+  font-size: clamp(0.95rem, 1.5vw, 1.15rem);
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--tally);
   padding-top: 5px;
 }
 
 .rd-meta {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-size: clamp(0.84rem, 1.2vw, 0.98rem);
+  letter-spacing: 0.08em;
   color: var(--ink-soft);
   padding-top: 6px;
 }
