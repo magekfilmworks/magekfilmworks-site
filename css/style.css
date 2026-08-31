@@ -44,7 +44,10 @@
   --gutter: 44px;
 
   /* Shared indent for the header wordmark and the footer disc. */
-  --brand-indent: 16px;
+  /* Flush with the content column. The header mark, the hero headline,
+     every section's copy and the footer mark now share one left edge
+     instead of the mark sitting slightly proud of everything below it. */
+  --brand-indent: 0px;
 
   /* Header height — also drives the mobile menu offset and the
      scroll offset for every in-page anchor. */
@@ -669,7 +672,6 @@ html, body { overflow-x: hidden; }
 /* ---------- Tablet ---------- */
 @media (max-width: 1024px) {
   :root {
-    --brand-indent: 10px;
     --header-h: 92px;
   }
   .brand img { height: 64px; }
@@ -783,7 +785,14 @@ html, body { overflow-x: hidden; }
   .footer-brand { gap: 14px; }
   .footer-mark { height: 48px; }
   .footer-social { flex-wrap: wrap; gap: 14px; }
-  .footer-social a { padding: 4px 0; }
+  /* Was 27px tall — under the thumb floor, and these are the only
+     outbound links on the page. */
+  .footer-social a {
+    padding: 12px 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
 }
 
 /* ---------- Narrow phones ---------- */
@@ -982,7 +991,8 @@ html, body { overflow-x: hidden; }
               0 0 0 3px var(--tally-dim);
 }
 
-.contact-form input[type="date"] { min-height: 45px; }
+.contact-form input[type="date"],
+.contact-form select { min-height: 45px; }
 
 /* ---------- Option chips ---------- */
 .opt-grid { display: grid; gap: 8px; }
@@ -1084,7 +1094,13 @@ html, body { overflow-x: hidden; }
 @media (max-width: 760px) {
   .wizard-head { gap: 10px; padding-bottom: 14px; }
   .wizard-steps { gap: 12px; }
-  .wizard-steps li { font-size: 0.66rem; gap: 6px; }
+  /* Was 0.66rem — 10.6px, the smallest type on the site, on the one
+     screen where a visitor has to track where they are. Merged into
+     this rule rather than added above it: an earlier declaration in
+     the same block was being overridden by this one. */
+  .wizard-steps li { font-size: 0.75rem; gap: 6px; }
+  .wizard-count { font-size: 0.75rem; }
+  .field-hint, .step em { font-size: 0.78rem; }
   .step { gap: 18px; }
   .step-legend { font-size: 1.08rem; }
   .field-row { gap: 18px; }
@@ -1259,6 +1275,9 @@ html, body { overflow-x: hidden; }
   display: flex;
   align-items: center;
   gap: 12px;
+  /* The whole disclosure control was 26px tall. It is the one thing on
+     the About page a visitor is meant to tap. */
+  min-height: 44px;
 }
 .clients summary::-webkit-details-marker { display: none; }
 
@@ -1301,7 +1320,14 @@ html, body { overflow-x: hidden; }
 
 /* Pinned first, in tally red with a real link — the pattern gekjr.pro
    uses for the collaborators it actually works alongside. */
-.clients-grid a { color: var(--ink-soft); }
+/* Real outbound links to clients' sites, so they get a thumb-sized
+   target rather than the 18px their line-height gave them. */
+.clients-grid a {
+  color: var(--ink-soft);
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
 .clients-grid .is-pinned { color: var(--tally-ink); }
 
 @media (min-width: 640px) {
@@ -1309,7 +1335,12 @@ html, body { overflow-x: hidden; }
 }
 
 @media (min-width: 900px) {
-  .clients-grid { grid-template-columns: repeat(3, 1fr); }
+  /* Five short names in three full-width columns left ~250px of empty
+     space beside each one. Sized to the names instead of the page. */
+  .clients-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    max-width: 640px;
+  }
 }
 
 /* Capability strip under an editorial-list entry — the Bible's cert-strip
@@ -1545,7 +1576,10 @@ html, body { overflow-x: hidden; }
 
 @media (max-width: 760px) {
   .slate {
-    font-size: 0.58rem;
+    /* Was 0.58rem — 9.3px, small enough to be decoration rather than
+       information. Uppercase mono carries a big x-height, but not that
+       big. */
+    font-size: 0.7rem;
     letter-spacing: 0.08em;
     padding-bottom: 14px;
   }
@@ -1572,33 +1606,40 @@ html, body { overflow-x: hidden; }
    every line, which measurably slows form completion.
    ============================================================ */
 
+/* Ranged left, like everything on the homepage. Centred, the crew read
+   as a list of awards rather than people, and every line made the eye
+   hunt for a new starting point. */
 .rundown-row,
 .rundown-tight .rundown-row {
   grid-template-columns: 1fr;
-  justify-items: center;
-  text-align: center;
+  justify-items: start;
+  text-align: left;
   gap: 4px;
 }
 
 .rd-id { padding-top: 0; }
 .rd-meta { padding-top: 2px; margin-bottom: 8px; }
-.rd-body { display: grid; justify-items: center; }
+.rd-body { display: grid; justify-items: start; }
 .rd-body p,
-.rd-systems { margin-inline: auto; }
+.rd-systems { margin-inline: 0; }
 
 .testimonial { text-align: center; }
 .testimonial p { margin-inline: auto; }
 
-.about-lead { text-align: center; }
+/* About was the last centred page on the site. Its heading, its crew,
+   its client list and its closing call to action all ranged to a
+   different axis than the homepage, which is most of why the two never
+   read as one site. They all range left now. */
+.about-lead { text-align: left; }
 .about-lead .mission,
-.about-lead p { margin-inline: auto; }
+.about-lead p { margin-inline: 0; }
 
-.clients summary { justify-content: center; }
-.clients-grid { text-align: center; }
+.clients summary { justify-content: flex-start; }
+.clients-grid { text-align: left; }
 
-.cta-band { text-align: center; }
+.cta-band { text-align: left; }
 .cta-band h2,
-.cta-band p { margin-inline: auto; }
+.cta-band p { margin-inline: 0; }
 
 /* The contact column stays left-ranged: it is a block of reading copy
    sitting beside a form, and the form's fields start on the left edge.
@@ -1628,10 +1669,8 @@ html, body { overflow-x: hidden; }
 }
 
 
-/* Display-scale titles are width-limited, so they have to be re-centred
-   inside the centred column. */
-.section-head h2,
-.cta-band h2 { margin-inline: auto; }
+/* .section-head still centres its own column; the CTA band does not. */
+.section-head h2 { margin-inline: auto; }
 
 @media (max-width: 640px) {
   /* .cta-band h2 is deliberately not in here: it carries the same
@@ -2281,5 +2320,12 @@ video.hero-slide {
   .reel { width: 96vw; }
   .reel-close { top: -40px; }
   .reel-row { margin-top: 22px; gap: 10px; }
-  .reel-open { font-size: 0.74rem; padding: 11px 16px 11px 14px; margin-top: 0; }
+  /* 44px is the floor for anything a thumb has to hit. The padding
+     alone left these at 39. */
+  .reel-open {
+    font-size: 0.76rem;
+    padding: 11px 16px 11px 14px;
+    margin-top: 0;
+    min-height: 44px;
+  }
 }

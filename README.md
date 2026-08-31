@@ -129,8 +129,8 @@ Personal site on paper, company site on screen.
 | `--ink-soft` | `#a09e97` | Secondary text |
 | `--line` | `#2c2c2a` | Borders, dividers |
 | `--tally` | `#e0332b` | Brand red — the only accent |
-| `--brand-indent` | `32 / 18 / 0px` | Shared indent, header wordmark and footer mark |
-| `--header-h` | `108 / 92 / 88px` | Header height; drives menu offset and anchor scroll |
+| `--brand-indent` | `0px` | Shared indent, header wordmark and footer mark — flush with the content column |
+| `--header-h` | `108 / 92 / 108 / 94px` | Header height (desktop / tablet / phone / narrow phone); drives menu offset and anchor scroll |
 
 Type: Space Grotesk (headlines), Inter (body), IBM Plex Mono (labels and
 UI chrome). Photography is deep-contrast black and white, so the tally red
