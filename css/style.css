@@ -1408,7 +1408,8 @@ html, body { overflow-x: hidden; }
   right: 0;
   bottom: 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  text-align: center;
   gap: 16px;
   padding: 0 var(--gutter) 18px;
   font-family: var(--font-mono);
@@ -1421,11 +1422,14 @@ html, body { overflow-x: hidden; }
 }
 
 .slate span { white-space: nowrap; }
-.slate .ratio { color: var(--tally); }
 
 @media (max-width: 760px) {
-  .slate { font-size: 0.6rem; letter-spacing: 0.1em; padding-bottom: 14px; }
-  .slate .where { max-width: 60%; }
+  .slate {
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    padding-bottom: 14px;
+  }
+  .slate span { white-space: normal; }
 }
 
 /* Interior frames get the same treatment, quieter. */
