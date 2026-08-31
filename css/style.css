@@ -1084,25 +1084,46 @@ html, body { overflow-x: hidden; }
 
 /* ============================================================
    Hero sequence
-   The pitch line arrives as three beats over the stage photo,
-   in the order the work actually happens: shoot, cut, put it
-   live. Each line rises on its own beat, the set holds long
-   enough to read, then clears and runs again.
+   One "We", held, and four things it does. The subject is stated
+   once at display scale and every beat below inherits it, so the
+   word repeats itself in the reading without being reprinted —
+   and each beat is a verb rather than a sentence.
+
+   Dropping the repeated "We " also cut the longest beat from 25
+   characters to 18, which is what lets every one of them hold a
+   single line at far more widths than the old sentences did.
    ============================================================ */
 
 .hero h1.hero-seq {
-  font-size: clamp(2.05rem, 8.2vw, 4.6rem);
-  line-height: 1.04;
+  /* The beats sit smaller than the old sentences did. They are
+     three-word verb phrases now, not clauses, and the sketch reads
+     with the beats clearly subordinate to the word above them. */
+  font-size: clamp(1.6rem, 5.9vw, 3.5rem);
+  line-height: 1.05;
   max-width: none;
   color: #fff;
 }
 
+/* The constant. Set 2x the beats, the relationship in the sketch —
+   dominant enough to read as the subject the whole list hangs off,
+   not merely a larger first line. */
+.seq-we {
+  display: block;
+  font-size: 2em;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  margin-bottom: 0.06em;
+}
+
+/* Ranged in off the W, so the beats read as subordinate to it rather
+   than as a continuation of the same column. */
+.seq-lines {
+  display: block;
+  padding-left: 0.28em;
+}
+
 .seq-line {
   display: block;
-  /* Each beat wants to be one line — a wrapped clause breaks the
-     rhythm. But "And we produce live content." is 28 characters, and
-     holding it on one line below ~1140px would mean shrinking the type
-     to about 24px. Big type wins; the beat wraps instead. */
   white-space: normal;
   /* Every line holds its space at all times — only opacity and
      transform animate, so the hero never changes height and the
@@ -1129,7 +1150,8 @@ html, body { overflow-x: hidden; }
 /* Motion is the whole point here, so the reduced-motion fallback is
    the finished sentence rather than a permanently blank hero. */
 @media (prefers-reduced-motion: reduce) {
-  .seq-line {
+  .seq-line,
+  .seq-we {
     animation: none;
     opacity: 1;
     transform: none;
@@ -1458,7 +1480,7 @@ html, body { overflow-x: hidden; }
        to 1510px on a 1440px screen — wider than the viewport, which
        pushed the right-hand slate off the edge. Deriving height from
        viewport width keeps the width authoritative. */
-    height: clamp(calc(var(--header-h) + 672px), calc(100vw / 2.39), 86vh);
+    height: clamp(calc(var(--header-h) + 712px), calc(100vw / 2.39), 86vh);
     min-height: 0;
   }
 }
@@ -1921,18 +1943,23 @@ html, body { overflow-x: hidden; }
 }
 
 
-/* Wide enough to hold the longest beat on one line: above this the
-   sequence reads as three lines, below it the third beat wraps. */
-@media (min-width: 1140px) {
-  .seq-line { white-space: nowrap; }
+/* Short laptops. The block is a line of type taller than it used to be,
+   which on a 1440x800 screen pushed the slate just under the fold — the
+   frame's 86vh ceiling never bound, because the floor was always the
+   larger of the two. Rather than let the hero outgrow the screen, the
+   scale steps down where there is no height to spend. Values measured,
+   not guessed: this pair is the one that keeps the headline clear of
+   the header and the slate above the fold at every size tested. */
+@media (min-width: 900px) and (max-height: 880px) {
+  .hero { height: clamp(calc(var(--header-h) + 660px), calc(100vw / 2.39), 94vh); }
+  .hero h1.hero-seq { font-size: clamp(1.6rem, 5.2vw, 3.05rem); }
 }
 
-/* Between 900 and 1139 the third beat wraps to two lines, which makes the
-   copy block a line taller than the frame was sized to hold. The floor
-   rises for exactly that band. */
-@media (min-width: 900px) and (max-width: 1139px) {
-  .hero { height: clamp(calc(var(--header-h) + 748px), calc(100vw / 2.39), 92vh); }
-}
+/* "Put it everywhere." is 18 characters where the old longest beat was
+   25, so every beat now holds one line on its own down to about 340px
+   without being told to. The nowrap rule and the taller floor that used
+   to cover the 900-1139 band both went with the sentences that needed
+   them — measured across fourteen widths, nothing wraps. */
 
 
 
@@ -1945,7 +1972,8 @@ html, body { overflow-x: hidden; }
    with the type rather than sitting over the picture.
    ============================================================ */
 
-.hero h1 .seq-line {
+.hero h1 .seq-line,
+.hero h1 .seq-we {
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 0.62),
     0 3px 10px rgba(0, 0, 0, 0.55),
