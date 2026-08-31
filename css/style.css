@@ -17,6 +17,7 @@
   --paper-sunk: #0c0c0c;
   --ink: #fbfbf9;
   --ink-soft: #a09e97;
+  --ink-faint: #6c6a65;
   --line: #2c2c2a;
   --line-soft: #212120;
   --tally: #e0332b;
@@ -28,7 +29,10 @@
   --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
   --maxw: 1100px;
-  --gutter: 24px;
+  /* Side padding. Only bites once the viewport is narrower than
+     --maxw plus two gutters — below that it is all that stands
+     between the text and the edge of the screen. */
+  --gutter: 44px;
 
   /* Shared indent for the header wordmark and the footer disc. */
   --brand-indent: 32px;
@@ -338,37 +342,84 @@ p { margin: 0 0 1em; }
   white-space: nowrap;
 }
 
-/* ---------- Capabilities (editorial list) ----------
-   The Bible's chosen treatment on gekjr.pro: bold heading, paragraph,
-   hairline rule, no boxes and no numbers. Numbering was explicitly
-   rejected there for implying a sequence or ranking that isn't real —
-   these two services are equal weight, not steps. */
-.editorial-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* ---------- The rundown ----------
+   An ID column, a short meta column, and the content. A rundown is the
+   document a technical director actually reads on a show, so the page is
+   organised the way the work is rather than by decorative numbering.
+   No rules between rows — spacing separates them. */
+.rundown {
   display: grid;
+  gap: 62px;
 }
 
-.editorial-list { gap: 64px; }
+.rundown-row {
+  display: grid;
+  gap: 8px 26px;
+  align-items: start;
+}
 
-.editorial-list li { padding: 0; }
+@media (min-width: 760px) {
+  .rundown-row { grid-template-columns: 88px 156px 1fr; }
+}
 
-.editorial-list h3 {
-  font-size: 1.32rem;
+.rd-id {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--tally);
+  padding-top: 5px;
+}
+
+.rd-meta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  padding-top: 6px;
+}
+
+.rd-body h3 {
+  font-size: 1.3rem;
   margin-bottom: 10px;
 }
 
-.editorial-list p {
+.rd-body p {
   color: var(--ink-soft);
   font-size: 1rem;
-  max-width: 62ch;
+  max-width: 60ch;
   margin-bottom: 0;
 }
 
+.rd-systems {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 2;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint, #6c6a65);
+  margin-top: 16px !important;
+  max-width: 66ch;
+}
+
+.rd-body a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+
+/* The crew list runs the same grid, closer together — three short rows
+   rather than four long ones. */
+.rundown-tight { gap: 40px; }
+.rundown-tight .rd-body h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.rundown-tight .rd-body p { font-size: 0.95rem; }
+
+@media (min-width: 760px) {
+  .rundown-tight .rundown-row { grid-template-columns: 72px 124px 1fr; }
+}
+
 @media (max-width: 640px) {
-  .editorial-list { gap: 44px; }
-  .editorial-list h3 { font-size: 1.18rem; }
+  .rundown { gap: 46px; }
+  .rd-id, .rd-meta { padding-top: 0; }
+  .rd-body h3 { font-size: 1.18rem; }
 }
 
 /* ---------- Testimonials (red-rule pull-quotes) ----------
@@ -576,7 +627,7 @@ html, body { overflow-x: hidden; }
 /* ---------- Phone ---------- */
 @media (max-width: 760px) {
   :root {
-    --gutter: 20px;
+    --gutter: 28px;
     /* Flush on phones: the footer stacks, so any indent would
        misalign the brand row against the social row below it. */
     --brand-indent: 0px;
@@ -1080,43 +1131,6 @@ html, body { overflow-x: hidden; }
   color: var(--ink-soft);
   max-width: 46ch;
   margin-bottom: 0;
-}
-
-/* The crew: same editorial treatment as the capabilities list, with a
-   mono role label doing the work a boxed card would otherwise do. */
-.crew {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-}
-
-.crew { gap: 44px; }
-
-.crew li { padding: 0; }
-
-.crew-role {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--tally);
-  margin-bottom: 8px;
-}
-
-.crew h3 { font-size: 1.22rem; margin-bottom: 8px; }
-
-.crew p {
-  color: var(--ink-soft);
-  font-size: 0.97rem;
-  max-width: 54ch;
-  margin-bottom: 0;
-}
-
-.crew a {
-  color: var(--ink);
-  border-bottom: 1px solid var(--line);
 }
 
 /* ============================================================
