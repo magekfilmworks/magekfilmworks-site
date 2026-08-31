@@ -327,17 +327,29 @@ p { margin: 0 0 1em; }
 /* No alternating bands. One ground, and spacing does the separating —
    the same way the reference site holds together without dividers. */
 .section-alt { background: transparent; }
+/* Centred, so the "full capabilities" link sits under the title rather
+   than beside it — side by side, a width-limited centred heading and a
+   right-hand link read as two things that missed each other. */
 .section-head {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 16px;
-  margin-bottom: 42px;
-  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 46px;
 }
 
-.section-head h2 { font-size: clamp(1.5rem, 4vw, 2rem); margin: 0; }
+/* Section titles run at display scale — they are the only thing
+   competing with the hero for the page's voice. */
+.section-head h2 {
+  font-size: clamp(2.4rem, 6.4vw, 4.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  margin: 0;
+  max-width: 16ch;
+}
 
 .see-all {
   font-family: var(--font-mono);
@@ -501,7 +513,13 @@ p { margin: 0 0 1em; }
   gap: 40px;
 }
 
-.contact-lead h2 { font-size: clamp(1.6rem, 5vw, 2.3rem); max-width: 16ch; }
+.contact-lead h2 {
+  font-size: clamp(2.2rem, 5.6vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.03;
+  max-width: 15ch;
+}
 .contact-lead p { color: var(--ink-soft); max-width: 42ch; }
 
 .contact-direct {
@@ -1271,10 +1289,12 @@ html, body { overflow-x: hidden; }
 }
 
 .split-hero h1 {
-  font-size: clamp(1.9rem, 4.4vw, 3.1rem);
-  line-height: 1.08;
-  max-width: 18ch;
-  margin-bottom: 14px;
+  font-size: clamp(2.3rem, 5.2vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  max-width: 14ch;
+  margin-bottom: 18px;
 }
 
 .split-hero-sub {
@@ -1311,9 +1331,12 @@ html, body { overflow-x: hidden; }
 }
 
 .cta-band h2 {
-  font-size: clamp(1.6rem, 4vw, 2.3rem);
-  max-width: 18ch;
-  margin-bottom: 12px;
+  font-size: clamp(2.4rem, 6.4vw, 4.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  max-width: 16ch;
+  margin-bottom: 20px;
 }
 
 .cta-band p {
@@ -1337,10 +1360,12 @@ html, body { overflow-x: hidden; }
 .contact-page { padding-top: calc(var(--header-h) + 40px); }
 
 .contact-page .contact-lead h1 {
-  font-size: clamp(1.9rem, 4.4vw, 3.1rem);
-  line-height: 1.08;
-  max-width: 16ch;
-  margin-bottom: 14px;
+  font-size: clamp(2.2rem, 5.6vw, 3.8rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.03;
+  max-width: 15ch;
+  margin-bottom: 18px;
 }
 
 .header-cta[aria-current="page"] {
@@ -1503,4 +1528,15 @@ html, body { overflow-x: hidden; }
     gap: 10px;
   }
   .wizard-steps { justify-content: center; }
+}
+
+
+/* Display-scale titles are width-limited, so they have to be re-centred
+   inside the centred column. */
+.section-head h2,
+.cta-band h2 { margin-inline: auto; }
+
+@media (max-width: 640px) {
+  .section-head h2,
+  .cta-band h2 { max-width: 14ch; }
 }
