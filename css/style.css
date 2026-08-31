@@ -274,7 +274,7 @@ p { margin: 0 0 1em; }
 }
 
 .hero-sub {
-  font-size: 1.08rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
   color: #d6d4cc;
   max-width: 46ch;
 }
@@ -398,8 +398,9 @@ p { margin: 0 0 1em; }
 }
 
 .rd-body h3 {
-  font-size: 1.3rem;
-  margin-bottom: 10px;
+  font-size: clamp(1.45rem, 2.4vw, 1.8rem);
+  letter-spacing: -0.015em;
+  margin-bottom: 12px;
 }
 
 .rd-body p {
@@ -427,7 +428,7 @@ p { margin: 0 0 1em; }
 /* The crew list runs the same grid, closer together — three short rows
    rather than four long ones. */
 .rundown-tight { gap: 40px; }
-.rundown-tight .rd-body h3 { font-size: 1.15rem; margin-bottom: 6px; }
+.rundown-tight .rd-body h3 { font-size: clamp(1.25rem, 2vw, 1.5rem); margin-bottom: 8px; }
 .rundown-tight .rd-body p { font-size: 0.95rem; }
 
 @media (min-width: 760px) {
@@ -437,7 +438,7 @@ p { margin: 0 0 1em; }
 @media (max-width: 640px) {
   .rundown { gap: 46px; }
   .rd-id, .rd-meta { padding-top: 0; }
-  .rd-body h3 { font-size: 1.18rem; }
+  .rd-body h3 { font-size: 1.32rem; }
 }
 
 /* ---------- Testimonials (red-rule pull-quotes) ----------
@@ -520,7 +521,7 @@ p { margin: 0 0 1em; }
   line-height: 1.03;
   max-width: 15ch;
 }
-.contact-lead p { color: var(--ink-soft); max-width: 42ch; }
+.contact-lead p { color: var(--ink-soft); font-size: clamp(1.04rem, 1.4vw, 1.2rem); max-width: 42ch; }
 
 .contact-direct {
   display: flex;
@@ -1249,7 +1250,7 @@ html, body { overflow-x: hidden; }
    founding year and the mission read as a record rather than a sentence. */
 .mission {
   color: var(--ink);
-  font-size: 1.05rem;
+  font-size: clamp(1.12rem, 1.7vw, 1.35rem);
   max-width: 44ch;
   margin-bottom: 20px;
 }
@@ -1299,7 +1300,7 @@ html, body { overflow-x: hidden; }
 
 .split-hero-sub {
   color: var(--ink-soft);
-  font-size: 1.05rem;
+  font-size: clamp(1.08rem, 1.5vw, 1.28rem);
   max-width: 46ch;
   margin-bottom: 0;
 }
@@ -1341,8 +1342,9 @@ html, body { overflow-x: hidden; }
 
 .cta-band p {
   color: var(--ink-soft);
+  font-size: clamp(1.05rem, 1.5vw, 1.24rem);
   max-width: 44ch;
-  margin-bottom: 22px;
+  margin-bottom: 26px;
 }
 
 /* Current page marker, header and footer alike. */
