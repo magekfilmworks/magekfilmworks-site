@@ -27,10 +27,17 @@ tools/lint_chrome.py  header/footer drift and dead-link guard
 tools/inline.py       flatten to one file for preview
 ```
 
-The deploy script lives at `~/deploy-magek.sh`, not in this repo — one
-copy, the same place `~/deploy-gekjr.sh` sits. It writes to
-`~/Documents/GitHub/magekfilmworks-site`, where GitHub Desktop keeps its
-clones; `MAGEK_REPO` overrides that for a single run.
+The deploy script runs from `~/deploy-magek.sh`, the same place
+`~/deploy-gekjr.sh` sits. `tools/deploy-magek.sh` is the master copy: it
+ships in every zip, so a new version lands in this folder on the next
+deploy and installing it is one command —
+
+```
+cp tools/deploy-magek.sh ~/deploy-magek.sh && chmod +x ~/deploy-magek.sh
+```
+
+It writes to `~/Documents/GitHub/magekfilmworks-site`, where GitHub
+Desktop keeps its clones; `MAGEK_REPO` overrides that for a single run.
 
 Site files sit at the repo root because that is what every static host
 expects by default.
@@ -48,6 +55,12 @@ as gekjr.pro.
    folder Finder expanded beside it) out of Downloads
 3. GitHub Desktop → review the diff → commit → push to `main`
 4. Amplify builds automatically
+
+`~/deploy-magek.sh --ship` does steps 3 and 4 for you — it commits and
+pushes to the current branch. `--ship "your message"` sets the commit
+message. What you give up is the diff review before it reaches `main`:
+the lints still gate the push, but they check structure, not whether the
+copy reads right.
 
 Point it at a specific file with `~/deploy-magek.sh /path/to.zip`, keep the
 download with `~/deploy-magek.sh --keep`, and override the repo location for
