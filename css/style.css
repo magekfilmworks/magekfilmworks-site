@@ -1508,11 +1508,14 @@ html, body { overflow-x: hidden; }
 .cta-band h2,
 .cta-band p { margin-inline: auto; }
 
-.contact-lead { text-align: center; }
+/* The contact column stays left-ranged: it is a block of reading copy
+   sitting beside a form, and the form's fields start on the left edge.
+   Centring it broke the shared left margin between the two. */
+.contact-lead { text-align: left; }
 .contact-lead h1,
 .contact-lead h2,
-.contact-lead p { margin-inline: auto; }
-.contact-direct { align-items: center; }
+.contact-lead p { margin-inline: 0; }
+.contact-direct { align-items: flex-start; }
 
 .contact-page .contact-lead h1 { max-width: 20ch; }
 
