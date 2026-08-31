@@ -41,13 +41,18 @@ as gekjr.pro.
 
 1. Download the zip
 2. `~/deploy-magek.sh` — finds the newest `magek*.zip` in `~/Downloads`,
-   unpacks it over the working copy, and lints
+   unpacks it over the working copy, lints, then clears the zip (and any
+   folder Finder expanded beside it) out of Downloads
 3. GitHub Desktop → review the diff → commit → push to `main`
 4. Amplify builds automatically
 
-Point it at a specific file with `~/deploy-magek.sh /path/to.zip`, and
-override the repo location for one run with
-`MAGEK_REPO=~/elsewhere ~/deploy-magek.sh`.
+Point it at a specific file with `~/deploy-magek.sh /path/to.zip`, keep the
+download with `~/deploy-magek.sh --keep`, and override the repo location for
+one run with `MAGEK_REPO=~/elsewhere ~/deploy-magek.sh`.
+
+Cleanup moves files to the Trash rather than deleting them, only runs after
+the unpack and lint have both passed, and only touches files inside
+`~/Downloads` — a zip you pointed at from elsewhere is left alone.
 
 Three things it refuses to do: run over a **dirty working copy** (an
 unpack would bury changes you hadn't reviewed), continue past a **failing

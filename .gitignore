@@ -1,0 +1,16 @@
+# Local build artifacts — the site itself is the source, so there is
+# very little to ignore here.
+dist/
+*.zip
+magek-filmworks-page.html
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.pyc

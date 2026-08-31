@@ -44,6 +44,12 @@ if (toggle && nav) {
 const yearEl = document.querySelector(".year");
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+/* ---------- Clients & Collaborators ----------
+   Open on desktop where there's room, closed on phones where it would
+   push the rest of the page down. 900px matches the layout breakpoint. */
+const clients = document.querySelector("#clients-list");
+if (clients) clients.open = window.innerWidth > 900;
+
 /* ---------- Intake wizard ---------- */
 const form = document.querySelector("#intake-form");
 

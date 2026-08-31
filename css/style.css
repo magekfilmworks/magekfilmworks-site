@@ -1064,6 +1064,11 @@ html, body { overflow-x: hidden; }
    ============================================================ */
 
 @media (hover: hover) {
+  .footer-nav a:hover { color: var(--tally); }
+  .clients-grid a:hover { color: var(--ink); }
+  .clients-grid .is-pinned:hover { color: #ef4a42; }
+  .crew a:hover { border-bottom-color: var(--tally); }
+  .clients summary:hover .clients-cue { border-color: var(--ink); }
   .header-nav a:hover { color: var(--ink); }
   .header-cta:hover { background: var(--tally-dim); }
   .btn-primary:hover { background: #ef4a42; }
@@ -1072,4 +1077,314 @@ html, body { overflow-x: hidden; }
   .contact-direct a:hover { border-bottom-color: var(--tally); color: var(--tally); }
   .footer-social a:hover { color: var(--tally); }
   .contact-form .opt:hover span { border-color: var(--ink-soft); color: var(--ink); }
+}
+
+/* ============================================================
+   Who we are — statement, then the people
+   ============================================================ */
+
+.about-grid {
+  display: grid;
+  gap: 44px;
+}
+
+@media (min-width: 900px) {
+  .about-grid { grid-template-columns: 1fr 1.15fr; gap: 60px; }
+}
+
+.statement {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: 18px;
+  max-width: 20ch;
+}
+
+.about-lead p:last-child {
+  color: var(--ink-soft);
+  max-width: 46ch;
+  margin-bottom: 0;
+}
+
+/* The crew: same editorial treatment as the capabilities list, with a
+   mono role label doing the work a boxed card would otherwise do. */
+.crew {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.crew li {
+  padding: 26px 0;
+  border-top: 1px solid var(--line);
+}
+.crew li:first-child { border-top: none; padding-top: 0; }
+
+.crew-role {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--tally);
+  margin-bottom: 8px;
+}
+
+.crew h3 { font-size: 1.22rem; margin-bottom: 8px; }
+
+.crew p {
+  color: var(--ink-soft);
+  font-size: 0.97rem;
+  max-width: 54ch;
+  margin-bottom: 0;
+}
+
+.crew a {
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+}
+
+/* ============================================================
+   Clients & Collaborators
+   A disclosure rather than a permanent wall: the names matter to the
+   people checking, and take space from everyone else. Names, not
+   logos — displaying another company's mark implies a relationship
+   that a project credit doesn't.
+   ============================================================ */
+
+.clients summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.clients summary::-webkit-details-marker { display: none; }
+
+.clients summary h2 { margin: 0; }
+
+.clients-cue {
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--ink-soft);
+  border-bottom: 2px solid var(--ink-soft);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+  flex: none;
+}
+.clients[open] .clients-cue { transform: rotate(-135deg) translate(-3px, -3px); }
+
+.clients summary:focus-visible {
+  outline: 2px solid var(--tally);
+  outline-offset: 4px;
+}
+
+/* Ruled rows rather than a filled grid: an odd number of names would
+   otherwise leave a lit, empty cell at the end of the last row. */
+.clients-grid {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+  display: grid;
+  column-gap: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.clients-grid li {
+  border-bottom: 1px solid var(--line);
+  padding: 14px 2px;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  letter-spacing: 0.03em;
+  color: var(--ink-soft);
+}
+
+/* Pinned first, in tally red with a real link — the pattern gekjr.pro
+   uses for the collaborators it actually works alongside. */
+.clients-grid a { color: var(--ink-soft); }
+.clients-grid .is-pinned { color: var(--tally); }
+
+@media (min-width: 640px) {
+  .clients-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 900px) {
+  .clients-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Capability strip under an editorial-list entry — the Bible's cert-strip
+   idea: mono, dotted, scannable, no boxes. */
+.editorial-list .spec {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
+  max-width: 68ch;
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+
+/* Mission sits between the statement and the body copy — labelled, so the
+   founding year and the mission read as a record rather than a sentence. */
+.mission {
+  color: var(--ink);
+  font-size: 1.05rem;
+  max-width: 44ch;
+  margin-bottom: 20px;
+}
+
+.mission-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--tally);
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   Split-hero — interior page header
+   Photo beside eyebrow/title/subtitle, stacking below 900px.
+   The homepage keeps the full-bleed cinematic hero; interior
+   pages get this quieter editorial version.
+   ============================================================ */
+
+/* The header is fixed and only the homepage hero is meant to sit under
+   it. Interior pages clear it. */
+.split-hero {
+  padding: calc(var(--header-h) + 34px) 0 40px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.split-hero-grid {
+  display: grid;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .split-hero { padding: calc(var(--header-h) + 52px) 0 56px; }
+  .split-hero-grid { grid-template-columns: 1fr 1fr; gap: 56px; }
+}
+
+.split-hero h1 {
+  font-size: clamp(1.9rem, 4.4vw, 3.1rem);
+  line-height: 1.08;
+  max-width: 18ch;
+  margin-bottom: 14px;
+}
+
+.split-hero-sub {
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  max-width: 46ch;
+  margin-bottom: 0;
+}
+
+.split-hero-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--paper-sunk);
+}
+
+.split-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A hairline in tally red along the top edge, so the photo reads as
+   part of the system rather than a dropped-in rectangle. */
+.split-hero-media::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 34%;
+  height: 3px;
+  background: var(--tally);
+}
+
+@media (min-width: 900px) {
+  .split-hero-media { aspect-ratio: 5 / 4; }
+}
+
+/* ============================================================
+   Closing CTA band
+   ============================================================ */
+
+.cta-band {
+  background: var(--paper-raised);
+  text-align: left;
+}
+
+.cta-band h2 {
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  max-width: 18ch;
+  margin-bottom: 12px;
+}
+
+.cta-band p {
+  color: var(--ink-soft);
+  max-width: 44ch;
+  margin-bottom: 22px;
+}
+
+/* ============================================================
+   Footer nav — the second copy of the site map
+   ============================================================ */
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-nav a { white-space: nowrap; }
+
+/* Current page marker, header and footer alike. */
+.header-nav a[aria-current="page"] {
+  color: var(--ink);
+  position: relative;
+}
+.header-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 2px;
+  background: var(--tally);
+}
+
+@media (max-width: 1024px) {
+  .header-nav a[aria-current="page"]::after { display: none; }
+  .header-nav a[aria-current="page"] { color: var(--tally); }
+}
+
+@media (min-width: 640px) {
+  .footer-grid { flex-wrap: wrap; }
+}
+
+/* The contact page's lead column carries the page h1, so it takes the
+   heading scale the split-hero would otherwise have set. */
+.contact-page { padding-top: calc(var(--header-h) + 40px); }
+
+.contact-page .contact-lead h1 {
+  font-size: clamp(1.9rem, 4.4vw, 3.1rem);
+  line-height: 1.08;
+  max-width: 16ch;
+  margin-bottom: 14px;
+}
+
+.header-cta[aria-current="page"] {
+  background: var(--tally-dim);
 }
