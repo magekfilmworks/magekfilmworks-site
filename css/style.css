@@ -1393,7 +1393,7 @@ html, body { overflow-x: hidden; }
        to 1510px on a 1440px screen — wider than the viewport, which
        pushed the right-hand slate off the edge. Deriving height from
        viewport width keeps the width authoritative. */
-    height: clamp(calc(var(--header-h) + 524px), calc(100vw / 2.39), 88vh);
+    height: clamp(calc(var(--header-h) + 430px), calc(100vw / 2.39), 88vh);
     min-height: 0;
   }
   .hero .wrap { padding-top: calc(var(--header-h) + 26px); }
