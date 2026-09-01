@@ -151,11 +151,10 @@
         <div class="wizard-head">
           <ol class="wizard-steps" id="wizard-steps">
             <li data-step="1" class="is-current">Project</li>
-            <li data-step="2">Logistics</li>
-            <li data-step="3">Budget</li>
-            <li data-step="4">You</li>
+            <li data-step="2">Logistics &amp; budget</li>
+            <li data-step="3">You</li>
           </ol>
-          <p class="wizard-count"><span id="wizard-current">01</span> / 04</p>
+          <p class="wizard-count"><span id="wizard-current">01</span> / 03</p>
         </div>
 
         <!-- 01 ------------------------------------------------------ -->
@@ -213,64 +212,37 @@
 
         <!-- 02 ------------------------------------------------------ -->
         <fieldset class="step" data-step="2" hidden>
-          <legend class="step-legend">Where and when does it happen?</legend>
+          <legend class="step-legend">Where, when, and what it runs to.</legend>
 
           <div class="field">
             <label class="field-label" for="location">Location or venue</label>
-            <input type="text" id="location" name="location" placeholder="Washington, D.C. — or wherever it's shooting" />
+            <input type="text" id="location" name="location" placeholder="Washington, D.C. &mdash; or wherever it's shooting" />
           </div>
 
           <div class="field-row">
             <div class="field">
-              <label class="field-label" for="shoot_days">Shoot days</label>
-              <select id="shoot_days" name="shoot_days">
-                <option value="">Select one</option>
-                <option>Half day</option>
-                <option>1 day</option>
-                <option>2 days</option>
-                <option>3 to 5 days</option>
-                <option>More than 5</option>
-                <option>Not sure yet</option>
-              </select>
+              <label class="field-label" for="shoot_date">Target date</label>
+              <input type="date" id="shoot_date" name="shoot_date" />
             </div>
             <div class="field">
-              <label class="field-label" for="setting">Setting</label>
-              <select id="setting" name="setting">
-                <option value="">Select one</option>
-                <option>On location</option>
-                <option>Studio</option>
-                <option>Both</option>
-                <option>Not sure yet</option>
-              </select>
+              <span class="field-label">How firm is it?</span>
+              <div class="opt-grid opt-grid-3">
+                <label class="opt"><input type="radio" name="date_flex" value="Locked" /><span>Locked</span></label>
+                <label class="opt"><input type="radio" name="date_flex" value="Some flexibility" /><span>Some give</span></label>
+                <label class="opt"><input type="radio" name="date_flex" value="Flexible" /><span>Flexible</span></label>
+              </div>
             </div>
           </div>
 
           <div class="field">
             <span class="field-label">Streaming it live?</span>
             <div class="opt-grid opt-grid-3">
-              <label class="opt"><input type="radio" name="streaming" value="Yes" data-reveal="stream-detail" /><span>Yes</span></label>
+              <label class="opt"><input type="radio" name="streaming" value="Yes" /><span>Yes</span></label>
               <label class="opt"><input type="radio" name="streaming" value="No" /><span>No</span></label>
-              <label class="opt"><input type="radio" name="streaming" value="Not sure" data-reveal="stream-detail" /><span>Not sure</span></label>
-            </div>
-          </div>
-
-          <div class="field reveal" id="stream-detail" hidden>
-            <span class="field-label">Where to</span>
-            <div class="opt-grid opt-grid-3">
-              <label class="opt"><input type="checkbox" name="platforms" value="YouTube" /><span>YouTube</span></label>
-              <label class="opt"><input type="checkbox" name="platforms" value="Facebook" /><span>Facebook</span></label>
-              <label class="opt"><input type="checkbox" name="platforms" value="LinkedIn" /><span>LinkedIn</span></label>
-              <label class="opt"><input type="checkbox" name="platforms" value="Vimeo" /><span>Vimeo</span></label>
-              <label class="opt"><input type="checkbox" name="platforms" value="Private embed" /><span>Private embed</span></label>
-              <label class="opt"><input type="checkbox" name="platforms" value="Zoom or Teams" /><span>Zoom / Teams</span></label>
+              <label class="opt"><input type="radio" name="streaming" value="Not sure" /><span>Not sure</span></label>
             </div>
             <p class="field-hint">Every show we run has a redundant backup path underneath it, whichever platform you land on.</p>
           </div>
-        </fieldset>
-
-        <!-- 03 ------------------------------------------------------ -->
-        <fieldset class="step" data-step="3" hidden>
-          <legend class="step-legend">Budget and dates.</legend>
 
           <div class="field">
             <span class="field-label">Budget range</span>
@@ -284,30 +256,10 @@
             </div>
             <p class="field-hint">A range is enough. It tells us what's buildable before we waste your time on a scope you'd never approve.</p>
           </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label class="field-label" for="shoot_date">Target shoot date</label>
-              <input type="date" id="shoot_date" name="shoot_date" />
-            </div>
-            <div class="field">
-              <label class="field-label" for="delivery_date">Delivery deadline</label>
-              <input type="date" id="delivery_date" name="delivery_date" />
-            </div>
-          </div>
-
-          <div class="field">
-            <span class="field-label">How firm are those dates?</span>
-            <div class="opt-grid opt-grid-3">
-              <label class="opt"><input type="radio" name="date_flex" value="Locked" /><span>Locked</span></label>
-              <label class="opt"><input type="radio" name="date_flex" value="Some flexibility" /><span>Some give</span></label>
-              <label class="opt"><input type="radio" name="date_flex" value="Flexible" /><span>Flexible</span></label>
-            </div>
-          </div>
         </fieldset>
 
-        <!-- 04 ------------------------------------------------------ -->
-        <fieldset class="step" data-step="4" hidden>
+        <!-- 03 ------------------------------------------------------ -->
+        <fieldset class="step" data-step="3" hidden>
           <legend class="step-legend">Who are we talking to?</legend>
 
           <div class="field-row">
@@ -319,43 +271,18 @@
             <div class="field">
               <label class="field-label" for="email">Email <em>required</em></label>
               <input type="email" id="email" name="email" autocomplete="email" required />
-              <p class="field-error" data-for="email">Check that address — we can't reach you otherwise.</p>
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label class="field-label" for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" />
-            </div>
-            <div class="field">
-              <label class="field-label" for="company">Organization</label>
-              <input type="text" id="company" name="company" autocomplete="organization" />
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div class="field">
-              <label class="field-label" for="role">Your role</label>
-              <input type="text" id="role" name="role" />
-            </div>
-            <div class="field">
-              <label class="field-label" for="referral">How'd you find us</label>
-              <select id="referral" name="referral">
-                <option value="">Select one</option>
-                <option>Referral from a client</option>
-                <option>We've worked together before</option>
-                <option>Google or search</option>
-                <option>Social media</option>
-                <option>Saw us at an event</option>
-                <option>Something else</option>
-              </select>
+              <p class="field-error" data-for="email">Check that address &mdash; we can't reach you otherwise.</p>
             </div>
           </div>
 
           <div class="field">
+            <label class="field-label" for="company">Organization</label>
+            <input type="text" id="company" name="company" autocomplete="organization" />
+          </div>
+
+          <div class="field">
             <label class="field-label" for="extra">Anything else we should know</label>
-            <textarea id="extra" name="extra" placeholder="Access constraints, a deck to share, a reference you like — whatever helps."></textarea>
+            <textarea id="extra" name="extra" placeholder="Access constraints, a deck to share, a reference you like &mdash; whatever helps."></textarea>
           </div>
         </fieldset>
 

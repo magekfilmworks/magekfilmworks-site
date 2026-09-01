@@ -1516,7 +1516,7 @@ html, body { overflow-x: hidden; }
    ============================================================ */
 
 @media (hover: hover) {
-  .clients-grid a:hover { color: var(--ink); }
+  .clients-grid a:hover { color: var(--tally); }
   .clients-grid .is-pinned:hover { color: #ef5c3d; }
   .crew a:hover { border-bottom-color: var(--tally); }
   .clients summary:hover .clients-cue { border-color: var(--ink); }
@@ -1600,47 +1600,69 @@ html, body { overflow-x: hidden; }
 
 /* Ruled rows rather than a filled grid: an odd number of names would
    otherwise leave a lit, empty cell at the end of the last row. */
+/* A roster, not a run-on. gekjr.pro sets the same names inline with
+   middots — right there, where it is one line of a personal page. Here
+   the list is the credential, so it gets its own shape: one name per
+   row, hairline-ruled, flowing down columns like a call sheet.
+
+   CSS columns rather than a grid: the list grows as work comes in, and
+   columns reflow a changing count without anyone editing a template. */
 .clients-grid {
   list-style: none;
-  margin: 28px 0 0;
+  margin: 30px 0 0;
   padding: 0;
-  display: grid;
-  column-gap: 40px;
-  row-gap: 14px;
+  /* Mobile first. The base used to be 4, so phones fell straight
+     through to it and got four columns of squeezed names. */
+  columns: 1;
+  column-gap: 44px;
 }
 
 .clients-grid li {
-  padding: 0;
+  /* Without this a name can be split across the column break. */
+  break-inside: avoid;
+  border-top: 1px solid var(--line);
   font-family: var(--font-mono);
-  font-size: 0.84rem;
-  letter-spacing: 0.03em;
+  font-size: 0.92rem;
+  line-height: 1.4;
   color: var(--ink-soft);
+  /* 11px, not 9: at 9 the row came out 40px and every linked name was
+     a 39px tap target, under the 44px floor. */
+  padding: 11px 0;
 }
 
-/* Pinned first, in tally red with a real link — the pattern gekjr.pro
-   uses for the collaborators it actually works alongside. */
-/* Real outbound links to clients' sites, so they get a thumb-sized
-   target rather than the 18px their line-height gave them. */
+/* A linked name hands its padding to the anchor, so the whole row is
+   the tap target rather than just the glyphs. */
+.clients-grid li:has(a) { padding: 0; }
+
+/* A link means a collaborator. Only the two firms MageK actually works
+   alongside carry one, so red and clickable now say the same thing and
+   the list needs no extra class to tell them apart. Everyone else is a
+   client: named, credited, not linked. */
 .clients-grid a {
-  color: var(--ink-soft);
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-}
-.clients-grid .is-pinned { color: var(--tally-ink); }
-
-@media (min-width: 640px) {
-  .clients-grid { grid-template-columns: repeat(2, 1fr); }
+  display: block;
+  /* 12, where a plain row uses 11: the row carries a 1px rule that the
+     anchor sits inside, so matching the padding left the link 43px —
+     one pixel under the floor. */
+  padding: 12px 0;
+  color: var(--tally-ink);
 }
 
-@media (min-width: 900px) {
-  /* Five short names in three full-width columns left ~250px of empty
-     space beside each one. Sized to the names instead of the page. */
-  .clients-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    max-width: 640px;
-  }
-}
+/* The heading is the key. "Collaborators" carries the same colour the
+   collaborator names do, so a visitor is told what the accent means
+   instead of having to guess — which is work no colour can do alone.
+
+   Same token deliberately, not the brighter --tally. At 24px the
+   heading could carry the full brand red (3.11:1 clears the 3:1 large
+   text needs), but then the key and the thing it keys would be two
+   different reds, and the connection is the entire point. */
+.clients summary h2 .is-collab { color: var(--tally-ink); }
+
+
+
+
+@media (min-width: 560px)  { .clients-grid { columns: 2; } }
+@media (min-width: 900px)  { .clients-grid { columns: 3; } }
+@media (min-width: 1180px) { .clients-grid { columns: 4; } }
 
 /* Capability strip under an editorial-list entry — the Bible's cert-strip
    idea: mono, dotted, scannable, no boxes. */
