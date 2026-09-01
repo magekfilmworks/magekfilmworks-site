@@ -10,7 +10,7 @@
    to opening a prefilled email so the page still works.
    ------------------------------------------------------------ */
 const FORM_ENDPOINT = "";
-const CONTACT_EMAIL = "hello@magekfilmworks.com";
+const CONTACT_EMAIL = "info@magekfilmworks.productions";
 
 /* ---------- Hero slider ----------
    Hard cuts between frames, with a segmented bar that fills across each
@@ -179,7 +179,11 @@ if (reelDialog && reelFrame) {
     video.className = "reel-video";
     video.controls = true;
     video.playsInline = true;
-    video.autoplay = true;
+    // No autoplay: the clip opens on its poster and waits to be started.
+    // preload="metadata" fetches headers only, so the duration and the
+    // scrubber are right without pulling 9.5MB down for a viewer who
+    // opened the box and changed their mind.
+    video.preload = "metadata";
     if (poster) video.poster = poster;
     const source = document.createElement("source");
     source.src = src;
@@ -234,6 +238,34 @@ if (reelDialog && reelFrame) {
 
   // Covers Escape too — the dialog fires close however it was dismissed.
   reelDialog.addEventListener("close", teardown);
+}
+
+/* ---------- Contact map ----------
+   Held back until it is nearly in view. The iframe ships with data-src
+   rather than src, so nothing reaches Google until someone scrolls to
+   the bottom of the page — loading="lazy" was measured and does not
+   defer a cross-origin frame reliably in Chromium, which fetched it on
+   load from 2818px below the fold. rootMargin starts the fetch a
+   screen early so it has arrived by the time it is looked at.
+   ------------------------------------------------------------------ */
+const mapFrame = document.querySelector(".contact-map iframe[data-src]");
+if (mapFrame) {
+  const load = () => {
+    if (mapFrame.src) return;
+    mapFrame.src = mapFrame.dataset.src;
+  };
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        load();
+        io.disconnect();
+      });
+    }, { rootMargin: "600px 0px" });
+    io.observe(mapFrame);
+  } else {
+    load(); // no observer, no deferral — better a map than a blank box
+  }
 }
 
 /* ---------- Mobile nav ---------- */

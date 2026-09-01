@@ -48,6 +48,9 @@
      every section's copy and the footer mark now share one left edge
      instead of the mark sitting slightly proud of everything below it. */
   --brand-indent: 0px;
+  /* The lockup's own height. This file is 95.3% ink, so the box and the
+     visible wordmark are near enough the same thing. */
+  --logo-h: 84px;
 
   /* Header height — also drives the mobile menu offset and the
      scroll offset for every in-page anchor. */
@@ -158,7 +161,7 @@ p { margin: 0 0 1em; }
   left: 0;
   right: 0;
   z-index: 50;
-  background: var(--paper);
+  background: #000;
 }
 
 .site-header .wrap {
@@ -175,9 +178,18 @@ p { margin: 0 0 1em; }
    Note the visible gap runs ~3px wider than this value: the lockup PNG
    carries about 1% of transparent margin on its left edge. That is in
    the file, not the CSS, so it is left alone. */
-.brand { margin-left: var(--brand-indent); }
+.brand {
+  /* No optical offset any more: this lockup is transparent and carries
+     only 1.06% dead space on its left edge, so the image box and the
+     visible wordmark start in the same place. The compensation here was
+     for the black-plated file, which sat 6.16% in. */
+  margin-left: var(--brand-indent);
+}
 
-.brand img { height: 84px; width: auto; }
+.brand img {
+  height: var(--logo-h);
+  width: auto;
+}
 
 .header-nav {
   display: flex;
@@ -626,6 +638,12 @@ p { margin: 0 0 1em; }
 /* ---------- Footer ---------- */
 .site-footer {
   padding: 64px 0 48px;
+  /* Still lifted off the page ground (#131313) so the mark's black disc
+     reads as a shape rather than a hole, but darker than the #33332f it
+     was: that had been pushed to the absolute ceiling, where the footer
+     text sat at 4.73:1 with no margin left. This trades some of the
+     disc's separation back for a quieter band and easier text. */
+  background: #222220;
 }
 
 /* The disc closes the page where the wordmark opens it. */
@@ -639,7 +657,7 @@ p { margin: 0 0 1em; }
 .footer-brand p { margin: 0; }
 
 .footer-mark {
-  height: 60px;
+  height: 72px;
   width: auto;
   flex: none;
 }
@@ -681,8 +699,8 @@ html, body { overflow-x: hidden; }
 @media (max-width: 1024px) {
   :root {
     --header-h: 92px;
+    --logo-h: 64px;
   }
-  .brand img { height: 64px; }
   .section { padding: 72px 0; }
 
   /* Narrower crop pulls the bright sky behind the eyebrow — lift the scrim. */
@@ -712,11 +730,13 @@ html, body { overflow-x: hidden; }
     padding-right: max(var(--gutter), env(safe-area-inset-right));
   }
 
-  /* The limit on phones is width, not height: the lockup is 3.38:1, so
+  /* The limit on phones is width, not height: the lockup is 3.42:1, so
      every pixel of height costs 3.4 of width, and the hamburger is
-     fixed at the other end of the bar. 76px is the largest that still
-     clears the toggle at 375. Narrow phones step down below. */
-  .brand img { height: 76px; }
+     fixed at the other end of the bar. Narrow phones step down below.
+     Wrapped in :root because a custom property has to live inside a
+     rule — bare in the media block it is dropped silently, and phones
+     would quietly inherit the desktop size. */
+  :root { --logo-h: 76px; }
 
   .header-nav {
     top: var(--header-h);
@@ -791,7 +811,7 @@ html, body { overflow-x: hidden; }
   .site-footer { padding: 24px 0 32px; }
   .footer-grid { gap: 18px; }
   .footer-brand { gap: 14px; }
-  .footer-mark { height: 48px; }
+  .footer-mark { height: 58px; }
   .footer-social { flex-wrap: wrap; gap: 14px; }
   /* Was 27px tall — under the thumb floor, and these are the only
      outbound links on the page. */
@@ -817,8 +837,7 @@ html, body { overflow-x: hidden; }
    screen to be worth the extra query. This block sits after the 760px
    one on purpose: same specificity, so source order decides. */
 @media (max-width: 370px) {
-  :root { --header-h: 94px; }
-  .brand img { height: 62px; }
+  :root { --header-h: 94px; --logo-h: 62px; }
 }
 
 @supports (height: 100dvh) {
@@ -861,38 +880,29 @@ html, body { overflow-x: hidden; }
   flex-wrap: wrap;
 }
 
+/* Where you are is carried by the type itself and a rule under the
+   current step — no bullet beside every label. Four dots to say four
+   steps, next to a counter already reading "01 / 04", was the same
+   fact stated three ways. */
 .wizard-steps li {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-soft);
-  opacity: 0.55;
-  transition: opacity 0.2s ease, color 0.2s ease;
+  color: var(--ink-faint);
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-/* Square marks, same vocabulary as the section RECs. */
-.wizard-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--line);
-  flex: none;
-  transition: background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.wizard-steps li.is-done { opacity: 0.8; }
-.wizard-steps li.is-done .wizard-dot { background: var(--ink-soft); }
+/* Behind you: legible, but no longer asking for attention. */
+.wizard-steps li.is-done { color: var(--ink-soft); }
 
 .wizard-steps li.is-current {
-  opacity: 1;
   color: var(--ink);
-}
-.wizard-steps li.is-current .wizard-dot {
-  background: var(--tally);
-  box-shadow: 0 0 0 3px var(--tally-dim);
+  border-bottom-color: var(--tally);
 }
 
 .wizard-count {
@@ -1069,6 +1079,33 @@ html, body { overflow-x: hidden; }
 }
 
 .wizard-actions .btn { cursor: pointer; }
+
+/* The primary action in a four-step form carries more weight than a
+   link-sized button. Wider, and pointing the way it moves. */
+#wizard-next,
+#wizard-send { padding: 15px 30px; }
+
+/* Chevrons drawn with borders rather than a glyph: the mono face has no
+   arrow worth using, and this needs no icon file. Only on the two
+   navigation buttons — Send inquiry is a destination, not a direction. */
+#wizard-next::after,
+#wizard-back::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  flex: none;
+  transition: transform 0.15s ease;
+}
+
+#wizard-next::after { transform: rotate(45deg) translate(-1px, 1px); }
+#wizard-back::before { transform: rotate(-135deg) translate(-1px, 1px); }
+
+@media (hover: hover) {
+  #wizard-next:hover::after { transform: rotate(45deg) translate(1px, -1px); }
+  #wizard-back:hover::before { transform: rotate(-135deg) translate(1px, -1px); }
+}
 
 .form-status {
   font-family: var(--font-mono);
@@ -1509,9 +1546,14 @@ html, body { overflow-x: hidden; }
 /* ============================================================
    Cinematic frame
    Photographs are treated as footage, not illustrations: scope
-   ratio, grain, a vignette, and a slate line reading the frame's
-   real location. Nothing invented — the slate says where the
-   picture was actually taken.
+   ratio, grain and a vignette.
+
+   A slate line used to sit at the foot of the hero reading
+   "MageK Filmworks · Washington, D.C. · Since 1998". It was
+   removed: the panel directly beneath it opens with "Washington,
+   D.C. Metro Area and beyond, since 1998" — the two were touching,
+   with no gap at all — and the company name is the logo in the
+   header above. Three facts, all repeated within one screen.
    ============================================================ */
 
 /* Grain sits over the picture, under the type. */
@@ -1557,42 +1599,6 @@ html, body { overflow-x: hidden; }
   }
 }
 
-/* The slate: mono, small, at the foot of the frame. Left is where the
-   photograph was taken; right is the ratio it is presented in. */
-.slate {
-  position: absolute;
-  z-index: 2;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  gap: 16px;
-  padding: 0 var(--gutter) 18px;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(251, 251, 249, 0.5);
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-}
-
-.slate span { white-space: nowrap; }
-
-@media (max-width: 760px) {
-  .slate {
-    /* Was 0.58rem — 9.3px, small enough to be decoration rather than
-       information. Uppercase mono carries a big x-height, but not that
-       big. */
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    padding-bottom: 14px;
-  }
-  .slate span { white-space: normal; }
-}
 
 /* Interior frames get the same treatment, quieter. */
 .split-hero-media { position: relative; }
@@ -1649,6 +1655,73 @@ html, body { overflow-x: hidden; }
 .cta-band h2,
 .cta-band p { margin-inline: 0; }
 
+/* The lead column and the form are two columns of one row, so their
+   first lines should start together.
+
+   They did not. .eyebrow is inline-flex, which puts it inside a line
+   box and hands it half-leading above — 5px of it — so the left column
+   began below the step strip it sits beside. Block-level flex has no
+   line box, and fit-content keeps it sized to its text rather than
+   stretching the column. Sized to match the strip's 24px row so the
+   two align as bands, not just as top edges. */
+#contact .contact-lead .eyebrow,
+.contact-page .contact-lead .eyebrow {
+  display: flex;
+  width: fit-content;
+  min-height: 24px;
+  /* Was 11.5px, the same size as a field caption. This is the label on
+     the whole section. */
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+}
+
+/* ------------------------------------------------------------------
+   Contact map
+
+   The frame carries data-src, not src, and js/main.js fills it in when
+   the map is about to come into view. loading="lazy" alone was measured
+   and does not work here: Chromium fetched the map on page load anyway,
+   2818px below the fold. Not the click-to-load treatment the reel gets
+   — a map that needs a click to become a map is a worse map — but a
+   visitor who never scrolls this far never hands Google a request.
+
+   The query is coordinates with a label — 38.9072,-77.0369
+   (Washington, D.C.) — not a place name. A place-name query centres
+   the map on the region and may only outline it; coordinates always
+   drop a marker, which is the part that was asked for.
+
+   Greyscaled to sit with the photography, which is all deep-contrast
+   black and white. A full-colour Google map in the middle of this
+   palette reads as something pasted in from another site.
+   ------------------------------------------------------------------ */
+.contact-map {
+  margin-top: 28px;
+  aspect-ratio: 16 / 10;
+  /* Fills the column rather than a fixed 460px. The hardcoded width
+     happened to land 3px short of the column at 1440 and 40px wide of
+     the paragraph measure at 1180 — a ragged right edge that changed
+     with the viewport. Matching the column means it lines up with the
+     heading above it, which is the element that also spans the column;
+     the paragraphs sit inside that on their own reading measure, as
+     prose should. */
+  width: 100%;
+  border: 1px solid var(--line);
+  background: var(--paper-sunk);
+  overflow: hidden;
+}
+
+.contact-map iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  filter: grayscale(1) contrast(1.05);
+}
+
+@media (max-width: 899px) {
+  .contact-map { aspect-ratio: 16 / 9; margin-bottom: 4px; }
+}
+
 /* The contact column stays left-ranged: it is a block of reading copy
    sitting beside a form, and the form's fields start on the left edge.
    Centring it broke the shared left margin between the two. */
@@ -1663,7 +1736,9 @@ html, body { overflow-x: hidden; }
 /* The intake form itself keeps its reading order. */
 .contact-form { text-align: left; }
 .wizard-head { justify-content: center; }
-.wizard-actions { justify-content: center; }
+/* The form is a left-ranged column; its buttons belong on the same
+   edge as its fields rather than floating in the middle of it. */
+.wizard-actions { justify-content: flex-start; }
 .intake-done { text-align: center; }
 
 /* On a phone the step strip and the counter were competing for one line. */
@@ -2131,12 +2206,12 @@ html, body { overflow-x: hidden; }
 
 
 /* Short laptops. The block is a line of type taller than it used to be,
-   which on a 1440x800 screen pushed the slate just under the fold — the
-   frame's 86vh ceiling never bound, because the floor was always the
-   larger of the two. Rather than let the hero outgrow the screen, the
+   which on a 1440x800 screen pushed the foot of the hero under the
+   fold — the frame's 86vh ceiling never bound, because the floor was
+   always the larger of the two. Rather than let the hero outgrow the
    scale steps down where there is no height to spend. Values measured,
    not guessed: this pair is the one that keeps the headline clear of
-   the header and the slate above the fold at every size tested. */
+   the header and the frame's foot above the fold at every size. */
 @media (min-width: 900px) and (max-height: 880px) {
   .hero { height: clamp(calc(var(--header-h) + 660px), calc(100vw / 2.39), 94vh); }
   .hero h1.hero-seq { font-size: clamp(1.6rem, 5.2vw, 3.05rem); }

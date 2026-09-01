@@ -12,9 +12,11 @@
 #   ~/deploy-magek.sh --ship               # commit and push when it's done
 #   ~/deploy-magek.sh --ship "note"        # ...with your own commit message
 #
-# By default it stops at the diff — no commit, no push. Review in GitHub
-# Desktop, then push, and Amplify builds from there. --ship skips that
-# trip and pushes straight to the branch you are on.
+# It stops at the diff — no commit, no push. Review in GitHub Desktop,
+# then push, and Amplify builds from there. --ship skips that trip.
+#
+# It never requires a commit first. Uncommitted changes are backed up
+# into .git/magek-deploy-backups/ and the unpack carries on.
 #
 set -euo pipefail
 
@@ -32,9 +34,6 @@ CLEANUP="${CLEANUP:-1}"
 SHIP=0
 MESSAGE=""
 
-# Written inside .git (so it is never committed) after every successful
-# run: a fingerprint of the working copy this script left behind.
-STATE="$REPO/.git/magek-deploy-state"
 
 # ---------------------------------------------------------------- helpers
 say()  { printf '%s\n' "$*"; }
@@ -51,25 +50,6 @@ trash_it() {
   [[ -e "$dest" ]] && dest="$HOME/.Trash/${base}-$(date +%H%M%S)"
   mv "$target" "$dest" 2>/dev/null || return 0
   say "  trashed $base"
-}
-
-# A hash of every file git currently reports as changed. Lets the next
-# run tell "these are the changes I made last time" from "these are
-# changes George made by hand" — the first is safe to unpack over, the
-# second is not.
-fingerprint() {
-  ( cd "$REPO" || return
-    git status --porcelain | sed 's/^...//' | sort | while IFS= read -r f; do
-      f="${f%/}"
-      if [[ -d "$f" ]]; then
-        find "$f" -type f -print0 2>/dev/null | sort -z | xargs -0 shasum -a 1 2>/dev/null
-      elif [[ -f "$f" ]]; then
-        shasum -a 1 "$f" 2>/dev/null
-      else
-        printf 'gone %s\n' "$f"
-      fi
-    done
-  ) | shasum -a 1 | cut -d' ' -f1
 }
 
 # ---------------------------------------------------------------- repo
@@ -99,19 +79,31 @@ if [[ -n "$MESSAGE" && -f "$MESSAGE" ]]; then ARG="$MESSAGE"; MESSAGE=""; fi
 BRANCH="$(git -C "$REPO" rev-parse --abbrev-ref HEAD)"
 [[ "$BRANCH" == "main" ]] || say "Note: on branch '$BRANCH', not main."
 
-# An unpack over uncommitted work buries changes you never reviewed —
-# unless those changes are the ones this script itself left behind on its
-# last run, which is the ordinary case when a newer zip lands before
-# you have committed the previous one.
+# Uncommitted changes are not a reason to stop. This runs against a
+# working copy whose contents come from these zips, so "dirty" is the
+# normal state between a deploy and a commit — blocking on it just made
+# a commit mandatory before every single run.
+#
+# The thing the block was protecting against is still handled, without
+# the friction: anything already modified is copied into .git first, so
+# an unpack can never be the reason a change is gone. Backups live in
+# .git/, which is never committed and never shipped.
 if [[ -n "$(git -C "$REPO" status --porcelain)" ]]; then
-  PRIOR="$(cat "$STATE" 2>/dev/null || echo none)"
-  if [[ "$PRIOR" == "$(fingerprint)" ]]; then
-    say "Working copy still holds the last run's changes — stacking this one on top."
-  else
-    say "Working copy has uncommitted changes this script did not make:"
-    git -C "$REPO" status --short
-    die "
-Commit or discard them first, then run this again."
+  STAMP="$(date +%Y%m%d-%H%M%S)"
+  BACKUP="$REPO/.git/magek-deploy-backups/$STAMP"
+  COUNT=0
+  while IFS= read -r rel; do
+    [[ -n "$rel" ]] || continue
+    src="$REPO/$rel"
+    [[ -e "$src" ]] || continue
+    mkdir -p "$BACKUP/$(dirname "$rel")"
+    cp -R "$src" "$BACKUP/$rel" 2>/dev/null && COUNT=$((COUNT + 1))
+  done < <(git -C "$REPO" status --porcelain | sed 's/^...//' | sed 's/"//g')
+
+  if [[ "$COUNT" -gt 0 ]]; then
+    say "Working copy has uncommitted changes — backed up $COUNT before unpacking:"
+    say "  .git/magek-deploy-backups/$STAMP"
+    say ""
   fi
 fi
 
@@ -214,25 +206,6 @@ if [[ "$CLEANUP" == "1" && "$ZIP" == "$DOWNLOADS"/* ]]; then
   done
 fi
 
-# A hash of every file git currently reports as changed. Lets the next
-# run tell "these are the changes I made last time" from "these are
-# changes George made by hand" — the first is safe to unpack over, the
-# second is not.
-fingerprint() {
-  ( cd "$REPO" || return
-    git status --porcelain | sed 's/^...//' | sort | while IFS= read -r f; do
-      f="${f%/}"
-      if [[ -d "$f" ]]; then
-        find "$f" -type f -print0 2>/dev/null | sort -z | xargs -0 shasum -a 1 2>/dev/null
-      elif [[ -f "$f" ]]; then
-        shasum -a 1 "$f" 2>/dev/null
-      else
-        printf 'gone %s\n' "$f"
-      fi
-    done
-  ) | shasum -a 1 | cut -d' ' -f1
-}
-
 # ---------------------------------------------------------------- report
 step "Changed files"
 if [[ -z "$(git -C "$REPO" status --porcelain)" ]]; then
@@ -265,10 +238,6 @@ if [[ -n "$BIG" ]]; then
   say "  deletes them. Worth checking the site actually uses them."
 fi
 
-# Remember the state this run produced, so the next run can tell its own
-# changes from yours.
-fingerprint > "$STATE"
-
 if [[ "$SHIP" == "1" ]]; then
   [[ -n "$MESSAGE" ]] || MESSAGE="Site update — $(date '+%b %e, %l:%M %p')"
   step "Shipping"
@@ -277,7 +246,6 @@ if [[ "$SHIP" == "1" ]]; then
   say "  committed: $MESSAGE"
   git -C "$REPO" push -q origin "$BRANCH"
   say "  pushed to $BRANCH"
-  rm -f "$STATE"
   say ""
   say "  Amplify is building now."
 else

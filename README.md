@@ -70,10 +70,18 @@ Cleanup moves files to the Trash rather than deleting them, only runs after
 the unpack and lint have both passed, and only touches files inside
 `~/Downloads` — a zip you pointed at from elsewhere is left alone.
 
-Three things it refuses to do: run over a **dirty working copy** (an
-unpack would bury changes you hadn't reviewed), continue past a **failing
-lint** (Amplify would reject that build anyway), and **commit or push**.
-Reviewing the diff before it reaches `main` stays manual on purpose.
+It **never requires a commit first.** This working copy's contents come
+from these zips, so uncommitted changes are the normal state between a
+deploy and a commit — refusing to run on a dirty copy just made a commit
+mandatory before every single run. Anything already modified is copied
+into `.git/magek-deploy-backups/<timestamp>/` before the unpack, so a
+deploy can't be the reason a change is gone. Those backups live inside
+`.git`, so they are never committed and never shipped.
+
+Two things it still refuses to do: continue past a **failing lint**
+(Amplify would reject that build anyway), and **commit or push** unless
+you pass `--ship`. Reviewing the diff before it reaches `main` stays
+manual by default.
 
 **From a phone**
 
