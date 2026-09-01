@@ -1909,6 +1909,19 @@ html, body { overflow-x: hidden; }
   }
 }
 
+/* Stacked, the last testimonial panel (#f2f1ec) runs straight into the
+   contact section (#f2f1ec) with no seam — the two read as one 2100px
+   block of off-white. The checkerboard does that work on desktop, where
+   the panels alternate side to side; in a single column there is
+   nothing left to alternate against.
+
+   A border rather than a spacer element: it paints outside the padding
+   box, spans the full width without fighting the gutter, and needs no
+   markup. */
+@media (max-width: 899px) {
+  #contact { border-top: 64px solid #000; }
+}
+
 /* Stacked, a vertical split would cut across both blocks instead of
    between them. The form becomes a black band across the full width,
    bled out past the gutter so it reads as its own ground. */
