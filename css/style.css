@@ -328,7 +328,11 @@ p { margin: 0 0 1em; }
 
 .header-nav a {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  /* Up from 0.78rem, and set to the size every other mono label on the
+     site uses — the section eyebrows and the form's step labels. With
+     Home gone there is one link and one button up there, so it can
+     carry the weight. */
+  font-size: 0.86rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--ink-soft);
