@@ -2,7 +2,7 @@
 #
 # deploy-magek.sh — magekfilmworks.productions
 #
-# Takes the newest MageK zip out of ~/Downloads, unpacks it, copies
+# Takes the newest Magek zip out of ~/Downloads, unpacks it, copies
 # everything into the local GitHub repo, lints the stylesheet, then
 # clears the zip and the unpacked folder out of Downloads.
 #

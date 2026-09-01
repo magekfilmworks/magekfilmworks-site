@@ -2,7 +2,7 @@
 
 Repo: `magekfilmworks/magekfilmworks-site` · Hosted on AWS Amplify, auto-builds on push to `main`.
 
-Company site for MageK Filmworks — the "full team/capacity" counterpart to
+Company site for Magek Filmworks — the "full team/capacity" counterpart to
 [gekjr.pro](https://gekjr.pro), which presents George E. Kennedy, Jr. as an
 individual contractor. Two doors for two kinds of clients.
 
@@ -183,5 +183,5 @@ falls back to opening a prefilled email so nothing is silently dropped.
 - **A Work page.** Deliberately not built: there is no reel, no project
   stills, no case studies yet, and an empty portfolio reads worse to a
   prospective client than no portfolio link at all
-- **A company version of The Record** — the gekjr.pro stats block, in MageK
+- **A company version of The Record** — the gekjr.pro stats block, in Magek
   terms: crews, shows, venues, years

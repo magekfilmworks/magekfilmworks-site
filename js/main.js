@@ -1,5 +1,5 @@
 /* ============================================================
-   MageK Filmworks — site behavior
+   Magek Filmworks — site behavior
    ============================================================ */
 
 /* ------------------------------------------------------------
@@ -382,6 +382,141 @@ holdOnClick(document.querySelector(".footer-mark-link"), (e) => {
   window.scrollTo({ top: 0, behavior: motionOK ? "smooth" : "auto" });
 });
 
+/* ---------- Clients disclosure cue ----------
+   The chevron beside "Clients & Collaborators" nudges on a phone, where
+   there is no hover to reveal that the heading opens. It fires when the
+   section is scrolled to rather than on load — a prompt that plays
+   while it is off screen has prompted nobody — and it stops the moment
+   the list is opened.
+   ------------------------------------------------------------------ */
+const clientsList = document.querySelector(".clients");
+if (clientsList) {
+  const cue = clientsList.querySelector(".clients-cue");
+
+  if (cue && "IntersectionObserver" in window) {
+    const watcher = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting || clientsList.open) return;
+        cue.classList.add("is-nudging");
+        // One prompt per visit. Re-arming it every time the section
+        // scrolls back into view would be nagging, not prompting.
+        watcher.disconnect();
+      });
+    }, { threshold: 0.6 });
+    watcher.observe(clientsList);
+  }
+
+  // Opened: it has done its job.
+  clientsList.addEventListener("toggle", () => {
+    if (clientsList.open && cue) cue.classList.remove("is-nudging");
+  });
+}
+
+/* ---------- Reel deck ----------
+   Slides are buttons; the lightbox handler above already listens on
+   every [data-reel] and reads its source off the element, so nothing
+   here has to know how to play anything. This only decides which slide
+   is showing, and advances on its own.
+
+   Wrapping, where the arrows used to stop at the ends. Once the deck
+   cycles by itself, an arrow that refuses to go round reads as broken —
+   the page loops but the control will not.
+   ------------------------------------------------------------------ */
+const deck = document.querySelector("[data-deck]");
+if (deck) {
+  const HOLD = 7000;   // long enough to read a caption before it moves
+  const RESUME = 14000; // after a manual press, how long before it takes over again
+  const slides = [...deck.querySelectorAll(".reel-slide")];
+  const prev = document.querySelector("[data-deck-prev]");
+  const next = document.querySelector("[data-deck-next]");
+  const counter = document.querySelector("[data-deck-current]");
+  const panel = deck.closest(".panel");
+
+  let at = 0;
+  let timer = null;
+  let taken = false;   // the visitor used an arrow, so it holds for a bit
+  let handback = null;
+  let seen = false;    // the deck is on screen
+  let hovered = false; // pointer or focus is on the panel
+  let watching = false; // the lightbox is open
+
+  const show = (i) => {
+    at = (i + slides.length) % slides.length;
+    slides.forEach((s, n) => {
+      const on = n === at;
+      s.classList.toggle("is-active", on);
+      s.tabIndex = on ? 0 : -1;
+      // Inactive slides leave the tab order and the accessibility tree,
+      // or a keyboard user tabs into invisible play buttons.
+      if (on) s.removeAttribute("aria-hidden");
+      else s.setAttribute("aria-hidden", "true");
+    });
+    if (counter) counter.textContent = String(at + 1);
+  };
+
+  const stop = () => { clearInterval(timer); timer = null; };
+
+  const run = () => {
+    stop();
+    if (taken || hovered || watching || !seen || slides.length < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    timer = setInterval(() => show(at + 1), HOLD);
+  };
+
+  // Using an arrow hands the deck to the visitor — but only for a
+  // while, not for good. Stopping permanently is right for a long
+  // carousel; with two clips it meant one press killed the cycling for
+  // the rest of the visit, which reads as the slider having broken.
+  const byHand = (step) => {
+    taken = true;
+    clearTimeout(handback);
+    stop();
+    show(at + step);
+    handback = setTimeout(() => { taken = false; run(); }, RESUME);
+  };
+  if (prev) prev.addEventListener("click", () => byHand(-1));
+  if (next) next.addEventListener("click", () => byHand(1));
+
+  deck.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { e.preventDefault(); byHand(-1); }
+    if (e.key === "ArrowRight") { e.preventDefault(); byHand(1); }
+  });
+
+  // Hovering or tabbing in means someone is reading it.
+  if (panel) {
+    panel.addEventListener("pointerenter", () => { hovered = true; run(); });
+    panel.addEventListener("pointerleave", () => { hovered = false; run(); });
+    panel.addEventListener("focusin", () => { hovered = true; run(); });
+    panel.addEventListener("focusout", () => { hovered = false; run(); });
+  }
+
+  // While the lightbox is open the deck must hold: advancing behind the
+  // dialog means closing it reveals a different slide than the one that
+  // was opened. Watching a clip is not taking control, so it resumes.
+  //
+  // This needs its own flag rather than sharing the hover one. Opening
+  // the dialog puts a modal over the panel, which fires pointerleave —
+  // so a single flag was set true by the click and immediately unset by
+  // the pointer leaving, and the deck advanced behind the dialog.
+  const dialog = document.querySelector("#reel");
+  if (dialog) {
+    slides.forEach((s) => s.addEventListener("click", () => { watching = true; run(); }));
+    dialog.addEventListener("close", () => { watching = false; run(); });
+  }
+
+  // Off screen it does nothing at all — most visitors never scroll here.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      entries.forEach((e) => { seen = e.isIntersecting; run(); });
+    }, { threshold: 0.35 }).observe(deck);
+  } else {
+    seen = true;
+  }
+
+  show(0);
+  run();
+}
+
 /* ---------- Mobile nav ---------- */
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector(".header-nav");
@@ -414,11 +549,6 @@ if (toggle && nav) {
 const yearEl = document.querySelector(".year");
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-/* ---------- Clients & Collaborators ----------
-   Open on desktop where there's room, closed on phones where it would
-   push the rest of the page down. 900px matches the layout breakpoint. */
-const clients = document.querySelector("#clients-list");
-if (clients) clients.open = window.innerWidth > 900;
 
 /* ---------- Intake wizard ---------- */
 const form = document.querySelector("#intake-form");

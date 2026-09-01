@@ -82,7 +82,7 @@
 }
 
 /* ============================================================
-   MageK Filmworks — Design tokens
+   Magek Filmworks — Design tokens
    Palette: black-on-black studio, one signature accent pulled
    from a tungsten film light (3200K) — the warm lamp that means
    "we're rolling." Same structural language as gekjr.pro, its
@@ -1580,7 +1580,7 @@ html, body { overflow-x: hidden; }
 }
 .clients summary::-webkit-details-marker { display: none; }
 
-.clients summary h2 { margin: 0; }
+
 
 .clients-cue {
   width: 9px;
@@ -1592,6 +1592,81 @@ html, body { overflow-x: hidden; }
   flex: none;
 }
 .clients[open] .clients-cue { transform: rotate(-135deg) translate(-3px, -3px); }
+
+/* The two collaborators stand outside the disclosure: they are the
+   strongest thing in this section and were hidden behind a click. The
+   heading now reads as a table of contents for what follows — the red
+   word, then the red names, then a control labelled "Clients" holding
+   the other twenty-two. */
+.clients-head {
+  font-size: clamp(1.15rem, 1.8vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+}
+
+/* Two names do not want four columns. Doubled class deliberately: the
+   base .clients-grid column counts sit in media queries further down
+   the file, so a single-class modifier lost to them and these two names
+   were being squeezed into 70px columns and wrapping. */
+.clients-grid.clients-grid--collab a { font-weight: 600; }
+
+.clients-grid.clients-grid--collab {
+  columns: 2;
+  column-gap: 32px;
+  max-width: 380px;
+  margin-top: 18px;
+}
+
+.clients { margin-top: 26px; }
+
+/* The summary is a control now, not a heading, so it reads at label
+   scale — the same mono the panel labels use. */
+.clients-more {
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.clients-more b {
+  color: var(--ink-faint);
+  font-weight: 400;
+  margin-left: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .clients summary:hover .clients-more { color: var(--ink); }
+}
+
+/* A nudge on the cue, at every width. It used to be phones only, on the
+   reasoning that a pointer finds this by hovering — but the control is
+   now a small "CLIENTS 22" label rather than the section heading, so it
+   wants the same prompt on a desktop.
+
+   Three bounces, not a loop. Something that moves forever stops being a
+   prompt and becomes a tic, and it competes with the reel deck cycling
+   further up the page. It only runs while the list is shut, and only
+   once it has been scrolled to. */
+@keyframes cue-nudge {
+  0%, 55%, 100% { transform: rotate(45deg) translate(-2px, -2px); }
+  25%           { transform: rotate(45deg) translate(2px, 2px); }
+  40%           { transform: rotate(45deg) translate(0, 0); }
+}
+
+.clients:not([open]) .clients-cue.is-nudging {
+  animation: cue-nudge 1.5s ease-in-out 3;
+}
+
+/* The selector has to match the one above, not just name the class.
+   `.clients:not([open]) .clients-cue.is-nudging` scores four classes;
+   a bare `.clients-cue.is-nudging` scores two and lost, so the nudge
+   kept running for people who had asked for no motion. */
+@media (prefers-reduced-motion: reduce) {
+  .clients:not([open]) .clients-cue.is-nudging { animation: none; }
+}
 
 .clients summary:focus-visible {
   outline: 2px solid var(--tally);
@@ -1634,7 +1709,7 @@ html, body { overflow-x: hidden; }
    the tap target rather than just the glyphs. */
 .clients-grid li:has(a) { padding: 0; }
 
-/* A link means a collaborator. Only the two firms MageK actually works
+/* A link means a collaborator. Only the two firms Magek actually works
    alongside carry one, so red and clickable now say the same thing and
    the list needs no extra class to tell them apart. Everyone else is a
    client: named, credited, not linked. */
@@ -1655,7 +1730,7 @@ html, body { overflow-x: hidden; }
    heading could carry the full brand red (3.11:1 clears the 3:1 large
    text needs), but then the key and the thing it keys would be two
    different reds, and the connection is the entire point. */
-.clients summary h2 .is-collab { color: var(--tally-ink); }
+.clients-head .is-collab { color: var(--tally-ink); }
 
 
 
@@ -1825,7 +1900,7 @@ html, body { overflow-x: hidden; }
    ratio, grain and a vignette.
 
    A slate line used to sit at the foot of the hero reading
-   "MageK Filmworks · Washington, D.C. · Since 1998". It was
+   "Magek Filmworks · Washington, D.C. · Since 1998". It was
    removed: the panel directly beneath it opens with "Washington,
    D.C. Metro Area and beyond, since 1998" — the two were touching,
    with no gap at all — and the company name is the logo in the
@@ -2381,6 +2456,155 @@ html, body { overflow-x: hidden; }
 /* One cell goes to true black. Used once per page, on the panel
    that should stop the eye. */
 .panel--void { --paper: #000000; }
+
+/* ------------------------------------------------------------------
+   The reel deck
+
+   Slides stack on one another and only the active one is shown, so the
+   cell holds one fixed height however many clips there are — adding a
+   third does not change the layout. Nothing plays here: a slide is a
+   button that opens the lightbox, which already knows how to run both
+   a local file and a YouTube frame. That means no video element and no
+   iframe on this page until someone asks for one.
+   ------------------------------------------------------------------ */
+.panel--reel { justify-content: flex-start; }
+
+.reel-deck {
+  position: relative;
+  margin-top: 20px;
+  /* Stated, so the cell is the right shape before any thumbnail has
+     loaded and nothing jumps when they arrive. */
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.reel-slide {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease;
+}
+
+.reel-slide.is-active { opacity: 1; visibility: visible; }
+
+.reel-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.62);
+  transition: filter 0.3s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Same triangle the hero button draws, scaled up and centred. */
+.reel-slide-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin: -17px 0 0 -11px;
+  border-style: solid;
+  border-width: 17px 0 17px 28px;
+  border-color: transparent transparent transparent var(--ink);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.65));
+  transition: border-left-color 0.2s ease;
+}
+
+/* The reel's own label and its captions take the accent. Everywhere
+   else on this page the accent marks the numbered service IDs; here it
+   marks the one cell that is a moving picture rather than prose. */
+.panel--reel .panel-label span { color: var(--tally); }
+
+/* A solid bar, not a gradient over the picture. The accent is a mid
+   red, so on a scrim it depends on what happens to be underneath —
+   measured 4.77 over the multiviewer and 1.63 over the second clip's
+   marked-up rundown, which is white paper. Deepening the gradient to
+   fully opaque still only reached 4.49 there. A bar takes the poster
+   out of the equation: the caption always sits on the same ground and
+   always measures the same. */
+.reel-slide-meta {
+  z-index: 1;
+  color: var(--tally);
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #0a0a09;
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.reel-slide-meta b {
+  color: var(--ink-soft);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+@media (hover: hover) {
+  .reel-slide:hover .reel-thumb { filter: brightness(0.78); transform: scale(1.03); }
+  .reel-slide:hover .reel-slide-play { border-left-color: var(--tally); }
+}
+
+.reel-deck-nav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* Chevrons drawn with borders, like the form's Back and Next. */
+.deck-arrow {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.deck-arrow::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--ink-soft);
+  border-right: 2px solid var(--ink-soft);
+  transform: rotate(-135deg) translate(-2px, -2px);
+}
+
+.deck-arrow--next::before { transform: rotate(45deg) translate(-2px, -2px); }
+
+@media (hover: hover) {
+  .deck-arrow:hover { border-color: var(--ink-faint); }
+  .deck-arrow:hover::before { border-color: var(--ink); }
+}
+
+.reel-deck-count {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.reel-deck-count b { color: var(--ink); font-weight: 600; }
 
 /* ---------- panel contents ---------- */
 
