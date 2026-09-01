@@ -351,6 +351,11 @@ p { margin: 0 0 1em; }
   padding: 14px 22px;
   border-radius: 2px;
   border: 1px solid var(--line);
+  /* Stated, not inherited. .btn is used on both <a> and <button>, and a
+     <button> with no background declared takes the browser's own — a
+     light grey that showed as a filled panel on every dark ground.
+     .btn-primary sets its own fill and is unaffected. */
+  background: transparent;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -1079,6 +1084,22 @@ html, body { overflow-x: hidden; }
 }
 
 .wizard-actions .btn { cursor: pointer; }
+
+/* Back is a way out, not a way forward. Grey rather than the white
+   every other ghost button uses, so the pair has one obvious action
+   instead of two competing ones. Scoped to this button: .btn-ghost
+   elsewhere (the hero, the panels) still reads at full strength. */
+#wizard-back {
+  color: var(--ink-soft);
+  border-color: var(--line);
+}
+
+@media (hover: hover) {
+  #wizard-back:hover {
+    color: var(--ink);
+    border-color: var(--ink-faint);
+  }
+}
 
 /* The primary action in a four-step form carries more weight than a
    link-sized button. Wider, and pointing the way it moves. */
