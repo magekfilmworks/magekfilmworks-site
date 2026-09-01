@@ -48,10 +48,21 @@ for f in files:
         if not (here / href).exists():
             problems.append(f'{f.name}: link to missing page "{href}"')
 
+# every off-site link must open in its own tab, with the rel that stops
+# the opened page reaching back through window.opener. pages.py adds
+# these automatically; this catches hand-written HTML that bypassed it.
+for f in files:
+    for tag in re.findall(r'<a\s[^>]*href="https?://[^"]*"[^>]*>', f.read_text()):
+        href = re.search(r'href="([^"]*)"', tag).group(1)
+        if 'target="_blank"' not in tag:
+            problems.append(f'{f.name}: external link without target="_blank" -> {href}')
+        elif 'noopener' not in tag:
+            problems.append(f'{f.name}: external link without rel="noopener" -> {href}')
+
 if problems:
     print('FAIL')
     for p in problems:
         print('  ' + p)
     sys.exit(1)
 
-print(f'chrome identical across {len(files)} pages; all internal links resolve')
+print(f'chrome identical across {len(files)} pages; internal links resolve; external links open safely')

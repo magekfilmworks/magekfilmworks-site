@@ -1,4 +1,87 @@
 /* ============================================================
+   Fonts, served from this origin
+
+   Previously loaded from fonts.googleapis.com, which handed
+   Google every visitor's IP on every pageview. Self-hosted, the
+   site makes no third-party request for type at all. Latin
+   subset, woff2 only — every browser in use supports it.
+
+   font-display: swap so text paints immediately in the fallback
+   and reflows when the face arrives, rather than sitting
+   invisible while it downloads.
+   ============================================================ */
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/space-grotesk-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/space-grotesk-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/space-grotesk-latin-700-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/inter-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-latin-600-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-latin-700-normal.woff2") format("woff2");
+}
+
+/* ============================================================
    MageK Filmworks — Design tokens
    Palette: black-on-black studio, one signature accent pulled
    from a tungsten film light (3200K) — the warm lamp that means
@@ -189,6 +272,52 @@ p { margin: 0 0 1em; }
 .brand img {
   height: var(--logo-h);
   width: auto;
+  /* Scaled from the left edge, not the centre: the mark sits on the
+     page's left margin, and growing from the middle would slide it off
+     that line for the length of the hover or the flare. */
+  transform-origin: left center;
+  /* Overshoots a touch on the way back, so the release reads as the
+     mark springing up rather than sliding up. */
+  transition: transform 0.42s cubic-bezier(0.34, 1.4, 0.64, 1),
+              filter 0.42s ease;
+}
+
+/* Same micro-scale the footer disc uses, so both marks behave alike. */
+@media (hover: hover) {
+  .brand:hover img {
+    transform: scale(1.06);
+    filter: brightness(1.18);
+  }
+}
+
+/* Held down. A click drives the mark to the bottom of its travel and
+   leaves it there — it does not spring back on a timer. The release is
+   the visitor moving the mouse, which is what a physical key does: it
+   stays where your finger put it until your finger goes somewhere else.
+
+   Snapping down is quick; the return is the slower base transition, so
+   press and release feel like different actions rather than one
+   symmetrical wobble. */
+.brand.is-held img {
+  transform: scale(0.93);
+  filter: brightness(1.42);
+  transition-duration: 90ms, 90ms;
+}
+
+/* Declared after the hover rule on purpose: identical specificity, so
+   source order is what lets a press beat the hover it happens inside. */
+.brand:active img { transform: scale(0.93); }
+
+@media (prefers-reduced-motion: reduce) {
+  .brand img { transition: none; }
+  .brand.is-held img,
+  .brand:active img { transform: none; filter: none; }
+}
+
+/* Its own query, not folded into the block above: a :hover rule outside
+   (hover: hover) sticks on a touch screen. */
+@media (prefers-reduced-motion: reduce) and (hover: hover) {
+  .brand:hover img { transform: none; filter: none; }
 }
 
 .header-nav {
@@ -661,6 +790,62 @@ p { margin: 0 0 1em; }
 
 .footer-brand p { margin: 0; }
 
+/* The disc is a control now, not an ornament. The link wraps tightly so
+   the mark keeps the left edge it shares with the header wordmark. */
+.footer-mark-link {
+  display: inline-flex;
+  flex: none;
+  line-height: 0;
+  border-radius: 50%;
+}
+
+.footer-mark-link .footer-mark {
+  transition: transform 0.42s cubic-bezier(0.34, 1.4, 0.64, 1),
+              filter 0.42s ease;
+}
+
+/* Hover lifts and warms it rather than moving it: this sits at the very
+   foot of the page beside a line of type, and anything that travels
+   would shove that line around. */
+@media (hover: hover) {
+  .footer-mark-link:hover .footer-mark {
+    transform: scale(1.06);
+    filter: brightness(1.18);
+  }
+}
+
+.footer-mark-link:active .footer-mark { transform: scale(0.97); }
+
+/* Held down the same way the header wordmark is, so both marks answer
+   alike. */
+.footer-mark-link.is-held .footer-mark {
+  transform: scale(0.93);
+  filter: brightness(1.42);
+  transition-duration: 90ms, 90ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-mark-link .footer-mark,
+  .footer-mark-link.is-held .footer-mark {
+    transition: none;
+    animation: none;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* The hover reset needs its own query rather than riding along in the
+   block above: it is a :hover rule, and a :hover rule outside
+   (hover: hover) sticks on a touch screen — tapping fakes a hover-in
+   with no hover-out. Specificity means it has to exist, so it exists
+   in the right place. */
+@media (prefers-reduced-motion: reduce) and (hover: hover) {
+  .footer-mark-link:hover .footer-mark {
+    transform: none;
+    filter: none;
+  }
+}
+
 .footer-mark {
   height: 72px;
   width: auto;
@@ -868,7 +1053,12 @@ html, body { overflow-x: hidden; }
 /* ---------- Progress ---------- */
 .wizard-head {
   display: flex;
-  align-items: center;
+  /* Baseline, not centre. Centre made the row's height — set by the
+     larger counter — push the step labels 3.4px down, which broke their
+     line with the eyebrow in the column opposite. Baseline puts the
+     labels and the counter on one line of type regardless of how tall
+     either gets. */
+  align-items: baseline;
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 6px;
@@ -893,7 +1083,10 @@ html, body { overflow-x: hidden; }
   display: inline-flex;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  /* Matched to the "Get in touch" eyebrow opposite: these two are the
+     same kind of label — one names the section, one names the step —
+     so they read at the same weight across the split. */
+  font-size: 0.86rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ink-faint);
@@ -910,13 +1103,25 @@ html, body { overflow-x: hidden; }
   border-bottom-color: var(--tally);
 }
 
+/* The counter is the one place in the form that answers "how much more
+   of this is there", so it reads at a size worth glancing at rather
+   than the size of the labels beside it. Tabular figures so 01 and 04
+   occupy identical width and the row does not shift as it advances. */
 .wizard-count {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  color: var(--ink-soft);
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
   margin: 0;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* Where you are is the live number; the total is the fixed part it is
+   counting against, so only the first half takes full ink. */
+#wizard-current {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* ---------- Steps ---------- */
@@ -1085,26 +1290,46 @@ html, body { overflow-x: hidden; }
 
 .wizard-actions .btn { cursor: pointer; }
 
-/* Back is a way out, not a way forward. Grey rather than the white
-   every other ghost button uses, so the pair has one obvious action
-   instead of two competing ones. Scoped to this button: .btn-ghost
-   elsewhere (the hero, the panels) still reads at full strength. */
-#wizard-back {
-  color: var(--ink-soft);
-  border-color: var(--line);
+/* Type and a direction, not a filled block. A solid rectangle is the
+   heaviest object the page owns, and spending that weight on "next"
+   — a step in the middle of a form, not the thing being asked for —
+   made the wizard feel like the loudest thing on the site.
+
+   They stay <button> elements: still focusable, still in the tab order,
+   still announced as buttons. Only the paint changes. */
+/* Selectors carry .contact-form deliberately. The light-ground rules
+   further down the file — .section--paper .btn-ghost — match these
+   buttons at the same specificity and sit later, so a plain
+   `.wizard-actions .btn` lost to them and the border came back. The
+   extra class outranks them instead of relying on source order. */
+.contact-form .wizard-actions .btn {
+  background: transparent;
+  border-color: transparent;
+  border-width: 0;
+  padding: 12px 0;
+  /* No box to hit, so the target is built from padding alone. */
+  min-height: 44px;
+  font-size: 0.86rem;
+  letter-spacing: 0.1em;
+  gap: 10px;
 }
+
+.wizard-actions { gap: 30px; }
+
+.contact-form .wizard-actions #wizard-next,
+.contact-form .wizard-actions #wizard-send {
+  color: var(--tally);
+  font-weight: 600;
+}
+.contact-form .wizard-actions #wizard-back { color: var(--ink-soft); }
 
 @media (hover: hover) {
-  #wizard-back:hover {
+  .contact-form .wizard-actions .btn:hover {
+    background: transparent;
+    border-color: transparent;
     color: var(--ink);
-    border-color: var(--ink-faint);
   }
 }
-
-/* The primary action in a four-step form carries more weight than a
-   link-sized button. Wider, and pointing the way it moves. */
-#wizard-next,
-#wizard-send { padding: 15px 30px; }
 
 /* Chevrons drawn with borders rather than a glyph: the mono face has no
    arrow worth using, and this needs no icon file. Only on the two
@@ -1112,8 +1337,8 @@ html, body { overflow-x: hidden; }
 #wizard-next::after,
 #wizard-back::before {
   content: "";
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-top: 2px solid currentColor;
   border-right: 2px solid currentColor;
   flex: none;
@@ -1164,16 +1389,20 @@ html, body { overflow-x: hidden; }
      screen where a visitor has to track where they are. Merged into
      this rule rather than added above it: an earlier declaration in
      the same block was being overridden by this one. */
-  .wizard-steps li { font-size: 0.75rem; gap: 6px; }
-  .wizard-count { font-size: 0.75rem; }
+  /* No size step on a phone: the eyebrow it is matched to does not
+     take one either, and the two must stay level. */
+  .wizard-steps li { gap: 6px; }
+  .wizard-count { font-size: 1.05rem; }
   .field-hint, .step em { font-size: 0.78rem; }
   .step { gap: 18px; }
   .step-legend { font-size: 1.08rem; }
   .field-row { gap: 18px; }
   .contact-form select { font-size: 16px; }
   .contact-form .opt span { font-size: 0.95rem; }
-  .wizard-actions { gap: 10px; }
-  .wizard-actions .btn { flex: 1 1 auto; justify-content: center; }
+  /* Text links, so they size to their words rather than stretching
+     across the row the way filled buttons did. */
+  .wizard-actions { gap: 24px; }
+  .wizard-actions .btn { flex: 0 0 auto; }
   .intake-done { padding: 26px 20px; }
 }
 
@@ -1689,7 +1918,12 @@ html, body { overflow-x: hidden; }
 .contact-page .contact-lead .eyebrow {
   display: flex;
   width: fit-content;
-  min-height: 24px;
+  /* Same box a step label builds: text, then 6px, then a 2px rule. The
+     rule is transparent here — there is nothing to mark — but it keeps
+     the two labels the same shape, which is what puts their type on one
+     line across the split. */
+  padding-bottom: 6px;
+  border-bottom: 2px solid transparent;
   /* Was 11.5px, the same size as a field caption. This is the label on
      the whole section. */
   font-size: 0.86rem;
@@ -1743,6 +1977,61 @@ html, body { overflow-x: hidden; }
   .contact-map { aspect-ratio: 16 / 9; margin-bottom: 4px; }
 }
 
+/* ------------------------------------------------------------------
+   Prose column
+
+   For pages that are only reading: one measure, generous leading, and
+   nothing else competing. Capped at 68 characters — long enough not to
+   feel choppy, short enough that the eye finds the next line without
+   hunting.
+   ------------------------------------------------------------------ */
+.prose { max-width: 68ch; }
+
+.prose h1 {
+  font-size: clamp(2.2rem, 5.6vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.03;
+  max-width: 15ch;
+  margin-bottom: 18px;
+}
+
+.prose h2 {
+  font-size: clamp(1.15rem, 1.8vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 44px 0 12px;
+}
+
+.prose p { margin: 0 0 16px; color: var(--ink-soft); }
+.prose .prose-lead { font-size: 1.2rem; color: var(--ink); margin-bottom: 8px; }
+
+.prose ul {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  color: var(--ink-soft);
+}
+.prose li { margin-bottom: 10px; }
+.prose li::marker { color: var(--tally-ink); }
+.prose b { color: var(--ink); font-weight: 600; }
+
+.prose a {
+  color: var(--tally-ink);
+  border-bottom: 1px solid currentColor;
+}
+
+.prose .prose-meta {
+  margin-top: 44px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 0.94rem;
+  color: var(--ink-faint);
+}
+
+@media (hover: hover) {
+  .prose a:hover { color: var(--ink); }
+}
+
 /* The contact column stays left-ranged: it is a block of reading copy
    sitting beside a form, and the form's fields start on the left edge.
    Centring it broke the shared left margin between the two. */
@@ -1756,20 +2045,31 @@ html, body { overflow-x: hidden; }
 
 /* The intake form itself keeps its reading order. */
 .contact-form { text-align: left; }
-.wizard-head { justify-content: center; }
-/* The form is a left-ranged column; its buttons belong on the same
-   edge as its fields rather than floating in the middle of it. */
+/* The form is a left-ranged column: its step strip and its buttons
+   belong on the same edge as its fields, not floating in the middle.
+   Centred, the labels started 61px right of every other thing in the
+   column and 61px right of the heading opposite them. */
+.wizard-head { justify-content: flex-start; }
 .wizard-actions { justify-content: flex-start; }
 .intake-done { text-align: center; }
+
+/* The larger labels need the gaps back a little in the narrowest
+   desktop band: at 900 the column is ~365px and the counter was
+   dropping to a second line. 13/12 is the loosest pair that holds one
+   line all the way down to the breakpoint — measured, not guessed. */
+@media (min-width: 900px) and (max-width: 1023px) {
+  .wizard-steps { gap: 13px; }
+  .wizard-head { gap: 12px; }
+}
 
 /* On a phone the step strip and the counter were competing for one line. */
 @media (max-width: 640px) {
   .wizard-head {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
   }
-  .wizard-steps { justify-content: center; }
+  .wizard-steps { justify-content: flex-start; }
 }
 
 
@@ -1857,22 +2157,23 @@ html, body { overflow-x: hidden; }
 /* ------------------------------------------------------------------
    Split ground: reading copy on paper, the form on black.
 
-   The boundary has to land inside the 40px grid gutter, not at an
-   arbitrary 50%. The wrap is a 1100px column centred in the viewport
-   with a 44px gutter, and the grid runs 1fr / 1.1fr with 40px between,
-   so the middle of that gutter sits at
+   The boundary sits at 50% because that is where the checkerboard's
+   divider sits — the panels run a 1fr / 1fr grid the full width of the
+   page, so their seam is exactly half. This section is directly below
+   them, and any other value leaves two vertical edges a few pixels
+   apart down the same page, which reads as a mistake rather than a
+   choice. It was previously 50vw - 23px, centred in the grid gutter,
+   and was 22px out from the panels at every width.
 
-     (100vw - 1100)/2 + 44 + (1012 - 40) / 2.1 + 20  =  50vw - 23px
-
-   Below 1100 the wrap stops centring and the arithmetic drifts a few
-   pixels, but a few pixels inside a 40px gutter is still inside the
-   gutter — measured at every width rather than assumed.
+   50% still lands inside that gutter: the lead column ends before it
+   and the form's own padding starts after it, checked at every width
+   rather than assumed.
    ------------------------------------------------------------------ */
 @media (min-width: 900px) {
   .section--split {
     background: linear-gradient(90deg,
-      var(--paper) 0 calc(50% - 23px),
-      #000 calc(50% - 23px) 100%);
+      var(--paper) 0 50%,
+      #000 50% 100%);
   }
 
   /* The form sits on black inside an otherwise light section, so it

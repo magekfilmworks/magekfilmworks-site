@@ -268,6 +268,120 @@ if (mapFrame) {
   }
 }
 
+/* ---------- Brand marks ----------
+   A click drives the mark to the bottom of its travel and holds it
+   there. It comes back up when the visitor moves the mouse — not on a
+   timer — so the gesture behaves like a physical key rather than an
+   animation that plays at you.
+
+   Three things that have to be handled or it sticks down forever:
+
+   - A click carries a pixel or two of jitter. Movement only counts past
+     a threshold, or the mark would release before you saw it go down.
+   - Touch and keyboard produce no pointermove at all. Both fall back to
+     a short hold, since there is no "moves the mouse" for either.
+   - A pointer that leaves the window stops firing pointermove, so blur
+     and pointerleave release it too, and a long safety timer catches
+     anything left.
+
+     Two traps in that last part. pointerleave must be bound to the root
+     element WITHOUT capture — on document with capture:true it receives
+     every element's pointerleave during the capture phase, so scrolling
+     the page under a stationary cursor released the hold instantly.
+     And scroll must not be a release trigger at all: clicking the mark
+     scrolls to the top, which would fire it before the press was seen.
+   ------------------------------------------------------------------ */
+const MOVE_TO_RELEASE = 6; // px of real travel, not click jitter
+const RELEASE_DELAY = 220; // ms the mark stays down after the pointer moves
+
+function holdOnClick(el, onActivate) {
+  if (!el) return;
+
+  let origin = null;
+  let safety = null;
+  let rising = null;
+
+  const detach = () => {
+    origin = null;
+    clearTimeout(safety);
+    window.removeEventListener("pointermove", onMove, true);
+    window.removeEventListener("blur", release, true);
+    document.documentElement.removeEventListener("pointerleave", release);
+  };
+
+  const release = () => {
+    if (!el.classList.contains("is-held")) return;
+    // Stop listening straight away — the decision is made — but let the
+    // mark sit down a beat longer before it comes up. Releasing on the
+    // exact frame the mouse twitches reads as a glitch; a short hold
+    // after makes it read as a deliberate return.
+    detach();
+    clearTimeout(rising);
+    rising = setTimeout(() => el.classList.remove("is-held"), RELEASE_DELAY);
+  };
+
+  const onMove = (e) => {
+    if (!origin) return release();
+    const dx = e.clientX - origin.x;
+    const dy = e.clientY - origin.y;
+    if (Math.hypot(dx, dy) >= MOVE_TO_RELEASE) release();
+  };
+
+  el.addEventListener("click", (e) => {
+    if (onActivate) onActivate(e);
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // detail is 0 for a keyboard-activated click, 1+ for a real one.
+    const fromPointer = e.detail > 0;
+    const hasPointer = window.matchMedia("(hover: hover)").matches;
+    const willGetMovement = fromPointer && hasPointer;
+
+    // A fresh press cancels a return already in flight, or the new
+    // press would be undone by the previous one's timer.
+    clearTimeout(rising);
+    el.classList.add("is-held");
+    origin = willGetMovement ? { x: e.clientX, y: e.clientY } : null;
+
+    if (willGetMovement) {
+      window.addEventListener("pointermove", onMove, true);
+      window.addEventListener("blur", release, true);
+      document.documentElement.addEventListener("pointerleave", release);
+      safety = setTimeout(release, 6000);
+    } else {
+      // A finger or a keypress: nothing is coming to release it.
+      safety = setTimeout(release, 280);
+    }
+  });
+}
+
+const brand = document.querySelector(".brand");
+if (brand) {
+  const isCurrentPage = () => {
+    const here = location.pathname.replace(/\/index\.html$/, "/");
+    const there = brand.pathname.replace(/\/index\.html$/, "/");
+    return here === there;
+  };
+
+  holdOnClick(brand, (e) => {
+    // On the page you are already on the link would reload it for
+    // nothing. Go to the top instead.
+    if (!isCurrentPage()) return;
+    e.preventDefault();
+    const motionOK = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: motionOK ? "smooth" : "auto" });
+  });
+}
+
+/* The footer disc only ever goes to the top of the page it is already
+   on. href="#top" is a spec-defined special case that works with no
+   element of that id, so it still does the right thing unscripted. */
+holdOnClick(document.querySelector(".footer-mark-link"), (e) => {
+  e.preventDefault();
+  const motionOK = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: motionOK ? "smooth" : "auto" });
+});
+
 /* ---------- Mobile nav ---------- */
 const toggle = document.querySelector(".nav-toggle");
 const nav = document.querySelector(".header-nav");
