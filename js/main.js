@@ -142,7 +142,19 @@ if (slider) {
      up where the alternative is covering the sentence. */
   const sub = stage && stage.querySelector(".hero-sub");
 
-  const GAP = 16;   // breathing room between the plate and the sentence
+  /* Two different gaps, because the two edges are not alike.
+
+     Below, the caption's last line is 10px mono and the subhead is a
+     1.12rem sentence with generous leading. 16px of box gap measured
+     fine and read as a collision: the mono line box hugs its glyphs, so
+     the ink-to-ink distance is much smaller than the number suggests.
+     30px is what it takes for them to read as two blocks.
+
+     Above, the masthead is a hard black edge with its own padding
+     already built in, and every pixel spent there is a pixel the
+     control cannot use to get away from the sentence. 12px is enough. */
+  const GAP_SUB = 30;
+  const GAP_HEAD = 12;
 
   const fitPlay = () => {
     if (!play || play.hidden || !sub || !stage) return;
@@ -175,8 +187,8 @@ if (slider) {
     const header = document.querySelector("header");
     const headBottom = header ? header.getBoundingClientRect().bottom : 0;
 
-    const wantUp = bottom + GAP - sub.getBoundingClientRect().top;
-    const room = top - (headBottom + GAP);
+    const wantUp = bottom + GAP_SUB - sub.getBoundingClientRect().top;
+    const room = top - (headBottom + GAP_HEAD);
 
     const lift = Math.min(Math.max(0, wantUp), room);
     play.style.setProperty("--play-lift", `${Math.round(lift)}px`);

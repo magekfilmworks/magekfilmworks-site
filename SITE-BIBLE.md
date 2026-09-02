@@ -242,6 +242,26 @@ measures it (`fitPlay`) and lifts by exactly the overlap, never more:
 centred wherever there is room, and giving that up only where the
 alternative is covering the sentence. Re-runs on resize.
 
+**The two gaps are different numbers, because the two edges are not
+alike.** Below, the caption's last line is 10px mono and the subhead is
+a 1.12rem sentence: 16px of box gap measured fine and read as a
+collision, because a mono line box hugs its glyphs and the ink-to-ink
+distance is far smaller than the number says. `GAP_SUB` is 30. Above,
+the masthead is a hard edge with its own padding built in, and every
+pixel spent there is one the control cannot use to get away from the
+sentence — `GAP_HEAD` is 12.
+
+**Under 700px tall the control shrinks rather than moves.** A 667px
+phone showing a clip with two credit lines has no placement that fits;
+the clamp just holds it off both edges and the caption gap collapses.
+`@media (max-height: 700px)` takes `--ring` to 52px and tightens the
+caption. Keyed to height, not width: it is vertical room that runs out.
+
+That block must be written `.hero .hero-play`, not `.hero-play`. A short
+phone matches it **and** the `max-width: 760px` block further down the
+file, both score one class, and source order hands it to the later one —
+which puts `--ring` straight back to 66px. Same bug as the five below.
+
 **It is squeezed between two edges, and one number handles both.** Rising
 clears the subhead below but drives the plate toward the masthead above —
 with the ring exactly centred the plate went under the header at

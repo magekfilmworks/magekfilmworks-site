@@ -1531,6 +1531,31 @@ html, body { overflow-x: hidden; }
          transform: translate(-50%, calc(var(--ring) / -2 + var(--play-drop, 0px) - var(--play-lift, 0px))); }
 }
 
+/* Short phones. On a 667px-tall screen a clip carrying two credit lines
+   leaves no room between the masthead and the subhead: the clamp in
+   main.js ends up holding the control back from both, and the gap under
+   the caption falls to 16px. The control has to be smaller there rather
+   than better-placed — there is no placement that fits.
+
+   Keyed to height, not width. It is the vertical room that runs out;
+   a 375px-wide phone in a tall window is fine. */
+@media (max-height: 700px) {
+  /* .hero .hero-play, not .hero-play. A short phone matches this block
+     AND the max-width: 760px block further down the file, both score one
+     class, and source order hands it to the later one — which sets
+     --ring back to 66px. This is the fifth time that has happened in
+     this stylesheet; count the classes before changing the value. */
+  .hero .hero-play { --ring: 52px; gap: 11px; }
+  .hero .hero-play-mark::after {
+    border-width: 9px 0 9px 14px;
+    margin-left: 3px;
+  }
+  .hero .hero-play-title { font-size: 0.98rem; }
+  .hero .hero-play-meta { font-size: 0.68rem; }
+  .hero .hero-play-credits { margin-top: 6px; padding-top: 7px; }
+  .hero .hero-credit { font-size: 0.76rem; }
+}
+
 /* A ring, so the triangle reads against a busy frame without needing a
    panel behind it.
 
