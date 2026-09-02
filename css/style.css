@@ -1514,6 +1514,16 @@ html, body { overflow-x: hidden; }
   max-width: min(460px, 88vw);
 }
 
+/* Nothing behind the caption. No plate, no scrim, no shadow — the type
+   sits on the frame and the frame shows through it.
+
+   That is a deliberate trade, and it costs measured contrast: on a light
+   passage the small mono lines drop under 4.5:1. If it ever needs
+   fixing, the fix is a grade across the WHOLE frame — the .vignette
+   element is already there for it — never a darkening shaped like the
+   text. A shadow that follows the words is the thing that reads as a
+   shadow. */
+
 @keyframes hero-play-in {
   from { opacity: 0;
          transform: translate(-50%, calc(var(--ring) / -2 + var(--play-drop, 0px) - var(--play-lift, 0px) + 12px)); }
@@ -1552,55 +1562,47 @@ html, body { overflow-x: hidden; }
   transition: border-left-color 0.25s ease;
 }
 
-/* The caption is a plate, not floating text.
-
-   It was centred type over the frame with a text-shadow doing the
-   contrast work, which holds up only until the shot behind it has a
-   light area — and a hero slider guarantees the shot changes. A box
-   takes the photograph out of the contrast question entirely: the type
-   is always on the same dark ground whatever slide is up.
-
-   Same box as the two clip buttons that used to sit under the headline,
-   which is where the shape comes from. Those went when the slider began
-   offering its own clips; the treatment was worth keeping. */
+/* The caption sits on the frame with nothing behind it — no plate, no
+   scrim, no shadow. */
 .hero-play-body {
   display: grid;
   gap: 5px;
-  justify-items: start;
-  text-align: left;
+  /* Centred under the ring. Everything else on the site ranges left, so
+     this is the one exception — but the ring is a centred object and a
+     left-ranged block hanging off a circle has no edge to hang from.
+     Centred type under a centred mark at least reads as one unit. */
+  justify-items: center;
+  text-align: center;
   width: 100%;
-  padding: 15px 20px 16px;
-  /* Opaque, and the page's own ground rather than a translucent black.
-     Measured at 0.72 alpha the plate composited to rgb(28,28,28) over
-     the multiviewer — lighter than --paper — and that was enough to put
-     the tally kicker at 4.16:1 and the credit roles at 3.15:1, both
-     under 4.5. A translucent plate can't be measured once, either: its
-     ground is whatever slide is behind it, and a slider guarantees that
-     changes. On --paper the kicker measures 4.53:1 exactly as the
-     eyebrows do everywhere else on the site, and no slide can move it.
-     Same conclusion as the reel caption bar. */
-  background: var(--paper);
-  border: 1px solid rgba(251, 251, 249, 0.35);
-  border-radius: 2px;
-  transition: border-color 0.25s ease;
+  /* Only enough to hold the block clear of the ring above it. There is
+     no box edge left for padding to sit inside. */
+  padding: 2px 0 0;
+  background: none;
+  border: 0;
 }
 
-/* Ranged left inside the plate, like every other block on the site,
-   even though the plate itself is centred in the frame. The box is the
-   centred object; its contents follow the page's one left edge. */
-
-/* WATCH between two rules — the slate. It gives the caption a top edge
-   to hang from, which a centred stack otherwise has to imply, and it
-   sets the block's width before the title arrives so the panel doesn't
-   appear to grow sideways as it fills in. */
-/* The plate gives the caption its top edge, so the rules that used to
-   flank this word are no longer doing any work. */
 .hero-play-kicker {
   font-family: var(--font-mono);
   font-size: 0.66rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--tally);
+  /* White, not tally. Tally needs a ground of about rgb(20) to clear
+     4.5:1, which is a plate — no photograph and no grade gets there. The
+     accent survives as the dot below, and a dot is decoration rather
+     than text, so it carries no contrast requirement. */
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-play-kicker::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--tally);
+  flex: none;
 }
 
 .hero-play-title {
@@ -1616,12 +1618,18 @@ html, body { overflow-x: hidden; }
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 10px;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  /* Everything on this control is --ink now. --ink-soft was chosen when
+     there was a plate under it with a known ground; on a photograph it
+     measures about 3:1 even after the grade. The hierarchy is carried by
+     size, case and face instead of by weight of colour — which is how a
+     title card does it anyway. */
+  color: var(--ink);
 }
 
 /* A dot between the tags and the runtime rather than a wider gap. Two
@@ -1658,7 +1666,7 @@ html, body { overflow-x: hidden; }
 .hero-play-credits {
   display: grid;
   gap: 3px;
-  justify-items: start;
+  justify-items: center;
   width: 100%;
   margin-top: 9px;
   padding-top: 10px;
@@ -1670,6 +1678,7 @@ html, body { overflow-x: hidden; }
 .hero-credit {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   /* "Technical Director" and "George E. Kennedy, Jr." do not fit on one
      line on a phone. Wrapping puts the name under its role, which is
      how a credit roll sets it anyway. */
@@ -1685,17 +1694,18 @@ html, body { overflow-x: hidden; }
 .hero-credit i,
 .reel-slide-credit i {
   white-space: nowrap;
+  opacity: 0.82;
   font-family: var(--font-mono);
   font-style: normal;
   font-size: 0.62rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  /* --ink-faint measures 3.44:1 on --paper, which is fine for a rule or
-     a bullet and not for 10px type. The hierarchy here comes from size,
-     case and the mono face — the role is unmistakably subordinate to
-     the house beside it without also being hard to read. */
-  color: var(--ink-soft);
+  color: var(--ink);
 }
+
+/* The panel credit keeps the quieter grey: it sits on a known dark
+   ground there, not on a photograph. */
+.reel-slide-credit i { color: var(--ink-soft); opacity: 1; }
 
 /* Same credit, quieter setting. In the panel the clip already has a
    caption bar of its own, so the credits join it as another line rather
@@ -1713,7 +1723,7 @@ html, body { overflow-x: hidden; }
 .reel-slide-credit:first-of-type { margin-top: 8px; }
 
 @media (hover: hover) {
-  .hero-play:hover .hero-play-body { border-color: var(--tally); }
+  .hero-play:hover .hero-play-title { color: var(--tally); }
 
   .hero-play:hover .hero-play-mark {
     background: rgba(10, 10, 9, 0.6);
@@ -1731,7 +1741,7 @@ html, body { overflow-x: hidden; }
      the middle of the frame is free. */
   .hero-play { gap: 12px; }
   .hero-play-title { font-size: 1.05rem; }
-  .hero-play-body { padding: 12px 15px 13px; }
+  .hero-play-body { padding: 2px 0 0; }
   /* One number: the ring's size and the offset that centres it are the
      same token, so they cannot drift apart. */
   .hero-play { --ring: 66px; --play-drop: 0px; }
@@ -2282,10 +2292,28 @@ html, body { overflow-x: hidden; }
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: radial-gradient(118% 90% at 50% 44%,
+  background-color: transparent;
+  background-image: radial-gradient(118% 90% at 50% 44%,
     rgba(0, 0, 0, 0) 34%,
     rgba(0, 0, 0, 0.38) 74%,
     rgba(0, 0, 0, 0.68) 100%);
+  transition: background-color 0.45s ease;
+}
+
+/* The grade. While a clip is being offered the whole frame steps down a
+   third of a stop — every pixel of it, evenly, which is why it reads as
+   the shot being darker rather than as something behind the words.
+
+   It has to be a flat colour and not the vignette itself: the vignette
+   is fully transparent out to 34%, which is exactly where the caption
+   sits. A vignette darkens the edges; the caption needs the middle.
+
+   Only while screening, so the photographs keep their contrast when
+   nothing is being offered over them. */
+.hero.is-screening .vignette { background-color: rgba(4, 4, 4, 0.34); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero .vignette { transition: none; }
 }
 
 /* Scope ratio on wide screens. 2.39:1 is the frame a feature is shot

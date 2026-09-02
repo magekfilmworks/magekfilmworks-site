@@ -255,41 +255,48 @@ running when it is called, so a rect there reports wherever the keyframe
 has it at that instant and silently added the animation's 12px to every
 measurement.
 
-**The play plate.** A video slide shows a caption plate with the ring
-**under** it:
-kicker, title, tags · runtime, then credits under a rule. The plate is
-**opaque `--paper`, not a translucent black** — at 0.72 alpha it
-composited to rgb(28,28,28) over the multiviewer, which put the tally
-kicker at 4.16:1 and the credit roles at 3.15:1. A translucent plate
-can't be measured once anyway: its ground is whatever slide is behind
-it. On `--paper` the kicker measures 4.53:1, the same as every eyebrow
-on the site, and no slide can move it.
+**The play caption floats on the frame — no panel, no edge.** It was a
+solid `--paper` plate for a while, which took the photograph out of the
+contrast question entirely and looked like a card sitting on the picture.
 
-The whole control is one button, so the plate has always been clickable
-too — but it does not look like one, and a ring above a block of text
-asks the pointer to cross that text to reach the thing that plays.
+**The caption is centred under the ring** — the one block on the site
+that does not range left. A left-ranged block hanging off a circle has
+no edge to hang from; centred type under a centred mark at least reads
+as one object. It is a compromise, and it is a compromise because the
+control itself is centred on a page that otherwise has no centre.
 
-**The ring is what sits on the frame's centre line, not the control as a
-whole.** Centring the block as a unit puts the ring off-centre by half
-the plate, and the eye reads the empty middle of the frame as the centre.
-The ring is the last child, so its bottom edge is the block's bottom
-edge: `translateY(-100%)` parks that on the 50% line and adding half a
-ring back pushes it down until the ring's own centre lands there.
-Transform percentages resolve against the element's own size, so it is
-exact whether a clip carries one credit or three. `--ring` is one token
-for both the ring's size and that offset, so they cannot drift.
+**Nothing sits behind the type. The frame is graded instead.** No
+plate, no scrim, no `text-shadow` — while a clip is being offered,
+`.hero.is-screening .vignette` lays `rgba(4, 4, 4, 0.34)` over the whole
+frame. Every pixel, evenly, which is why it reads as the shot being
+darker rather than as something behind the words. Only while screening,
+so the photographs keep their contrast when nothing is over them.
 
-**`--play-drop` carries the ring past the centre line** — 100px, 68px on
-phones. Dead centre read as too high once the plate moved above the ring:
-the block's visual weight is all in the plate, so the pair only looks
-settled when the ring sits a little below the middle. The drop is where
-the control *wants* to be; `fitPlay`'s clamp still decides where it ends
-up when the subhead or the masthead disagrees, which is why 375x667
-comes out at +28 rather than +44.
+**It has to be a flat colour, not the vignette itself.** The vignette is
+fully transparent out to 34% — exactly where the caption sits. A
+vignette darkens edges; the caption needs the middle.
 
-Order matters here and both arrangements were tried. Ring above, block
-centred: ring reads high. Ring below, block centred: ring reads low.
-Ring below, **ring** centred: right.
+**And the type went white.** `--ink-soft` was chosen when there was a
+plate under it with a known ground; on a photograph it measures about
+3:1 even after the grade. Hierarchy is carried by size, case and face
+now, which is how a title card does it. The tally kicker went white too:
+tally needs a ground of about rgb(20) to clear 4.5:1, and no photograph
+and no survivable grade gets there. The accent survives as a 5px dot
+before the word — decoration, not text, so it carries no contrast
+requirement.
+
+Three states measured over both clips, worst ground under each line:
+
+| | plate | bare | graded + white |
+|---|---|---|---|
+| kicker | 4.53 | **1.21** | 8.29-14.98 |
+| title | 17.63 | 4.26 | 8.29-13.11 |
+| meta | 6.42 | **1.96** | 11.84-13.11 |
+| credits | 4.78 | **1.93** | 5.80-6.79 |
+
+**Do not put tally back into small text on the frame.** It is the one
+colour on the site that cannot pass over a photograph at caption size.
+Everything else on this control has 5:1 or better.
 
 It is also `width: max-content` with a `max-width`. An absolutely
 positioned box at `left: 50%` with no width shrinks to fit the space
