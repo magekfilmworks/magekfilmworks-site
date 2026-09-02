@@ -59,6 +59,33 @@ for f in files:
         elif 'noopener' not in tag:
             problems.append(f'{f.name}: external link without rel="noopener" -> {href}')
 
+# The stylesheet and the script must carry a content hash. Linked bare
+# they are cacheable forever by any browser that has them, and a deploy
+# can land with the new HTML and the old CSS — a combination that was
+# never tested anywhere. pages.py stamps them; this makes sure a
+# hand-edited page cannot quietly drop the stamp.
+for f in files:
+    body = f.read_text()
+    for rel in ('css/style.css', 'js/main.js'):
+        if rel in body and f'{rel}?v=' not in body:
+            problems.append(f'{f.name}: {rel} linked with no ?v= content hash '
+                            f'— browsers will serve a stale copy after a deploy')
+
+# The house name. Corrected more than once and it kept coming back,
+# because "MageK" is the kind of wrong that reads as right — the shape is
+# familiar and the eye supplies the rest. Only a machine catches it every
+# time. Checked against the stylesheet and the script too: the credits
+# and the intake copy both put the name in places a page-only scan
+# misses.
+HOUSE = 'Magek'
+extras = [here.parent / 'css' / 'style.css', here.parent / 'js' / 'main.js',
+          here / 'css' / 'style.css', here / 'js' / 'main.js']
+for f in list(files) + [x for x in extras if x.exists()]:
+    for bad in set(re.findall(r'\b[Mm][Aa][Gg][Ee][Kk]\b', f.read_text())):
+        if bad not in (HOUSE, HOUSE.lower(), HOUSE.upper()):
+            problems.append(
+                f'{f.name}: house name spelled "{bad}" — it is "{HOUSE}"')
+
 if problems:
     print('FAIL')
     for p in problems:

@@ -13,9 +13,32 @@ const FORM_ENDPOINT = "";
 const CONTACT_EMAIL = "info@magekfilmworks.productions";
 
 /* ---------- Hero slider ----------
-   Hard cuts between frames, with a segmented bar that fills across each
-   hold so the page shows where it is in the sequence. Swipeable, and it
-   stops entirely for anyone who has asked for reduced motion. */
+   A multi-format rotation: photographs, a clip we host that plays in the
+   frame, and a clip hosted elsewhere that shows its poster and opens in
+   the lightbox. Hard cuts, with a segmented bar filling across each
+   hold. Swipeable, and it stops entirely for reduced motion.
+
+   The hold is 8s. It was 20 — the headline's whole cycle, so every
+   slide landed exactly as "We" rose — but that made reaching the fifth
+   slide an 80-second wait. Strict sync and a quick rotation cannot both
+   be had: holding to the headline's beat means every slide must consume
+   a multiple of 20s. 8s keeps a rhythm without the wait, and a clip
+   runs two holds so it has room to play. */
+/* Credits ride on a data attribute as JSON — a credit can carry a URL,
+   and every cheap separator turns up inside one ('https://' has the
+   colon, a company name may have the pipe or the dash). Bad JSON returns
+   nothing rather than throwing: a malformed credit should cost the
+   credit line, not the whole page's scripting. */
+function readCredits(raw) {
+  if (!raw) return [];
+  try {
+    const out = JSON.parse(raw);
+    return Array.isArray(out) ? out : [];
+  } catch (e) {
+    return [];
+  }
+}
+
 const slider = document.querySelector(".hero-slider");
 
 if (slider) {
@@ -27,6 +50,14 @@ if (slider) {
   let timer = null;
 
   const isVideo = (el) => el && el.tagName === "VIDEO";
+
+  /* A hosted clip ships with data-src, not src, so landing on the page
+     costs a photograph rather than 9.5MB. The file is attached the first
+     time its slide is reached, and the slide after the current one is
+     armed early so it has a head start on buffering. */
+  const arm = (el) => {
+    if (isVideo(el) && !el.src && el.dataset.src) el.src = el.dataset.src;
+  };
 
   const resetTick = (i) => {
     const fill = ticks[i] && ticks[i].querySelector("i");
@@ -68,25 +99,214 @@ if (slider) {
     }
   };
 
-  const show = (next) => {
-    const leaving = slides[index];
-    if (isVideo(leaving)) {
-      leaving.pause();
-      untrackVideo(leaving);
+  /* The play panel. A slide carrying video data offers it; any other
+     slide hides it. The panel is a [data-reel] button, so filling in its
+     dataset is all that is needed — the lightbox handler elsewhere in
+     this file reads those attributes at click time, not at load. */
+  const play = document.querySelector(".hero-play");
+
+  const stage = slider.closest(".hero");
+
+  /* Restarting the headline sequence from its first frame.
+
+     The sequence is a CSS animation on a fixed loop and the slider is a
+     setTimeout on another. Aligning the two durations keeps them in step
+     while nothing interrupts, but a video slide hides the headline for
+     two holds and the animation keeps running underneath — so the
+     headline could return to a fresh slide already mid-cycle and start
+     fading a second after it landed. Clearing the inline animation and
+     forcing a reflow restarts it from 0%; the per-beat delays come back
+     with the cleared inline style, so the stagger is preserved. */
+  const beats = stage ? stage.querySelectorAll(".seq-we, .seq-line") : [];
+  const restartSeq = () => {
+    beats.forEach((b) => { b.style.animation = "none"; });
+    if (beats.length) void beats[0].offsetWidth;
+    beats.forEach((b) => { b.style.animation = ""; });
+  };
+
+  let screening = false;
+
+  /* Keeping the control off the subhead.
+
+     The ring belongs on the frame's centre line and the subhead stays up
+     on every slide, and at some viewports those two wants collide — the
+     plate hangs into the subhead's first line. Which viewports is not
+     something a breakpoint can predict: the hero's height comes from
+     three different min-height rules and the plate's height comes from
+     how many credits the clip carries, so the overlap appeared at
+     1440x860 and 390x780 but not at 1470x912 or 430x932. A fixed lift
+     tuned against that list still missed 360x740.
+
+     So it is measured instead. Lift by exactly the overlap and no more:
+     the ring stays centred wherever there is room, and only gives that
+     up where the alternative is covering the sentence. */
+  const sub = stage && stage.querySelector(".hero-sub");
+
+  const GAP = 16;   // breathing room between the plate and the sentence
+
+  const fitPlay = () => {
+    if (!play || play.hidden || !sub || !stage) return;
+    /* Computed from layout, not from the control's own rectangle. The
+       entrance animation is running when this is called, so a
+       getBoundingClientRect() on the control reports wherever the
+       keyframe has it at that instant — which silently added the
+       animation's 12px offset to every measurement. offsetHeight is the
+       laid-out height and does not move with a transform. */
+    const heroBox = stage.getBoundingClientRect();
+    const ring = play.querySelector(".hero-play-mark").offsetHeight;
+    // The ring is last, so the control's bottom edge is the ring's, and
+    // the CSS parks that at the frame's centre plus half a ring.
+    // Where the CSS wants the ring: centre line plus half a ring, plus
+    // the deliberate drop below centre.
+    const drop = parseFloat(
+      getComputedStyle(play).getPropertyValue("--play-drop")) || 0;
+    // Ring first, so the control's top edge is the ring's top edge.
+    const bottom = heroBox.top + heroBox.height / 2 - ring / 2
+                 + play.offsetHeight + drop;
+    const top = bottom - play.offsetHeight;
+
+    /* Two edges, and the control is squeezed between them. Rising clears
+       the subhead below and moves the plate toward the masthead above;
+       the plate went under the header at 375x667 with the ring exactly
+       centred. So: rise as far as the subhead demands, but no further
+       than the header allows — and if the header alone is already the
+       problem, `room` goes negative and the same number pushes the
+       control down instead. One value, both directions. */
+    const header = document.querySelector("header");
+    const headBottom = header ? header.getBoundingClientRect().bottom : 0;
+
+    const wantUp = bottom + GAP - sub.getBoundingClientRect().top;
+    const room = top - (headBottom + GAP);
+
+    const lift = Math.min(Math.max(0, wantUp), room);
+    play.style.setProperty("--play-lift", `${Math.round(lift)}px`);
+  };
+
+  let fitTimer = null;
+  window.addEventListener("resize", () => {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(fitPlay, 120);
+  });
+
+  const offerVideo = (slide, manual) => {
+    if (!play) return;
+    const d = slide && slide.dataset;
+
+    // The headline and the play control both want the middle of the
+    // frame. Rather than shuffle one around the other, the hero shows
+    // one thing at a time: while a clip is up, the sequence steps back.
+    const wantsScreen = !!(d && d.videoTitle);
+    if (stage) stage.classList.toggle("is-screening", wantsScreen);
+
+    // Only on the transition back, never on every photo slide. A run of
+    // two stills is one headline cycle: the beats play over the first
+    // and the frame rests over the second. Restarting on each of them
+    // would replay the headline and delete the rest.
+    // A jump the visitor asked for is a fresh start, the same as coming
+    // back from a clip: they chose this slide, so the headline plays for
+    // it rather than landing mid-cycle on whatever the clock had reached.
+    if ((screening || manual) && !wantsScreen) restartSeq();
+    screening = wantsScreen;
+
+    if (!d || !d.videoTitle) {
+      play.hidden = true;
+      return;
     }
+
+    // Clear both sources first: a YouTube slide following a local one
+    // would otherwise keep the stale src and open the wrong clip.
+    delete play.dataset.src;
+    delete play.dataset.poster;
+    delete play.dataset.youtube;
+
+    if (d.videoYoutube) {
+      play.dataset.youtube = d.videoYoutube;
+    } else {
+      play.dataset.src = d.videoSrc;
+      play.dataset.poster = d.videoPoster;
+    }
+    play.dataset.label = d.videoTitle;
+
+    play.querySelector(".hero-play-title").textContent = d.videoTitle;
+    play.querySelector(".hero-play-tags").textContent = d.videoTags || "";
+    play.querySelector(".hero-play-time").textContent = d.videoTime || "";
+
+    /* Collaboration credits. "Produced by Dent Digital · Streamed by
+       Magek Filmworks" — the role set faint and the house set in ink, so
+       the eye lands on who did the work rather than on the preposition.
+       pages.py refuses to build a clip that credits a partner without
+       also saying what this house did. */
+    const cr = play.querySelector(".hero-play-credits");
+    cr.textContent = "";
+    readCredits(d.videoCredits).forEach(([role, who]) => {
+      const line = document.createElement("span");
+      line.className = "hero-credit";
+      const r = document.createElement("i");
+      r.textContent = role;
+      line.append(r, document.createTextNode(who));
+      cr.appendChild(line);
+    });
+    cr.hidden = !cr.childElementCount;
+
+    // The plate is itself the lightbox trigger, so it has to carry the
+    // caption's data too — the link included, which only the lightbox
+    // will render.
+    play.dataset.metaTags = d.videoTags || "";
+    play.dataset.metaTime = d.videoTime || "";
+    if (d.videoCredits) play.dataset.credits = d.videoCredits;
+    else delete play.dataset.credits;
+
+    play.hidden = false;
+    fitPlay();
+    // Restart the entrance animation on every appearance.
+    play.style.animation = "none";
+    void play.offsetWidth;
+    play.style.animation = "";
+  };
+
+  const show = (next, manual) => {
+    const leaving = slides[index];
+    if (isVideo(leaving)) leaving.pause();
 
     index = (next + slides.length) % slides.length;
     slides.forEach((s, i) => s.classList.toggle("is-active", i === index));
-    ticks.forEach((_, i) => { if (i !== index) resetTick(i); });
+    ticks.forEach((t, i) => {
+      if (i !== index) resetTick(i);
+      t.classList.toggle("is-live", i === index);
+      if (i === index) t.setAttribute("aria-current", "true");
+      else t.removeAttribute("aria-current");
+    });
 
     clearTimeout(timer);
     const current = slides[index];
+    offerVideo(current, manual);
+    arm(slides[(index + 1) % slides.length]);
 
     if (isVideo(current)) {
-      resetTick(index);
-      trackVideo(current, index);
-      if (still) return;              // no autoplay for reduced motion
+      // The bar measures the time the slide is on screen, not the clip's
+      // full length. The hero shows a teaser — two holds of a 38s clip —
+      // so a bar scaled to the whole duration crawled to 40% and jumped
+      // away, which read as no bar at all.
+      runTick(index, 2 * hold);
+      arm(current);
+      if (still) {
+        // No autoplay for reduced motion — hold on the poster and move
+        // on, rather than parking on a frame that will never advance.
+        timer = setTimeout(() => show(index + 1), hold);
+        return;
+      }
       current.currentTime = 0;
+
+      // Two holds for a clip, so it has room to run without parking the
+      // rotation for its whole length. The hero is a teaser; the
+      // lightbox is where a clip is watched end to end.
+      const runFor = () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => show(index + 1), 2 * hold);
+      };
+      if (current.readyState >= 1) runFor();
+      else current.addEventListener("loadedmetadata", runFor, { once: true });
+
       const play = current.play();
       if (play && play.catch) {
         // Autoplay refused (a data-saver setting, say). Don't strand the
@@ -106,10 +326,29 @@ if (slider) {
     }
   };
 
-  // A video slide ends when the clip does, not on a timer.
+  // A finished clip no longer advances the slider on its own: the beat
+  // does that, so the rotation stays in step with the headline. It just
+  // holds on its last frame for the remainder.
   slides.filter(isVideo).forEach((video) => {
     video.addEventListener("ended", () => {
-      if (slides[index] === video) show(index + 1);
+      const fill = ticks[slides.indexOf(video)];
+      if (fill && fill.querySelector("i")) fill.querySelector("i").style.width = "100%";
+    });
+  });
+
+  /* The bars are the picker. They were already the only thing on screen
+     saying how many slides there are and which one is up, so they are
+     where a visitor looks to change it — a second row of dots would be
+     the same information twice.
+
+     A click does not stop the rotation. The bars are a way to reach the
+     clip you saw go past, not a transport: pausing on the chosen slide
+     would leave the hero dead for anyone who clicked out of curiosity
+     and then looked away. */
+  ticks.forEach((tick, i) => {
+    tick.addEventListener("click", () => {
+      if (i === index) return;   // already here; a restart would look like a glitch
+      show(i, true);
     });
   });
 
@@ -200,10 +439,51 @@ if (reelDialog && reelFrame) {
     player.remove();
   };
 
+  /* The caption under the player. It is the only place a credit can be
+     a link: everywhere else a credit sits inside a <button>, where an
+     <a> has no valid home and the click would have two meanings. It is
+     also the right place — you are already watching the clip when you
+     decide you want the collaborator. */
+  const cap = reelDialog.querySelector("[data-reel-cap]");
+
+  const fillCap = (btn) => {
+    if (!cap) return;
+    const d = btn.dataset;
+    cap.querySelector("[data-cap-title]").textContent = d.label || "";
+    cap.querySelector("[data-cap-tags]").textContent = d.metaTags || "";
+    cap.querySelector("[data-cap-time]").textContent = d.metaTime || "";
+
+    const box = cap.querySelector("[data-cap-credits]");
+    box.textContent = "";
+    (readCredits(d.credits)).forEach(([role, who, url]) => {
+      const line = document.createElement("p");
+      line.className = "reel-credit";
+      const r = document.createElement("i");
+      r.textContent = role;
+      let name;
+      if (url) {
+        name = document.createElement("a");
+        name.href = url;
+        // Set here rather than by the build's externalise() pass, which
+        // only ever sees markup in the files — this anchor does not
+        // exist until a click.
+        name.target = "_blank";
+        name.rel = "noopener noreferrer";
+      } else {
+        name = document.createElement("span");
+      }
+      name.textContent = who;
+      line.append(r, name);
+      box.appendChild(line);
+    });
+    cap.hidden = !(d.label || box.childElementCount);
+  };
+
   const open = (btn) => {
     teardown(); // in case a previous player is somehow still mounted
     const label = btn.dataset.label || "Video";
     reelDialog.setAttribute("aria-label", label);
+    fillCap(btn);
     reelFrame.appendChild(
       btn.dataset.youtube
         ? buildYouTube(btn.dataset.youtube, label)

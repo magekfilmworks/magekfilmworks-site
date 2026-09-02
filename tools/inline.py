@@ -23,6 +23,6 @@ fonts = (
  '&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">')
 
 css = css.replace(':root {', ':root {\n  color-scheme: dark;', 1)
-out = f"<title>MageK Filmworks</title>\n{fonts}\n<style>\n{css}\n</style>\n\n{body}\n\n<script>\n{js}\n</script>\n"
+out = f"<title>Magek Filmworks</title>\n{fonts}\n<style>\n{css}\n</style>\n\n{body}\n\n<script>\n{js}\n</script>\n"
 pathlib.Path('magek-filmworks-page.html').write_text(out)
 print(f"page: {len(out)/1024/1024:.2f} MB")

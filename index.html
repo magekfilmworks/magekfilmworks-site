@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="images/logo-icon.png" />
 <link rel="apple-touch-icon" href="images/logo-icon.png" />
 <meta name="theme-color" content="#131313" />
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/style.css?v=ed6cebc6" />
 </head>
 <body>
 
@@ -29,11 +29,14 @@
 
 <main id="top">
   <section class="hero">
-    <div class="hero-slider" data-hold="12000">
+    <div class="hero-slider" data-hold="10000">
       <img src="images/rack-photo.jpeg" alt="Fibre, BNC and power runs labelled and laid out on a show floor." class="hero-slide is-active" />
+      <video class="hero-slide" data-src="media/art-of-cutting-live.mp4"
+             poster="images/clip-poster.jpeg" muted playsinline
+             preload="none" aria-label="A multiviewer showing eight camera feeds and the program cut." data-video-title="Multicam Live Cut Highlight" data-video-time="0:38" data-video-tags="#proav #multicam" data-video-credits='[["Technical Director", "George E. Kennedy, Jr."]]' data-video-src="media/art-of-cutting-live.mp4" data-video-poster="images/clip-poster.jpeg"></video>
       <img src="images/switcher.jpeg" alt="A Panasonic multi-format live switcher with taped bus labels, beside a marked-up show rundown." class="hero-slide" loading="lazy" />
       <img src="images/fido.jpeg" alt="An SDI fibre transceiver labelled DSM and Aux 1 in gaffer tape." class="hero-slide" loading="lazy" />
-      <img src="images/village.jpeg" alt="Video village: racks, cases and cable runs behind the drape." class="hero-slide" loading="lazy" />
+      <img src="images/village.jpeg" alt="Video village: racks, cases and cable runs behind the drape." class="hero-slide" loading="lazy" data-video-title="The Art of Cutting Live" data-video-time="1:09:07" data-video-tags="#cloud" data-video-credits='[["Produced by", "Office Hours Global", "https://officehours.global/"], ["Featuring", "George E. Kennedy, Jr., Founder, Magek Filmworks"]]' data-video-youtube="lQ_MciOESPY" />
     </div>
     <div class="wrap">
       <h1 class="hero-seq">
@@ -46,28 +49,26 @@
         </span>
       </h1>
       <p class="hero-sub">A production company for brands, associations, and events that need video to actually land — on scale, on budget, on time.</p>
-      <div class="reel-row">
-        <button type="button" class="reel-open"
-                data-reel data-src="media/art-of-cutting-live.mp4"
-                data-poster="images/clip-poster.jpeg"
-                data-label="Multicam Live Cut Highlight">
-          <span class="reel-play" aria-hidden="true"></span>
-          Multicam Live Cut Highlight <span class="reel-time">0:38</span>
-        </button>
-        <button type="button" class="reel-open reel-open--quiet"
-                data-reel data-youtube="lQ_MciOESPY"
-                data-label="The Art of Cutting Live">
-          <span class="reel-play" aria-hidden="true"></span>
-          The Art of Cutting Live <span class="reel-time">1:09:07</span>
-        </button>
-      </div>
     </div>
+    <button type="button" class="hero-play" data-reel hidden>
+      <span class="hero-play-mark" aria-hidden="true"></span>
+      <span class="hero-play-body">
+        <span class="hero-play-kicker">Watch</span>
+        <span class="hero-play-title"></span>
+        <span class="hero-play-meta">
+          <span class="hero-play-tags"></span>
+          <span class="hero-play-time"></span>
+        </span>
+        <span class="hero-play-credits" hidden></span>
+      </span>
+    </button>
     <div class="vignette" aria-hidden="true"></div>
-    <div class="hero-progress" aria-hidden="true">
-      <span class="hero-tick"><i></i></span>
-      <span class="hero-tick"><i></i></span>
-      <span class="hero-tick"><i></i></span>
-      <span class="hero-tick"><i></i></span>
+    <div class="hero-progress" role="group" aria-label="Choose a slide">
+      <button type="button" class="hero-tick" aria-label="Show slide 1 of 5" data-tick="0"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Play Multicam Live Cut Highlight" data-tick="1"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Show slide 3 of 5" data-tick="2"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Show slide 4 of 5" data-tick="3"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Play The Art of Cutting Live" data-tick="4"><span class="hero-tick-rail"><i></i></span></button>
     </div>
   </section>
 
@@ -103,17 +104,26 @@
         <div class="reel-deck" data-deck>
           <button type="button" class="reel-slide is-active"
                   data-reel data-src="media/art-of-cutting-live.mp4" data-poster="images/clip-poster.jpeg"
-                  data-label="Multicam Live Cut Highlight">
+                  data-label="Multicam Live Cut Highlight" data-meta-tags="#proav #multicam" data-meta-time="0:38" data-credits='[["Technical Director", "George E. Kennedy, Jr."]]'>
             <img class="reel-thumb" src="images/clip-poster.jpeg" alt="" loading="lazy" />
             <span class="reel-slide-play" aria-hidden="true"></span>
-            <span class="reel-slide-meta">Multicam Live Cut Highlight <b>0:38</b></span>
+            <span class="reel-slide-meta">
+              <span class="reel-slide-title">Multicam Live Cut Highlight</span>
+              <span class="reel-slide-tags"><b class="reel-tag">#proav</b><b class="reel-tag">#multicam</b>0:38</span>
+              <span class="reel-slide-credit"><i>Technical Director</i>George E. Kennedy, Jr.</span>
+            </span>
           </button>
           <button type="button" class="reel-slide"
                   data-reel data-youtube="lQ_MciOESPY"
-                  data-label="The Art of Cutting Live" tabindex="-1" aria-hidden="true">
+                  data-label="The Art of Cutting Live" data-meta-tags="#cloud" data-meta-time="1:09:07" data-credits='[["Produced by", "Office Hours Global", "https://officehours.global/"], ["Featuring", "George E. Kennedy, Jr., Founder, Magek Filmworks"]]' tabindex="-1" aria-hidden="true">
             <img class="reel-thumb" src="images/switcher.jpeg" alt="" loading="lazy" />
             <span class="reel-slide-play" aria-hidden="true"></span>
-            <span class="reel-slide-meta">The Art of Cutting Live <b>1:09:07</b></span>
+            <span class="reel-slide-meta">
+              <span class="reel-slide-title">The Art of Cutting Live</span>
+              <span class="reel-slide-tags"><b class="reel-tag">#cloud</b>1:09:07</span>
+              <span class="reel-slide-credit"><i>Produced by</i>Office Hours Global</span>
+              <span class="reel-slide-credit"><i>Featuring</i>George E. Kennedy, Jr., Founder, Magek Filmworks</span>
+            </span>
           </button>
         </div>
         <div class="reel-deck-nav">
@@ -335,6 +345,13 @@
         </a>
       </noscript>
     </div>
+    <div class="reel-cap" data-reel-cap hidden>
+      <p class="reel-cap-title" data-cap-title></p>
+      <p class="reel-cap-meta">
+        <span data-cap-tags></span><span data-cap-time></span>
+      </p>
+      <div class="reel-cap-credits" data-cap-credits></div>
+    </div>
   </dialog>
 
 </main>
@@ -355,6 +372,6 @@
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.js?v=474d87de"></script>
 </body>
 </html>

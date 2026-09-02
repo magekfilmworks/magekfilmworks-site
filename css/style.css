@@ -464,6 +464,7 @@ p { margin: 0 0 1em; }
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 0.7),
     0 2px 10px rgba(0, 0, 0, 0.6);
+  transition: opacity 0.45s ease, transform 0.45s ease;
 }
 
 .hero-actions {
@@ -1422,6 +1423,325 @@ html, body { overflow-x: hidden; }
 /* Anchoring the wizard when a step changes. */
 #intake-form { scroll-margin-top: calc(var(--header-h) + 20px); }
 
+/* While a clip is on screen the headline stands down. Both want the
+   middle of the frame, and measured at every width the play control's
+   caption ran straight through "Put it everywhere." Offsetting one
+   around the other works at one width and fails at the next; showing
+   one thing at a time works everywhere.
+
+   The transition lives on the .is-screening rule, not on .hero-seq, so
+   it only applies on the way OUT. Coming back, the headline snaps to
+   opacity 1 and its own keyframes do the entrance — the same rise it
+   performs at first paint. Fading the container in as well would have
+   layered a 0.45s fade under a 0.84s rise, and the W would have arrived
+   twice. */
+.hero.is-screening .hero-seq {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+/* The subhead stays. It is the one line that says what the company does,
+   and it should be readable on every slide rather than only on the
+   stills — a visitor who lands on a clip slide would otherwise get a
+   play button and no sentence. Only the headline steps aside, because
+   only the headline was in the play control's way. */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero.is-screening .hero-seq { transform: none; transition: none; }
+}
+
+/* ------------------------------------------------------------------
+   Hero play panel
+
+   Shown only while a video poster is the active slide. It sits on the
+   right because the headline owns the left — the two never share space,
+   so nothing has to be hidden or dimmed when a video comes round.
+
+   It is a [data-reel] button, so the lightbox handler that already
+   listens on those runs it with no new code. The slider rewrites its
+   dataset as slides change; the handler reads that at click time.
+   ------------------------------------------------------------------ */
+/* Centred in the frame, not tucked to one side. A play mark in the
+   middle of a picture is the one control everybody already recognises,
+   and it is what tells a visitor the frame is a video at all — which
+   the YouTube slide especially needed, since its poster is a
+   photograph like any other. */
+.hero-play {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  /* Plate on top, ring under it — and the RING is what sits on the
+     frame's centre line, not the control as a whole.
+
+     The ring is the LAST child, so its bottom edge is the block's bottom
+     edge. translateY(-100%) puts that bottom on the 50% line; adding
+     half a ring back pushes it down until the ring's own centre lands
+     there. Percentages in a transform resolve against the element's own
+     size, so this stays exact whether a clip carries one credit or
+     three — the plate above can weigh whatever it likes.
+
+     --play-lift is added by main.js, and only when the control would
+     otherwise reach the subhead. */
+  transform: translate(-50%, calc(var(--ring) / -2 + var(--play-drop, 0px) - var(--play-lift, 0px)));
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  --ring: 88px;
+  /* How far below the frame's centre line the ring sits. Dead centre
+     read as too high once the plate moved above the ring: the block's
+     visual weight is all in the plate, so the pair only looks settled
+     when the ring is carried a little past the middle. This is where it
+     wants to be — the clamp in main.js still decides where it ends up if
+     the subhead or the masthead disagrees. */
+  --play-drop: 0px;
+  padding: 0;
+  text-align: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  animation: hero-play-in 460ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* An absolutely positioned box with left: 50% and no width shrinks to
+     fit the space from that line to the right edge — half the viewport.
+     On a phone that squeezed the plate to about 190px and wrapped the
+     runtime onto its own line. max-content lets it size to its contents
+     and overflow that half, and the max-width is what actually governs
+     how wide it gets. */
+  width: max-content;
+  max-width: min(460px, 88vw);
+}
+
+@keyframes hero-play-in {
+  from { opacity: 0;
+         transform: translate(-50%, calc(var(--ring) / -2 + var(--play-drop, 0px) - var(--play-lift, 0px) + 12px)); }
+  to   { opacity: 1;
+         transform: translate(-50%, calc(var(--ring) / -2 + var(--play-drop, 0px) - var(--play-lift, 0px))); }
+}
+
+/* A ring, so the triangle reads against a busy frame without needing a
+   panel behind it.
+
+   It sits BELOW the caption plate. The whole control is one button, so
+   the plate has always been clickable too — but it does not look like a
+   button, and a ring above a block of text asks the pointer to travel
+   across that text to reach the thing that plays. Underneath, the
+   approach is clear, and the block falls into reading order: what the
+   clip is, then the way in. */
+.hero-play-mark {
+  width: var(--ring);
+  height: var(--ring);
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(251, 251, 249, 0.9);
+  border-radius: 50%;
+  background: rgba(10, 10, 9, 0.42);
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.hero-play-mark::after {
+  content: "";
+  width: 0;
+  height: 0;
+  margin-left: 6px;
+  border-style: solid;
+  border-width: 15px 0 15px 25px;
+  border-color: transparent transparent transparent var(--ink);
+  transition: border-left-color 0.25s ease;
+}
+
+/* The caption is a plate, not floating text.
+
+   It was centred type over the frame with a text-shadow doing the
+   contrast work, which holds up only until the shot behind it has a
+   light area — and a hero slider guarantees the shot changes. A box
+   takes the photograph out of the contrast question entirely: the type
+   is always on the same dark ground whatever slide is up.
+
+   Same box as the two clip buttons that used to sit under the headline,
+   which is where the shape comes from. Those went when the slider began
+   offering its own clips; the treatment was worth keeping. */
+.hero-play-body {
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  text-align: left;
+  width: 100%;
+  padding: 15px 20px 16px;
+  /* Opaque, and the page's own ground rather than a translucent black.
+     Measured at 0.72 alpha the plate composited to rgb(28,28,28) over
+     the multiviewer — lighter than --paper — and that was enough to put
+     the tally kicker at 4.16:1 and the credit roles at 3.15:1, both
+     under 4.5. A translucent plate can't be measured once, either: its
+     ground is whatever slide is behind it, and a slider guarantees that
+     changes. On --paper the kicker measures 4.53:1 exactly as the
+     eyebrows do everywhere else on the site, and no slide can move it.
+     Same conclusion as the reel caption bar. */
+  background: var(--paper);
+  border: 1px solid rgba(251, 251, 249, 0.35);
+  border-radius: 2px;
+  transition: border-color 0.25s ease;
+}
+
+/* Ranged left inside the plate, like every other block on the site,
+   even though the plate itself is centred in the frame. The box is the
+   centred object; its contents follow the page's one left edge. */
+
+/* WATCH between two rules — the slate. It gives the caption a top edge
+   to hang from, which a centred stack otherwise has to imply, and it
+   sets the block's width before the title arrives so the panel doesn't
+   appear to grow sideways as it fills in. */
+/* The plate gives the caption its top edge, so the rules that used to
+   flank this word are no longer doing any work. */
+.hero-play-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tally);
+}
+
+.hero-play-title {
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.hero-play-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* A dot between the tags and the runtime rather than a wider gap. Two
+   mono strings with only space between them read as one broken string;
+   a mark says they are two different facts. */
+.hero-play-meta > * + *::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--tally);
+  vertical-align: 0.25em;
+}
+
+.hero-play-time { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* The tag list breaks between tags if it has to, never inside one. */
+.hero-play-tags { word-spacing: 0.2em; }
+
+/* ------------------------------------------------------------------
+   Collaboration credits
+
+   A live show is rarely one house's work. Where a clip is somebody
+   else's production that we streamed — or ours that somebody else
+   streamed — the caption says so, in the shape a film credit uses:
+   role small and faint, house in ink. pages.py refuses to build a clip
+   that names a partner without also naming what we did.
+
+   The rule above them separates the credit from the clip's own facts:
+   title and runtime describe the video, credits describe who made it.
+   ------------------------------------------------------------------ */
+.hero-play-credits {
+  display: grid;
+  gap: 3px;
+  justify-items: start;
+  width: 100%;
+  margin-top: 9px;
+  padding-top: 10px;
+  /* The rule divides the clip's own facts from who made it: title and
+     runtime describe the video, the credits describe the houses. */
+  border-top: 1px solid rgba(251, 251, 249, 0.22);
+}
+
+.hero-credit {
+  display: flex;
+  align-items: baseline;
+  /* "Technical Director" and "George E. Kennedy, Jr." do not fit on one
+     line on a phone. Wrapping puts the name under its role, which is
+     how a credit roll sets it anyway. */
+  flex-wrap: wrap;
+  gap: 2px 7px;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+
+/* The role never breaks across lines — "STREAMED / BY" stacked above
+   the house it belongs to read as two separate credits. */
+.hero-credit i,
+.reel-slide-credit i {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  /* --ink-faint measures 3.44:1 on --paper, which is fine for a rule or
+     a bullet and not for 10px type. The hierarchy here comes from size,
+     case and the mono face — the role is unmistakably subordinate to
+     the house beside it without also being hard to read. */
+  color: var(--ink-soft);
+}
+
+/* Same credit, quieter setting. In the panel the clip already has a
+   caption bar of its own, so the credits join it as another line rather
+   than getting a rule and a block of their own. */
+.reel-slide-credit {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.reel-slide-credit:first-of-type { margin-top: 8px; }
+
+@media (hover: hover) {
+  .hero-play:hover .hero-play-body { border-color: var(--tally); }
+
+  .hero-play:hover .hero-play-mark {
+    background: rgba(10, 10, 9, 0.6);
+    border-color: var(--tally);
+    transform: scale(1.06);
+  }
+  .hero-play:hover .hero-play-mark::after { border-left-color: var(--tally); }
+}
+
+/* On a phone the headline fills the frame, so the panel goes to the
+   foot of the hero as a full-width bar rather than floating beside
+   copy it would land on top of. */
+@media (max-width: 899px) {
+  /* Still centred, just smaller — the headline sits lower on a phone so
+     the middle of the frame is free. */
+  .hero-play { gap: 12px; }
+  .hero-play-title { font-size: 1.05rem; }
+  .hero-play-body { padding: 12px 15px 13px; }
+  /* One number: the ring's size and the offset that centres it are the
+     same token, so they cannot drift apart. */
+  .hero-play { --ring: 66px; --play-drop: 0px; }
+  .hero-play-mark::after { border-width: 11px 0 11px 18px; margin-left: 4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-play { animation: none; }
+}
+
 /* ============================================================
    Hero sequence
    One "We", held, and four things it does. The subject is stated
@@ -1455,7 +1775,7 @@ html, body { overflow-x: hidden; }
 .seq-we {
   display: block;
   font-size: 2em;
-  animation: seq-beat 12s ease-in-out infinite;
+  animation: seq-beat 20s ease-in-out infinite;
   animation-delay: 0s;
   opacity: 0;
   line-height: 0.92;
@@ -1476,23 +1796,56 @@ html, body { overflow-x: hidden; }
   /* Every line holds its space at all times — only opacity and
      transform animate, so the hero never changes height and the
      subhead below it never shifts. */
-  animation: seq-beat 12s ease-in-out infinite;
+  animation: seq-beat 20s ease-in-out infinite;
   opacity: 0;
 }
 
-.seq-line:nth-child(1) { animation-delay: 0.75s; }
-.seq-line:nth-child(2) { animation-delay: 1.5s; }
-.seq-line:nth-child(3) { animation-delay: 2.25s; }
-.seq-line:nth-child(4) { animation-delay: 3s; }
+/* Tightened from 0.75s. The stagger delays the clear as much as the
+   build: at 0.75s the last beat was still leaving 3.8s after the W,
+   which put it well into the following slide. At 0.5s the whole
+   sequence clears within 2.6s of the slide change and reads as one
+   movement rather than a queue. */
+.seq-line:nth-child(1) { animation-delay: 0.5s; }
+.seq-line:nth-child(2) { animation-delay: 1s; }
+.seq-line:nth-child(3) { animation-delay: 1.5s; }
+.seq-line:nth-child(4) { animation-delay: 2s; }
 
 .seq-line-accent { color: var(--tally); }
 
+/* THE ONE DIAL: the duration on .seq-we and .seq-line above. Everything
+   here is a percentage of it, and the percentages are recalculated for
+   each new duration rather than left alone — leaving them would stretch
+   the build and the hold too, and the beats would arrive in slow
+   motion. Only the rest at the end changes.
+
+   THIS DURATION AND THE SLIDER'S HOLD ARE ONE NUMBER, NOT TWO. The hold
+   is 10s (data-hold in pages.py); the cycle is 20s, which is two slides,
+   and a video slide at two holds is exactly one cycle. Left free-running
+   at 20s against an 8s hold they drifted, and the headline could land on
+   a fresh slide already mid-cycle and start fading a second later.
+
+   The hold percentage is pinned to the slide change, not to a number
+   that looked right. At 20s:
+     0.00s  rises
+     0.84s  fully up
+    10.00s  still up  <- 50%, exactly when the slide changes
+    11.10s  the W has cleared
+    12.60s  the last beat has cleared (2s delay)
+    20.00s  starts again
+   So nothing fades in the middle of a bar. The headline holds for the
+   whole of its slide and leaves on the cut, and the slide that follows
+   is the rest — seven and a half empty seconds, which is what the
+   subhead underneath needs to get read. Sequence on one slide, silence
+   on the next.
+
+   Tried along the way — 12s gave no gap at all, 18s about six seconds,
+   24s about twelve, which was too long a wait for the headline. */
 @keyframes seq-beat {
-  0%   { opacity: 0; transform: translate3d(0, 16px, 0); }
-  7%   { opacity: 1; transform: translate3d(0, 0, 0); }
-  64%  { opacity: 1; transform: translate3d(0, 0, 0); }
-  73%  { opacity: 0; transform: translate3d(0, -12px, 0); }
-  100% { opacity: 0; transform: translate3d(0, -12px, 0); }
+  0%     { opacity: 0; transform: translate3d(0, 16px, 0); }
+  4.2%   { opacity: 1; transform: translate3d(0, 0, 0); }
+  50%    { opacity: 1; transform: translate3d(0, 0, 0); }
+  55.5%  { opacity: 0; transform: translate3d(0, -12px, 0); }
+  100%   { opacity: 0; transform: translate3d(0, -12px, 0); }
 }
 
 /* Motion is the whole point here, so the reduced-motion fallback is
@@ -2541,6 +2894,13 @@ html, body { overflow-x: hidden; }
   bottom: 0;
   background: #0a0a09;
   padding: 10px 16px;
+  /* Title left, tag and runtime right. Wraps rather than truncating:
+     on a narrow column the tag belongs under the title, not cut off. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 14px;
   font-family: var(--font-mono);
   font-size: 0.78rem;
   letter-spacing: 0.05em;
@@ -2548,11 +2908,23 @@ html, body { overflow-x: hidden; }
   text-align: left;
 }
 
-.reel-slide-meta b {
+.reel-slide-tags {
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* The service the clip belongs to, plus any descriptors. Hash-tagged
+   rather than spelled out as "ProAV Production" — a tag reads as a
+   filter, which is what these become once there are enough clips to
+   filter. The first is always the service. */
+.reel-tag {
   color: var(--ink-soft);
   font-weight: 400;
-  margin-left: 6px;
+  margin-right: 10px;
 }
+
+/* Descriptors sit back from the service tag they qualify. */
+.reel-tag ~ .reel-tag { color: var(--ink-faint); }
 
 @media (hover: hover) {
   .reel-slide:hover .reel-thumb { filter: brightness(0.78); transform: scale(1.03); }
@@ -2745,29 +3117,58 @@ html, body { overflow-x: hidden; }
   .hero-slide { transition: none; }
 }
 
+/* A video slide fills the frame the same way a photograph does — the
+   rule above is element-agnostic, but a <video> also needs its own
+   background so a frame gap never shows the page through. */
+video.hero-slide { background: #0a0a09; }
+
 .hero-slide:nth-child(2) { object-position: center 58%; }
 .hero-slide:nth-child(3) { object-position: center 50%; }
 .hero-slide:nth-child(4) { object-position: 46% 42%; }
 
 /* ---------- the load bar ---------- */
+/* The strip sits by its rail, not by its buttons. Each button carries
+   --tick-pad above and below the 3px rail to make a real tap target, so
+   the strip is 45px tall and its bottom edge has to come up by that
+   padding or the rail would float 21px higher than it used to. */
 .hero-progress {
+  --tick-pad: 21px;
   position: absolute;
   z-index: 2;
   left: var(--gutter);
   right: var(--gutter);
-  bottom: 52px;
+  bottom: calc(52px - var(--tick-pad));
   display: flex;
+  align-items: center;
   gap: 6px;
+  /* The strip spans the frame; only the buttons in it take clicks, so a
+     drag across the photo is not intercepted by the gaps between them. */
   pointer-events: none;
 }
 
+/* 3px is a bar, not a control. The button is 45px tall and invisible;
+   the rail inside it is what you see. */
 .hero-tick {
   flex: 1;
+  display: flex;
+  align-items: center;
+  padding: var(--tick-pad) 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hero-tick-rail {
+  display: block;
+  width: 100%;
   height: 3px;
   /* Normal state: a visible neutral rail, so the bar reads as a scale
      even before anything fills it. Orange means loaded, nothing else. */
   background: rgba(251, 251, 249, 0.34);
   overflow: hidden;
+  transition: background 0.2s ease, height 0.2s ease;
 }
 
 .hero-tick i {
@@ -2777,12 +3178,30 @@ html, body { overflow-x: hidden; }
   background: var(--tally);
 }
 
+/* Hovering says "this is a control" without moving anything on the page:
+   the rail thickens in place, inside padding that already exists. */
+@media (hover: hover) {
+  .hero-tick:hover .hero-tick-rail {
+    height: 5px;
+    background: rgba(251, 251, 249, 0.6);
+  }
+}
+
+/* Keyboard focus needs to be visible against a photograph that could be
+   any brightness, so the ring is drawn on the button box, well clear of
+   the rail, in the one colour nothing on the frame competes with. */
+.hero-tick:focus-visible {
+  outline: 2px solid var(--tally);
+  outline-offset: -14px;
+  border-radius: 2px;
+}
+
 /* Only the live tick carries orange. A finished one drops back to the
    normal rail, so the bar reads as "loading now" rather than as a
    progress meter that accumulates. */
 
 @media (max-width: 760px) {
-  .hero-progress { bottom: 44px; gap: 5px; }
+  .hero-progress { bottom: calc(44px - var(--tick-pad)); gap: 5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2844,88 +3263,33 @@ video.hero-slide {
    under the viewer's control, while the frames keep moving.
    ============================================================ */
 
-/* Two entry points: the 38-second cut for someone deciding whether to
-   care, and the full session for someone who already does. The short
-   one leads, so the row reads short-then-long rather than making the
-   69-minute commitment the first thing offered. */
-.reel-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  /* The hero wrap is a grid, so a flex property on the child does
-     nothing — the row itself has to be told not to stretch. */
-  justify-self: start;
-  margin-top: 26px;
-}
-
-.reel-open {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 20px 12px 16px;
-  background: rgba(14, 14, 14, 0.58);
-  border: 1px solid rgba(251, 251, 249, 0.35);
-  border-radius: 2px;
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-/* A solid triangle, drawn with borders — no icon file to load. */
-.reel-play {
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 6px 0 6px 10px;
-  border-color: transparent transparent transparent var(--tally);
-  flex: none;
-}
-
-/* The full session is the secondary offer: same shape, less contrast,
-   so the row has an obvious first choice rather than two equal ones. */
-.reel-open--quiet {
-  background: rgba(14, 14, 14, 0.32);
-  border-color: rgba(251, 251, 249, 0.2);
-  color: var(--ink-soft);
-}
-
-.reel-open--quiet .reel-play {
-  border-left-color: var(--ink-soft);
-}
-
-.reel-time {
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
-}
+/* The hero used to carry two labelled buttons under the headline for
+   the same two clips the slider now offers itself. Once a video slide
+   shows its own play control the row was the third place the same clip
+   appeared on one screen, so it went. */
 
 /* Rebuilt on open, so it has no intrinsic size until the metadata
-   arrives — the frame around it carries the shape instead. */
+   arrives — the frame around it carries the shape instead.
+
+   Absolutely positioned, exactly as the YouTube iframe above it is.
+   That asymmetry was a real bug: on `height: 100%` the percentage
+   resolves against the frame's aspect-ratio height (1180 / 16 * 9 =
+   663px at full width) and NOT against the height `max-height: 66vh`
+   actually clamped it to (602px). So the player came out 62px taller
+   than its own frame and, with nothing clipping it, laid that 62px over
+   the caption — the title vanished behind the video.
+
+   `inset: 0` sizes the player to the frame's real box, whichever of the
+   two rules won. The overflow: hidden on the frame is the belt to this
+   pair of braces: no player, whatever it is built from, gets out. */
 .reel-video {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
   background: #000;
-}
-
-@media (hover: hover) {
-  .reel-open:hover {
-    background: rgba(14, 14, 14, 0.78);
-    border-color: var(--tally);
-  }
-
-  .reel-open--quiet:hover {
-    color: var(--ink);
-  }
-
-  .reel-open--quiet:hover .reel-play {
-    border-left-color: var(--tally);
-  }
 }
 
 .reel {
@@ -2938,8 +3302,22 @@ video.hero-slide {
   overflow: visible;
 }
 
+/* Two jobs, and the alpha alone only did one of them. At 0.88 the page
+   behind measured a spread of 7.3 across the strip beside the dialog and
+   a range of 7-37 — dim, but every edge still there and the copy still
+   readable, which is what made it compete with the clip.
+
+   Raising the alpha drops the brightness; the blur is what destroys the
+   legibility, and it is the legibility that was the distraction. Both
+   together: spread 2.3, range 6-19. Not flat black — the page is still
+   faintly there, which is what says "this is on top of something" rather
+   than "the site went away" — but nothing on it can be read.
+
+   backdrop-filter is unsupported in a few places; those fall back to
+   0.95 flat, which is dark enough on its own. */
 .reel::backdrop {
-  background: rgba(8, 8, 8, 0.88);
+  background: rgba(6, 6, 6, 0.90);
+  backdrop-filter: blur(6px);
 }
 
 /* Stated rather than inferred, so the box is the right shape before the
@@ -2948,10 +3326,14 @@ video.hero-slide {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  max-height: 86vh;
+  /* Down from 86vh to leave the caption a band. At 86 against the
+     dialog's 90vh the credits had nowhere to go on a short window and
+     pushed the player off the bottom. */
+  max-height: 66vh;
   background: #000;
   display: grid;
   place-items: center;
+  overflow: hidden;
 }
 
 .reel-frame iframe {
@@ -2963,6 +3345,104 @@ video.hero-slide {
 }
 
 .reel-frame a { color: var(--ink); }
+
+/* ------------------------------------------------------------------
+   Lightbox caption
+
+   The frame was capped at 86vh against a 90vh dialog, which left no
+   room for anything under it. The cap comes down so the caption has a
+   band of its own rather than pushing the player off the bottom of a
+   short window.
+   ------------------------------------------------------------------ */
+.reel-cap {
+  padding: 16px 22px 18px;
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.reel-cap-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.reel-cap-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.reel-cap-meta > * + *::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--tally);
+  vertical-align: 0.25em;
+}
+
+.reel-cap-credits:not(:empty) {
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+
+.reel-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin: 0 0 3px;
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+
+.reel-credit:last-child { margin-bottom: 0; }
+
+.reel-credit i {
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* The only linked credit on the site, so it has to say so on its own —
+   there is no surrounding body copy to inherit link treatment from. */
+.reel-credit a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--tally);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+@media (hover: hover) {
+  .reel-credit a:hover {
+    color: var(--tally);
+    text-decoration-color: var(--tally);
+  }
+}
+
+@media (max-width: 760px) {
+  .reel-cap { padding: 13px 15px 15px; }
+  .reel-cap-title { font-size: 1rem; }
+}
 
 .reel-close {
   position: absolute;
@@ -2987,13 +3467,4 @@ video.hero-slide {
 @media (max-width: 760px) {
   .reel { width: 96vw; }
   .reel-close { top: -40px; }
-  .reel-row { margin-top: 22px; gap: 10px; }
-  /* 44px is the floor for anything a thumb has to hit. The padding
-     alone left these at 39. */
-  .reel-open {
-    font-size: 0.76rem;
-    padding: 11px 16px 11px 14px;
-    margin-top: 0;
-    min-height: 44px;
-  }
 }

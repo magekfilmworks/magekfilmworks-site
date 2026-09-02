@@ -25,6 +25,7 @@ amplify.yml           build config, version-controlled rather than clicked in
 tools/lint.py         stylesheet guard
 tools/lint_chrome.py  header/footer drift and dead-link guard
 tools/inline.py       flatten to one file for preview
+SITE-BIBLE.md         every decision and why — read this first
 ```
 
 The deploy script runs from `~/deploy-magek.sh`, the same place
