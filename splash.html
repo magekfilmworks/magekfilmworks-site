@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Magek Filmworks — Back September 10</title>
+<meta name="description" content="Magek Filmworks returns September 10. Creative visual media producers in Washington, D.C. — video production, ProAV, and cloud production since 1998." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="images/logo-icon.png" />
+
+<!-- lint-chrome: standalone -->
+<!--
+  No site header or footer on purpose, which is why the marker above is
+  here: lint_chrome.py checks that every page carries identical chrome,
+  and this page is the one that must not. The exemption lives in the file
+  it applies to rather than in a list inside the linter, so a page cannot
+  be exempt by accident and the reason travels with it.
+
+  Deliberately self-contained: its own CSS, no stylesheet link, no
+  script. This page has to render even mid-deploy, when the rest of the
+  site may be half-swapped — the one thing worse than a site being down
+  is a holding page that is also broken. The only external files it
+  touches are two fonts and the logo, and every one has a fallback.
+
+  noindex, because a search engine that crawls during the window would
+  otherwise cache "Back September 10" as the site's description.
+-->
+<style>
+  @font-face {
+    font-family: "Space Grotesk"; font-weight: 700; font-display: swap;
+    src: url("fonts/space-grotesk-latin-700-normal.woff2") format("woff2");
+  }
+  @font-face {
+    font-family: "IBM Plex Mono"; font-weight: 500; font-display: swap;
+    src: url("fonts/ibm-plex-mono-latin-500-normal.woff2") format("woff2");
+  }
+
+  :root {
+    --paper: #131313;
+    --ink: #fbfbf9;
+    --ink-soft: #a09e97;
+    --line: #2c2c2a;
+    --tally: #df4929;
+    color-scheme: dark;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: grid;
+    grid-template-rows: 1fr auto;
+  }
+
+  .stage {
+    display: grid;
+    align-content: center;
+    padding: 64px 44px;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .mark { display: block; width: 268px; max-width: 62vw; height: auto; }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 54px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.86rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  /* The one moving thing on the page. A tally light says a system is
+     live — here it says somebody is still on the other end, which is the
+     single thing a holding page has to communicate. */
+  .status::before {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--tally);
+    flex: none;
+    animation: pulse 2.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.28; } }
+
+  h1 {
+    margin-top: 20px;
+    font-size: clamp(2.2rem, 7vw, 3.9rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  h1 .date { color: var(--tally); display: block; }
+
+  p {
+    margin-top: 26px;
+    max-width: 46ch;
+    font-size: clamp(1rem, 2.6vw, 1.16rem);
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  .reach {
+    margin-top: 40px;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 34px;
+  }
+
+  .reach a {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.86rem;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+    /* 44px of target on a phone, without the link looking like a button.
+       13, not 12: the 1px rule underneath counts toward the box, and at
+       12 the link measured 43 — one under the floor. Same pixel the
+       clients list gave up. */
+    padding: 13px 0;
+    /* A flex item will not shrink below its content, so the 31-character
+       email address pushed the whole page 5px wider than a 320px screen
+       and produced a horizontal scrollbar. Letting it break is cheaper
+       than shrinking the type. */
+    overflow-wrap: anywhere;
+    min-width: 0;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  @media (hover: hover) {
+    .reach a:hover { color: var(--tally); border-bottom-color: var(--tally); }
+  }
+
+  .reach a:focus-visible { outline: 2px solid var(--tally); outline-offset: 4px; }
+
+  footer {
+    padding: 26px 44px 34px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
+    /* --ink-soft, not --ink-faint. Faint measures 3.44:1 on this ground:
+       fine for a rule, a fail for 12px type. */
+    color: var(--ink-soft);
+  }
+
+  @media (max-width: 560px) {
+    .stage { padding: 48px 28px; }
+    footer { padding: 22px 28px 30px; }
+    .status { margin-top: 40px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status::before { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <main class="stage">
+    <img class="mark" src="images/logo-lockup.png" alt="Magek Filmworks" />
+
+    <p class="status">Back soon</p>
+
+    <h1>We return<span class="date">September 10.</span></h1>
+
+    <p>
+      The site is being rebuilt. Crews are still working, projects are still
+      booking, and the phone still rings — nothing about the shop has stopped.
+    </p>
+
+    <div class="reach">
+      <a href="mailto:info@magekfilmworks.productions">info@magekfilmworks.productions</a>
+      <a href="https://www.linkedin.com/company/magek-filmworks/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://gekjr.pro" target="_blank" rel="noopener noreferrer">gekjr.pro</a>
+    </div>
+  </main>
+
+  <footer>
+    &copy; <span id="y">2026</span> Magek Filmworks &middot; Washington, D.C. &middot; Since 1998
+  </footer>
+
+  <script>document.getElementById("y").textContent = new Date().getFullYear();</script>
+</body>
+</html>

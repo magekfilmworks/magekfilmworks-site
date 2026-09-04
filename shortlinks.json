@@ -1,0 +1,21 @@
+{
+  "_comment": [
+    "Short links for S3 objects, served from magekfilmworks.productions.",
+    "",
+    "  slug    the path after /v/  ->  magekfilmworks.productions/v/<slug>",
+    "  target  the full object URL, exactly as S3 gives it",
+    "  label   what it is, for you — never rendered anywhere",
+    "",
+    "Add an entry, run tools/shortlinks.py, paste the block it prints",
+    "into Amplify -> Rewrites and redirects. Nothing to deploy: these",
+    "rules live in the Console, not in the site."
+  ],
+
+  "links": [
+    {
+      "slug": "aamc-2025",
+      "label": "2025 AAMC Virtual Awards Program — Dent Digital / Magek",
+      "target": "https://magek-vod-output.s3.us-east-1.amazonaws.com/magekfilmworks-playback/2025+AAMC+Virtual+Awards+Program.mp4"
+    }
+  ]
+}

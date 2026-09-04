@@ -14,15 +14,15 @@
 
 <header class="site-header">
   <div class="wrap wrap--bleed">
-    <a href="index.html" class="brand">
+    <a href="/" class="brand">
       <img src="images/logo-lockup.png" alt="Magek Filmworks" />
     </a>
     <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <nav class="header-nav">
-      <a href="about.html">About</a>
-      <a href="contact.html" class="header-cta">Start a project</a>
+      <a href="/about">About</a>
+      <a href="/contact" class="header-cta">Start a project</a>
     </nav>
   </div>
 </header>
@@ -50,9 +50,11 @@
               only once you scroll far enough down the page to see it. Google may
               set cookies at that point, under their own privacy policy. Never
               scroll that far and no request is made.</li>
-          <li><b>The videos</b> load from YouTube only when you press play, using
-              their no-cookie player. Until you click, nothing is requested from
-              YouTube and nothing is recorded by them.</li>
+          <li><b>The videos</b> only load when you press play. One is on
+              YouTube and uses their no-cookie player; until you click,
+              nothing is requested from YouTube and nothing is recorded by
+              them. The rest are served from our own AWS storage, which
+              sets no cookies and involves no third party.</li>
         </ul>
 
         <h2>The project form</h2>
@@ -105,13 +107,13 @@
       <p>&copy; <span class="year"></span> Magek Filmworks. All rights reserved.</p>
     </div>
     <div class="footer-social">
-      <a href="privacy.html">Privacy</a>
+      <a href="/privacy">Privacy</a>
       <a href="https://www.linkedin.com/company/magek-filmworks/" target="_blank" rel="noopener">LinkedIn</a>
       <a href="https://gekjr.pro" target="_blank" rel="noopener noreferrer">gekjr.pro</a>
     </div>
   </div>
 </footer>
 
-<script src="js/main.js?v=02758163"></script>
+<script src="js/main.js?v=3e16b3a2"></script>
 </body>
 </html>

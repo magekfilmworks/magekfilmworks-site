@@ -48,6 +48,184 @@ to `main`.
 
 ---
 
+## 2a. Clean URLs
+
+No page URL ends in `.html`. The files on disk keep their `.html` names —
+a static site with no build step has no reason to rename anything — and
+**Amplify rewrites the clean path to the real file**.
+
+This is two changes, and the order is not optional:
+
+1. The rewrite rules in the Amplify Console
+2. The internal links in the site itself
+
+**Console first, confirmed saved, then deploy the links.** The other way
+round and every link 404s until the rules catch up.
+
+### The rules
+
+`amplify-rewrites.json` in this repo is the copy of record. Amplify
+Console -> App settings -> Rewrites and redirects. **Delete everything
+already there first**, including Amplify's default SPA fallback
+(`{"source": "/<*>", "status": "404-200", "target": "/index.html"}`) —
+that one serves the homepage for every unmatched path and breaks clean
+URLs in a way that looks like the site working.
+
+```json
+[
+  { "source": "/",        "status": "200", "target": "/index.html" },
+  { "source": "/about",   "status": "200", "target": "/about.html" },
+  { "source": "/contact", "status": "200", "target": "/contact.html" },
+  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
+]
+```
+
+**One explicit rule per page, never a wildcard.** `{"source": "/<*>",
+"target": "/<*>.html"}` looks correct and is the documented Amplify
+trap: it matches `/css/style.css` too, rewrites it to
+`/css/style.css.html`, and the site loads as unstyled text. Four literal
+rules cannot do that. **A new page means a new line here AND in the
+Console** — the Console is the copy that has to be updated by hand.
+
+`status` is `200`, a true rewrite: the address bar keeps the clean path.
+A `301`/`302` would visibly rewrite it back to `.html` and defeat the
+point.
+
+### In the site
+
+`url()` in `pages.py` is the single place the transformation happens —
+`index.html` -> `/`, `about.html` -> `/about`. NAV and the PAGES dict
+stay keyed by filename, so the `aria-current` comparison still works on
+filenames.
+
+Links are **root-relative** (`/about`, not `about`): the rule's source is
+`/about`, and a bare `about` resolves against whatever path the visitor
+is standing on. Assets stay relative (`css/style.css`) and still resolve,
+because every page lives at the root — `/about` has `/` as its base.
+
+The cost: opening `build/index.html` off the filesystem no longer
+navigates. **`tools/serve.py` applies the same rewrite table**, so local
+testing matches the live site:
+
+```
+python3 tools/serve.py build 8000
+```
+
+`lint_chrome.py` fails the build on any internal `href` still ending in
+`.html`, and on any clean URL with no matching file on disk. The first
+one matters more than it looks: a stray `about.html` still *works* — the
+file is really there — so nothing breaks and nobody notices until it is
+in a shared link or a search index.
+
+### Still missing
+
+No `sitemap.xml`, no `canonical`, no `og:url` on any page. Nothing to
+update for clean URLs because none of it exists yet. Worth adding, and
+when it is added it uses the clean paths.
+
+---
+
+## 2b. The splash page
+
+`splash.html` is a holding page. It ships with the site at all times and
+is **switched on and off entirely from the Amplify Console** — the real
+site stays in the repo untouched, so turning it off is a paste, not a
+deploy.
+
+**Splash on** (`amplify-rewrites-splash.json`):
+
+```json
+[
+  { "source": "/",        "status": "200", "target": "/splash.html" },
+  { "source": "/home",    "status": "200", "target": "/index.html" },
+  { "source": "/about",   "status": "200", "target": "/about.html" },
+  { "source": "/contact", "status": "200", "target": "/contact.html" },
+  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
+]
+```
+
+**Splash off**: paste `amplify-rewrites.json` back. That is the whole
+switch.
+
+`/home` keeps the real homepage reachable while the splash is up.
+**It is a known path, not a secret one** — anyone who guesses it sees the
+site. If it ever needs to be genuinely private that is a different
+mechanism (basic auth on an Amplify branch), not a rewrite rule.
+
+Note that while the splash is up, the real site's own brand link points
+at `/`, which is the splash. Browsing from `/home` and clicking the logo
+lands on the holding page. Expected, and the reason `/home` is for
+checking rather than for using.
+
+**It declares itself standalone.** The first line of the file is:
+
+```html
+<!-- lint-chrome: standalone -->
+```
+
+Without it, `lint_chrome.py` fails every build the moment the page ships
+— it compares header and footer across pages, and this page carries
+neither on purpose. The marker lives in the page rather than in a list
+inside the linter, so a page cannot end up exempt by accident and the
+reason travels with the file. Everything else still runs on it: links,
+external-link safety, the house name, the asset stamp.
+
+**The page is deliberately self-contained** — its own inline CSS, no
+stylesheet link, no framework. It has to render even mid-deploy, when the
+rest of the site may be half-swapped. The one thing worse than a site
+being down is a holding page that is also broken. It touches two fonts
+and the logo, and all three have fallbacks.
+
+`noindex` is set: a crawl during the window would otherwise cache "Back
+September 10" as the site's description long after it is wrong.
+
+**The date is hardcoded.** Nothing hides it once it passes. If the
+Console does not get switched back, the page keeps advertising a date in
+the past — which reads worse than no date at all.
+
+---
+
+## 2c. Short links for S3 objects
+
+`magekfilmworks.productions/v/<slug>` redirects to a file in the
+`magek-vod-output` bucket. The AAMC programme is `/v/aamc-2025`.
+
+**There is no shortener service.** A shortener is a lookup table and a
+redirect, and Amplify already does both — so the whole thing is a JSON
+block in a Console field. No Lambda, no DynamoDB, no API Gateway:
+nothing to run, nothing to bill, and nothing that can be down while the
+rest of the site is up.
+
+The cost of that choice is that adding a link means pasting the block
+again. `tools/shortlinks.py` exists so that paste is one copy and never
+hand-edited:
+
+```
+python3 tools/shortlinks.py            # pages + links, ready to paste
+python3 tools/shortlinks.py --splash   # the same, in splash mode
+python3 tools/shortlinks.py --check    # validate only
+```
+
+Links live in `shortlinks.json`. Add a slug and a target, run the
+script, paste what it prints.
+
+**302, not 301.** A permanent redirect is cached by browsers effectively
+forever, so a wrong target would follow people around long after it was
+fixed — and these point at storage that may be re-organised.
+
+**302, not a 200 rewrite.** A rewrite proxies the object through
+Amplify: every byte of a 70-minute programme through the hosting layer,
+slower and paid for twice. A redirect hands the player to S3 and gets
+out of the way. The trade is that the S3 URL appears in the address bar
+once the redirect resolves — the short link is for sharing, not for
+hiding where the file lives.
+
+The script refuses to emit a block with a duplicate slug, a slug that
+shadows a real page, a non-https target, or a raw space. It **warns**
+rather than refuses on a `+` in the target path — see §9.
+
+---
+
 ## 3. Design system
 
 ### Dark ground (the default)
@@ -397,7 +575,39 @@ Deliberately not flat black — the page still faintly there says "this is
 on top of something" rather than "the site went away". Browsers without
 `backdrop-filter` fall back to 0.95 flat, which is dark enough alone.
 
-**Lightbox.** One `<dialog>`, two source types. Local mp4 or a
+**Lightbox.** One `<dialog>`, **three** source types — a clip we host
+(`src`), YouTube (`youtube`), or Vimeo (`vimeo` plus `vimeo_h`). One
+entry in `REEL` picks which; nothing else in the site has to know.
+
+Both third parties load on the same terms: **nothing is requested until a
+click**, YouTube through the `youtube-nocookie` host and Vimeo with
+`dnt=1`, their do-not-track flag. A visitor who never presses play never
+meets either company. That is what the privacy page promises, so a fourth
+source type has to keep the same bargain or the page stops being true.
+
+`vimeo_h` is the unlisted-video key from the share URL
+(`vimeo.com/<id>/<hash>`). **Without it the embed 404s** — an unlisted
+video is not a private one, but it is not reachable by id alone. Nothing
+currently uses the Vimeo path; it is kept because the capability is real
+and tested, not because a clip depends on it.
+
+**`src` can be a remote URL**, and long-form video should be. The AAMC
+programme is an mp4 on S3
+(`magek-vod-output.s3.us-east-1.amazonaws.com`), which keeps a 70-minute
+file out of git entirely and out of the 100 MiB push limit — see §9 on
+video weight.
+
+### `inline`: which clips play in the hero frame
+
+**`inline=True` is opt-in and belongs only on a short clip we host
+ourselves.** A slide with it becomes a real `<video>` that plays muted in
+the frame; every other clip is a poster that opens the lightbox.
+
+The test is deliberately not "does this entry have an mp4". The AAMC
+programme is an mp4 too — a feature-length one. Keying off `src` alone
+would put it in the rotation as a `<video>`, armed and autoplaying, on
+every visit to the homepage. **A teaser plays inline; a programme is
+watched in the lightbox.** Local mp4 or a
 `youtube-nocookie` iframe, built on open and torn down on close.
 Removing the node is the only reliable way to stop playback — a hidden
 iframe keeps playing audio. Nothing loads until a click.
@@ -448,6 +658,9 @@ it.
 - external links without `target="_blank"` and `rel="noopener"`
 - the house name spelled any way but **Magek**
 - `style.css` or `main.js` linked without a `?v=` content hash
+
+A page with no header or footer must carry `<!-- lint-chrome: standalone -->`
+or it fails the chrome comparison.
 
 `pages.py` asserts:
 - every reel clip has exactly one service tag
@@ -517,6 +730,14 @@ not. `inset: 0` sizes to the frame's real box, whichever rule won.
 parent has both `aspect-ratio` and a `max-height`, do not size a child
 to it with a percentage.**
 
+**`+` in a URL path is a literal plus, not a space.** It only decodes to
+a space inside a query string. An S3 object URL copied with `+` where
+the key really has spaces 404s — and it fails in a way that reads like a
+permissions problem, which is where the hour goes. `%20` is the encoding
+for a path. `tools/shortlinks.py` warns about it rather than blocking,
+because a key can legitimately contain a plus and only the bucket knows
+which case it is.
+
 **The house name is "Magek".** Capital M, lowercase k, and it has been
 corrected more than once — "MageK" is the kind of wrong that reads as
 right, because the shape is familiar and the eye supplies the rest. It
@@ -524,6 +745,13 @@ crept back in through my own notes. `lint_chrome.py` now fails the build
 on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
+
+**Lint what ships, not a list you maintain.** `build.sh` passed
+`lint_chrome.py` an explicit four-page list while `~/deploy-magek.sh` and
+the Amplify build both glob `./*.html`. So `splash.html` passed here and
+failed there — the local check was not testing what actually deploys.
+`build.sh` globs now. **If two places run the same linter, they have to
+give it the same input**, or the earlier one is theatre.
 
 **Google Fonts is blocked in the sandbox**, so every early wrap
 measurement was made in Helvetica, not Space Grotesk. Conclusions held,
