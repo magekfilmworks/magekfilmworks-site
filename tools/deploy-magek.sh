@@ -52,6 +52,45 @@ trash_it() {
   say "  trashed $base"
 }
 
+# ---------------------------------------------------------------- tools
+# macOS ships `git` and `python3` as stubs that shell out to the Xcode
+# Command Line Tools. On a Mac where those are missing — a new machine, a
+# fresh OS upgrade — the stub fails with:
+#
+#   xcrun: error: invalid active developer path
+#
+# which says nothing about what is wrong or what to do, and comes out of
+# whichever command happened to run first. Catching it here turns a
+# cryptic toolchain error into one sentence and one command.
+MISSING=""
+
+# Presence only. unzip does not accept --version, and probing it that way
+# reports a working tool as broken.
+for tool in git python3 unzip; do
+  command -v "$tool" >/dev/null 2>&1 || MISSING+="$tool "
+done
+
+# git and python3 are the two that are stubs on macOS, so they get run
+# rather than just looked for: present on PATH and still non-functional
+# is exactly the failure this is here to catch.
+for tool in git python3; do
+  command -v "$tool" >/dev/null 2>&1 || continue
+  "$tool" --version >/dev/null 2>&1 || MISSING+="$tool "
+done
+
+MISSING="${MISSING% }"
+
+if [[ -n "$MISSING" ]]; then
+  die "Cannot run: $MISSING is not working on this Mac.
+
+If you just saw an 'xcrun: invalid active developer path' error, the Xcode
+Command Line Tools are missing. Install them and try again:
+
+  xcode-select --install
+
+A dialog opens; it takes a few minutes. Nothing else needs reinstalling."
+fi
+
 # ---------------------------------------------------------------- repo
 if [[ ! -d "$REPO/.git" ]]; then
   die "No git repo at: $REPO
@@ -126,6 +165,16 @@ fi
 
 step "Using $(basename "$ZIP")"
 say "  $(date -r "$ZIP" '+%b %e, %l:%M %p' 2>/dev/null || echo '')"
+
+# Every zip has the same filename, and this script trashes the one it
+# used. If a download went somewhere else, the newest match in Downloads
+# is an OLD zip and the deploy silently reinstalls last hour's site —
+# a success message over stale content. Age is the tell.
+ZIP_AGE=$(( ( $(date +%s) - $(stat -f%m "$ZIP" 2>/dev/null || stat -c%Y "$ZIP") ) / 60 ))
+if [[ "$ZIP_AGE" -gt 45 ]]; then
+  printf '\033[33m  %s\033[0m\n' "This zip is ${ZIP_AGE} minutes old."
+  say "  If you just downloaded a newer one, it did not land in $DOWNLOADS."
+fi
 
 # ---------------------------------------------------------------- unpack
 TMP="$(mktemp -d)"
@@ -207,6 +256,14 @@ if [[ "$CLEANUP" == "1" && "$ZIP" == "$DOWNLOADS"/* ]]; then
 fi
 
 # ---------------------------------------------------------------- report
+# The build stamp, before and after. Two identical stamps mean the zip
+# carried the same site that is already installed — which is the answer
+# to "I ran it and nothing changed".
+step "Build"
+if [[ -f "$REPO/BUILD" ]]; then
+  say "  installed: $(cat "$REPO/BUILD")"
+fi
+
 step "Changed files"
 if [[ -z "$(git -C "$REPO" status --porcelain)" ]]; then
   say "  (none — that zip matches what's already committed)"

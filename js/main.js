@@ -459,6 +459,22 @@ if (reelDialog && reelFrame) {
     // scrubber are right without pulling 9.5MB down for a viewer who
     // opened the box and changed their mind.
     video.preload = "metadata";
+
+    /* Deterrents, not protection — and worth being clear about which.
+
+       controlsList="nodownload" removes the download item from the
+       native player's menu. Chromium honours it; Safari and Firefox
+       ignore it. Blocking the context menu takes away "Save video as".
+
+       Neither stops anyone who opens the network tab, because the file
+       is a public URL and the browser has to fetch it to play it. The
+       only thing that actually restricts access is not serving the
+       object publicly — CloudFront in front of the bucket with the
+       bucket itself private, and signed URLs that expire. See the Site
+       Bible. These two lines just mean it is not a one-click save. */
+    video.setAttribute("controlsList", "nodownload");
+    video.addEventListener("contextmenu", (e) => e.preventDefault());
+
     if (poster) video.poster = poster;
     const source = document.createElement("source");
     source.src = src;

@@ -41,6 +41,59 @@ to `main`.
 - `tools/deploy-magek.sh` in this repo is the master copy. A new version
   lands here on every deploy; install it with
   `cp tools/deploy-magek.sh ~/deploy-magek.sh && chmod +x ~/deploy-magek.sh`
+### When the deploy script won't run
+
+Two failures, both hit on 4 Sept 2026 moving to a new Mac, both looking
+like "the script is broken" when the script was never the problem.
+
+**`zsh: no such file or directory: /Users/…/deploy-magek.sh`**
+The script is not installed on this machine. That is zsh failing to
+*execute* a missing file — nothing ran, which is why there was no error
+output to read. It lives in the repo; install it:
+
+```
+cp ~/Documents/GitHub/magekfilmworks-site/tools/deploy-magek.sh ~/deploy-magek.sh
+chmod +x ~/deploy-magek.sh
+```
+
+**`xcrun: error: invalid active developer path`**
+The Xcode Command Line Tools are missing. Install and re-run:
+
+```
+xcode-select --install
+```
+
+A dialog opens; a few minutes. Nothing else needs reinstalling. The
+script preflights for this now and says so itself.
+
+**If the repo lives somewhere else on that Mac**, no reinstall needed:
+
+```
+MAGEK_REPO=~/path/to/magekfilmworks-site ~/deploy-magek.sh
+```
+
+The lesson for next time: **ask for the terminal output before
+theorising.** Two rounds went into a stale-zip detector for a problem
+that did not exist, because "it's not working" was taken at face value
+instead of asking what it printed. The build stamp that came out of it
+is worth keeping; the detour was not.
+
+- **On a new Mac, install the Command Line Tools first.** macOS ships
+  `git` and `python3` as stubs that shell out to Xcode's CLT. Without
+  them, the first git call fails with
+  `xcrun: error: invalid active developer path` — an error that names
+  neither the cause nor the fix, and surfaces from whichever command ran
+  first. The script now preflights `git`, `python3` and `unzip` and says
+  what to run:
+
+  ```
+  xcode-select --install
+  ```
+
+  Presence alone is not the test for the two stubs: they are on PATH and
+  still non-functional, which is the whole failure. They get run.
+  `unzip` is checked for presence only — it does not accept `--version`,
+  and probing it that way reports a working tool as broken.
 - **It never requires a commit first.** Uncommitted changes are backed
   up into `.git/magek-deploy-backups/<timestamp>/` and the unpack
   continues. It refuses only two things: a failing lint, and committing
@@ -185,7 +238,6 @@ the past — which reads worse than no date at all.
 
 ---
 
-<<<<<<< HEAD
 ## 2c. Short links for S3 objects
 
 `magekfilmworks.productions/v/<slug>` redirects to a file in the
@@ -227,8 +279,108 @@ rather than refuses on a `+` in the target path — see §9.
 
 ---
 
-=======
->>>>>>> 9a7627ee87ef5b35260a28e0ef83af820fc06c13
+## 2d. Knowing which build is installed
+
+`BUILD` at the repo root holds a content hash of the whole site plus the
+time it was made:
+
+```
+e283574900  2026-09-04 20:25 UTC
+```
+
+`build.sh` writes it, it ships in the zip, and `~/deploy-magek.sh`
+prints the installed one before the diff.
+
+**Why it exists.** Every zip has the same filename, and the deploy
+script picks the newest `magek*.zip` in Downloads and trashes it
+afterwards. If a download landed somewhere else — or a file card got
+opened rather than saved — the script finds an *older* zip, installs it,
+lints it, and reports success. Stale content under a green light, which
+is indistinguishable from working.
+
+**The hash covers `build/` only** — the pages, CSS, JS and images. Not
+the Bible, not `tools/`, not the Amplify JSON: those ship in the zip but
+are not the site, and a documentation edit should not read as a site
+change. The timestamp is appended, so `BUILD` itself always differs
+between builds; **it is the hash that answers whether anything shipped.**
+
+Two symptoms now have answers:
+
+- **"I ran it and nothing changed"** — same hash as the installed one,
+  so the zip carried the site that was already there.
+- **"I deployed but the site is old"** — the zip's age is printed, and a
+  warning fires past 45 minutes.
+
+The stamp must be written **before** `build.sh` syncs `build/` into
+`repo/`. Written after, it never reaches the repo and never ships — it
+was wrong that way first.
+
+---
+
+## 2e. Video delivery: speed and access
+
+### Why playback is slow
+
+Two causes, in the order worth checking.
+
+**1. The moov atom.** An MP4 has an index (`moov`). If the encoder left
+it at the END of the file, a browser cannot show frame one until it has
+fetched its way there. On a 70-minute programme that is a gigabyte or
+more before anything moves. With `+faststart` the index sits at the
+front and playback begins after a megabyte or two.
+
+Check, then fix without re-encoding — it is a remux, so the picture is
+untouched:
+
+```
+ffprobe -v trace -i FILE 2>&1 | grep -m2 -E 'type:.moov|type:.mdat'
+ffmpeg -i FILE -c copy -movflags +faststart FILE-fast.mp4
+```
+
+If `mdat` appears before `moov`, that is the problem.
+
+**2. S3 is storage, not delivery.** Every byte travels from us-east-1 to
+the viewer, with no edge cache and no connection reuse across viewers.
+Fine for one person nearby, slow for anyone far away and slow on every
+seek. **CloudFront in front of the bucket** is the fix.
+
+### Why "prevent download" needs care
+
+**A video the browser can play is a video the viewer already has.** It
+has to be fetched to be decoded; the network tab shows the URL.
+
+What ships is a deterrent, and is labelled as one in `main.js`:
+
+- `controlsList="nodownload"` removes the item from the native player's
+  menu — **Chromium honours it, Safari and Firefox ignore it**
+- a `contextmenu` handler removes "Save video as"
+
+Neither is protection. **The only thing that restricts access is not
+serving the object publicly:** CloudFront with Origin Access Control,
+the bucket private, and signed URLs that expire. Then the file is
+reachable only through a link the site mints, and only for as long as
+that link lives.
+
+Which is the same change that fixes the speed — mostly. **Full setup
+steps are in `CLOUDFRONT-VIDEO.md`**, including the parts that bite: the
+ACM certificate has to be in `us-east-1` regardless of the bucket's
+region, and `Range` must stay out of the cache key or delivery ends up
+slower than plain S3.
+
+**But signing needs a signer.** CloudFront signed URLs are made with a
+private key, server-side, always — the key can never reach the browser.
+This site is static, so signed URLs mean adding a Lambda Function URL to
+mint them. Real infrastructure: deploy, secure, monitor, pay for. Worth
+it for genuinely restricted video; not worth it to make casual saving
+harder, which the two deterrents already do.
+
+**And check the moov atom before blaming delivery.** A file with its
+index at the end has to be fetched almost entirely before frame one
+appears — on a 70-minute programme that is a gigabyte of waiting, and no
+CDN fixes it. `-movflags +faststart` is a remux, not a re-encode.
+
+---
+
 ## 3. Design system
 
 ### Dark ground (the default)
