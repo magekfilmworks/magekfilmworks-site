@@ -125,6 +125,53 @@ when it is added it uses the clean paths.
 
 ---
 
+## 2b. The splash page
+
+`splash.html` is a holding page. It ships with the site at all times and
+is **switched on and off entirely from the Amplify Console** — the real
+site stays in the repo untouched, so turning it off is a paste, not a
+deploy.
+
+**Splash on** (`amplify-rewrites-splash.json`):
+
+```json
+[
+  { "source": "/",        "status": "200", "target": "/splash.html" },
+  { "source": "/home",    "status": "200", "target": "/index.html" },
+  { "source": "/about",   "status": "200", "target": "/about.html" },
+  { "source": "/contact", "status": "200", "target": "/contact.html" },
+  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
+]
+```
+
+**Splash off**: paste `amplify-rewrites.json` back. That is the whole
+switch.
+
+`/home` keeps the real homepage reachable while the splash is up.
+**It is a known path, not a secret one** — anyone who guesses it sees the
+site. If it ever needs to be genuinely private that is a different
+mechanism (basic auth on an Amplify branch), not a rewrite rule.
+
+Note that while the splash is up, the real site's own brand link points
+at `/`, which is the splash. Browsing from `/home` and clicking the logo
+lands on the holding page. Expected, and the reason `/home` is for
+checking rather than for using.
+
+**The page is deliberately self-contained** — its own inline CSS, no
+stylesheet link, no framework. It has to render even mid-deploy, when the
+rest of the site may be half-swapped. The one thing worse than a site
+being down is a holding page that is also broken. It touches two fonts
+and the logo, and all three have fallbacks.
+
+`noindex` is set: a crawl during the window would otherwise cache "Back
+September 10" as the site's description long after it is wrong.
+
+**The date is hardcoded.** Nothing hides it once it passes. If the
+Console does not get switched back, the page keeps advertising a date in
+the past — which reads worse than no date at all.
+
+---
+
 ## 3. Design system
 
 ### Dark ground (the default)
