@@ -185,6 +185,7 @@ the past — which reads worse than no date at all.
 
 ---
 
+<<<<<<< HEAD
 ## 2c. Short links for S3 objects
 
 `magekfilmworks.productions/v/<slug>` redirects to a file in the
@@ -226,6 +227,8 @@ rather than refuses on a `+` in the target path — see §9.
 
 ---
 
+=======
+>>>>>>> 9a7627ee87ef5b35260a28e0ef83af820fc06c13
 ## 3. Design system
 
 ### Dark ground (the default)
