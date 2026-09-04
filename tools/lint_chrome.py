@@ -41,12 +41,25 @@ for label, pattern in (('header', HEADER), ('footer', FOOTER)):
         groups = ' | '.join(f"{v} -> {k}" for k, v in seen.items())
         problems.append(f'{label} differs between pages: {groups}')
 
-# every internal link must resolve to a file that exists
+# Every internal link must resolve to a file that exists — and must be a
+# CLEAN url, because Amplify only rewrites the paths it has an explicit
+# rule for. A stray href="about.html" would still work (the file is
+# really there) which is exactly why it needs a lint: it is invisible
+# until someone notices the address bar, and by then it is in a shared
+# link or a search index.
 here = files[0].parent
 for f in files:
-    for href in set(re.findall(r'href="([^"#:]+\.html)"', f.read_text())):
-        if not (here / href).exists():
-            problems.append(f'{f.name}: link to missing page "{href}"')
+    text = f.read_text()
+
+    for href in set(re.findall(r'href="([^"#:]*\.html)"', text)):
+        problems.append(f'{f.name}: internal link still ends in .html -> "{href}" '
+                        f'(should be "/{href[:-5]}", or "/" for index)')
+
+    for href in set(re.findall(r'href="(/[^"#:]*)"', text)):
+        page = 'index.html' if href == '/' else href.lstrip('/') + '.html'
+        if not (here / page).exists():
+            problems.append(f'{f.name}: link to missing page "{href}" '
+                            f'(no {page} on disk)')
 
 # every off-site link must open in its own tab, with the rel that stops
 # the opened page reaching back through window.opener. pages.py adds

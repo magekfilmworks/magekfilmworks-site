@@ -1,0 +1,6 @@
+[
+  { "source": "/",        "status": "200", "target": "/index.html" },
+  { "source": "/about",   "status": "200", "target": "/about.html" },
+  { "source": "/contact", "status": "200", "target": "/contact.html" },
+  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
+]

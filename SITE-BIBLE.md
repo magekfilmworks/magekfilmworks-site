@@ -48,6 +48,83 @@ to `main`.
 
 ---
 
+## 2a. Clean URLs
+
+No page URL ends in `.html`. The files on disk keep their `.html` names —
+a static site with no build step has no reason to rename anything — and
+**Amplify rewrites the clean path to the real file**.
+
+This is two changes, and the order is not optional:
+
+1. The rewrite rules in the Amplify Console
+2. The internal links in the site itself
+
+**Console first, confirmed saved, then deploy the links.** The other way
+round and every link 404s until the rules catch up.
+
+### The rules
+
+`amplify-rewrites.json` in this repo is the copy of record. Amplify
+Console -> App settings -> Rewrites and redirects. **Delete everything
+already there first**, including Amplify's default SPA fallback
+(`{"source": "/<*>", "status": "404-200", "target": "/index.html"}`) —
+that one serves the homepage for every unmatched path and breaks clean
+URLs in a way that looks like the site working.
+
+```json
+[
+  { "source": "/",        "status": "200", "target": "/index.html" },
+  { "source": "/about",   "status": "200", "target": "/about.html" },
+  { "source": "/contact", "status": "200", "target": "/contact.html" },
+  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
+]
+```
+
+**One explicit rule per page, never a wildcard.** `{"source": "/<*>",
+"target": "/<*>.html"}` looks correct and is the documented Amplify
+trap: it matches `/css/style.css` too, rewrites it to
+`/css/style.css.html`, and the site loads as unstyled text. Four literal
+rules cannot do that. **A new page means a new line here AND in the
+Console** — the Console is the copy that has to be updated by hand.
+
+`status` is `200`, a true rewrite: the address bar keeps the clean path.
+A `301`/`302` would visibly rewrite it back to `.html` and defeat the
+point.
+
+### In the site
+
+`url()` in `pages.py` is the single place the transformation happens —
+`index.html` -> `/`, `about.html` -> `/about`. NAV and the PAGES dict
+stay keyed by filename, so the `aria-current` comparison still works on
+filenames.
+
+Links are **root-relative** (`/about`, not `about`): the rule's source is
+`/about`, and a bare `about` resolves against whatever path the visitor
+is standing on. Assets stay relative (`css/style.css`) and still resolve,
+because every page lives at the root — `/about` has `/` as its base.
+
+The cost: opening `build/index.html` off the filesystem no longer
+navigates. **`tools/serve.py` applies the same rewrite table**, so local
+testing matches the live site:
+
+```
+python3 tools/serve.py build 8000
+```
+
+`lint_chrome.py` fails the build on any internal `href` still ending in
+`.html`, and on any clean URL with no matching file on disk. The first
+one matters more than it looks: a stray `about.html` still *works* — the
+file is really there — so nothing breaks and nobody notices until it is
+in a shared link or a search index.
+
+### Still missing
+
+No `sitemap.xml`, no `canonical`, no `og:url` on any page. Nothing to
+update for clean URLs because none of it exists yet. Worth adding, and
+when it is added it uses the clean paths.
+
+---
+
 ## 3. Design system
 
 ### Dark ground (the default)
