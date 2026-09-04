@@ -157,6 +157,19 @@ at `/`, which is the splash. Browsing from `/home` and clicking the logo
 lands on the holding page. Expected, and the reason `/home` is for
 checking rather than for using.
 
+**It declares itself standalone.** The first line of the file is:
+
+```html
+<!-- lint-chrome: standalone -->
+```
+
+Without it, `lint_chrome.py` fails every build the moment the page ships
+— it compares header and footer across pages, and this page carries
+neither on purpose. The marker lives in the page rather than in a list
+inside the linter, so a page cannot end up exempt by accident and the
+reason travels with the file. Everything else still runs on it: links,
+external-link safety, the house name, the asset stamp.
+
 **The page is deliberately self-contained** — its own inline CSS, no
 stylesheet link, no framework. It has to render even mid-deploy, when the
 rest of the site may be half-swapped. The one thing worse than a site
@@ -573,6 +586,9 @@ it.
 - the house name spelled any way but **Magek**
 - `style.css` or `main.js` linked without a `?v=` content hash
 
+A page with no header or footer must carry `<!-- lint-chrome: standalone -->`
+or it fails the chrome comparison.
+
 `pages.py` asserts:
 - every reel clip has exactly one service tag
 - no clip credits an outside house without also naming Magek's role
@@ -648,6 +664,13 @@ crept back in through my own notes. `lint_chrome.py` now fails the build
 on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
+
+**Lint what ships, not a list you maintain.** `build.sh` passed
+`lint_chrome.py` an explicit four-page list while `~/deploy-magek.sh` and
+the Amplify build both glob `./*.html`. So `splash.html` passed here and
+failed there — the local check was not testing what actually deploys.
+`build.sh` globs now. **If two places run the same linter, they have to
+give it the same input**, or the earlier one is theatre.
 
 **Google Fonts is blocked in the sandbox**, so every early wrap
 measurement was made in Helvetica, not Space Grotesk. Conclusions held,

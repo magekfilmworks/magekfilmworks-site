@@ -18,6 +18,19 @@ files = [f for f in files if f.exists()]
 if not files:
     print('no pages to check'); sys.exit(0)
 
+# A page can opt out of the chrome comparison by declaring itself
+# standalone. The splash page is the case: it deliberately carries no
+# header or footer, and without this the linter fails every build the
+# moment that page ships.
+#
+# The marker lives in the page rather than in a list here, so a page
+# cannot end up exempt by accident and the reason sits where the
+# exemption applies. Everything else in this file still runs on it —
+# links, external-link safety, the house name, the asset stamp.
+STANDALONE = '<!-- lint-chrome: standalone -->'
+chrome_files = [f for f in files if STANDALONE not in f.read_text()]
+skipped = [f.name for f in files if f not in chrome_files]
+
 def fingerprint(text, pattern, drop_current=True):
     m = pattern.search(text)
     if not m:
@@ -31,7 +44,7 @@ def fingerprint(text, pattern, drop_current=True):
 problems = []
 for label, pattern in (('header', HEADER), ('footer', FOOTER)):
     seen = {}
-    for f in files:
+    for f in chrome_files:
         fp = fingerprint(f.read_text(), pattern)
         if fp is None:
             problems.append(f'{f.name}: no {label} found')
@@ -105,4 +118,6 @@ if problems:
         print('  ' + p)
     sys.exit(1)
 
-print(f'chrome identical across {len(files)} pages; internal links resolve; external links open safely')
+note = f' ({", ".join(skipped)} standalone, chrome not compared)' if skipped else ''
+print(f'chrome identical across {len(chrome_files)} pages{note}; '
+      f'internal links resolve; external links open safely')

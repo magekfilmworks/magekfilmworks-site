@@ -8,7 +8,14 @@
 <meta name="robots" content="noindex" />
 <link rel="icon" href="images/logo-icon.png" />
 
+<!-- lint-chrome: standalone -->
 <!--
+  No site header or footer on purpose, which is why the marker above is
+  here: lint_chrome.py checks that every page carries identical chrome,
+  and this page is the one that must not. The exemption lives in the file
+  it applies to rather than in a list inside the linter, so a page cannot
+  be exempt by accident and the reason travels with it.
+
   Deliberately self-contained: its own CSS, no stylesheet link, no
   script. This page has to render even mid-deploy, when the rest of the
   site may be half-swapped — the one thing worse than a site being down
