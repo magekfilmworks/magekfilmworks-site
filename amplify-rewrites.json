@@ -1,6 +1,7 @@
 [
-  { "source": "/",        "status": "200", "target": "/index.html" },
-  { "source": "/about",   "status": "200", "target": "/about.html" },
-  { "source": "/contact", "status": "200", "target": "/contact.html" },
-  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
+  { "source": "/",            "status": "200", "target": "/index.html" },
+  { "source": "/about",       "status": "200", "target": "/about.html" },
+  { "source": "/contact",     "status": "200", "target": "/contact.html" },
+  { "source": "/privacy",     "status": "200", "target": "/privacy.html" },
+  { "source": "/v/aamc-2025", "status": "302", "target": "https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4" }
 ]

@@ -2335,7 +2335,17 @@ html, body { overflow-x: hidden; }
 
    Only while screening, so the photographs keep their contrast when
    nothing is being offered over them. */
-.hero.is-screening .vignette { background-color: rgba(4, 4, 4, 0.34); }
+/* 0.26, not 0.34. Swept against contrast on all three clip slides: the
+   AAMC watercolour is the binding one — a bright frame where the credit
+   line is the first thing to fail. It clears 4.5:1 by 2.0 here and fails
+   at 0.20, so this is the lightest grade with real margin left, not the
+   lightest that squeaks past.
+
+   The frame is ~12% brighter than it was. If it ever needs to come up
+   further, the lever is the credit role's opacity (0.82) rather than
+   this number: the roles are what fail first, and they are dimmed on
+   purpose rather than by necessity. */
+.hero.is-screening .vignette { background-color: rgba(4, 4, 4, 0.26); }
 
 @media (prefers-reduced-motion: reduce) {
   .hero .vignette { transition: none; }
@@ -3152,7 +3162,9 @@ html, body { overflow-x: hidden; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 46%;
+  /* The default; a slide overrides it with --focus / --focus-m, set
+     inline from HERO_SLIDES in pages.py. */
+  object-position: var(--focus, center 46%);
   opacity: 0;
   /* Defocused, and scaled a touch past the frame so the blur has pixels
      to sample at the edges instead of feathering into nothing. */
@@ -3175,8 +3187,19 @@ html, body { overflow-x: hidden; }
    background so a frame gap never shows the page through. */
 video.hero-slide { background: #0a0a09; }
 
-.hero-slide:nth-child(2) { object-position: center 58%; }
-.hero-slide:nth-child(3) { object-position: center 50%; }
+/* Was .hero-slide:nth-child(2) and (3). An nth-child focal point points
+   at whatever photograph happens to sit in that position, so inserting a
+   slide anywhere above it re-aims the crop of two unrelated images with
+   no error and no visible cause. They live on the elements now. */
+
+/* A phone crops a 16:9 frame hard from the sides — the hero is taller
+   than it is wide, so cover scales to fill the height and most of the
+   picture is off screen left and right. A slide whose subject is not in
+   the middle needs its own answer there, which is what --focus-m is.
+   Falls back to the all-widths focus, then to the default. */
+@media (max-width: 760px) {
+  .hero-slide { object-position: var(--focus-m, var(--focus, center 46%)); }
+}
 .hero-slide:nth-child(4) { object-position: 46% 42%; }
 
 /* ---------- the load bar ---------- */

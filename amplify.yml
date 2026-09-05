@@ -16,7 +16,12 @@ frontend:
     build:
       commands:
         - python3 tools/lint.py css/style.css
-        - python3 tools/lint_chrome.py index.html about.html contact.html
+        # Glob, not a list. This said "index about contact" and silently
+        # skipped privacy.html and splash.html — the same hand-written-list
+        # bug that let splash.html pass the local build and fail the deploy.
+        # Every place that runs this linter has to give it the same input.
+        - python3 tools/lint_chrome.py ./*.html
+        - python3 tools/shortlinks.py --check
   artifacts:
     # No build output directory: the repo root IS the site.
     baseDirectory: /

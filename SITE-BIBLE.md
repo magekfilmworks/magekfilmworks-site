@@ -41,6 +41,59 @@ to `main`.
 - `tools/deploy-magek.sh` in this repo is the master copy. A new version
   lands here on every deploy; install it with
   `cp tools/deploy-magek.sh ~/deploy-magek.sh && chmod +x ~/deploy-magek.sh`
+### When the deploy script won't run
+
+Two failures, both hit on 4 Sept 2026 moving to a new Mac, both looking
+like "the script is broken" when the script was never the problem.
+
+**`zsh: no such file or directory: /Users/…/deploy-magek.sh`**
+The script is not installed on this machine. That is zsh failing to
+*execute* a missing file — nothing ran, which is why there was no error
+output to read. It lives in the repo; install it:
+
+```
+cp ~/Documents/GitHub/magekfilmworks-site/tools/deploy-magek.sh ~/deploy-magek.sh
+chmod +x ~/deploy-magek.sh
+```
+
+**`xcrun: error: invalid active developer path`**
+The Xcode Command Line Tools are missing. Install and re-run:
+
+```
+xcode-select --install
+```
+
+A dialog opens; a few minutes. Nothing else needs reinstalling. The
+script preflights for this now and says so itself.
+
+**If the repo lives somewhere else on that Mac**, no reinstall needed:
+
+```
+MAGEK_REPO=~/path/to/magekfilmworks-site ~/deploy-magek.sh
+```
+
+The lesson for next time: **ask for the terminal output before
+theorising.** Two rounds went into a stale-zip detector for a problem
+that did not exist, because "it's not working" was taken at face value
+instead of asking what it printed. The build stamp that came out of it
+is worth keeping; the detour was not.
+
+- **On a new Mac, install the Command Line Tools first.** macOS ships
+  `git` and `python3` as stubs that shell out to Xcode's CLT. Without
+  them, the first git call fails with
+  `xcrun: error: invalid active developer path` — an error that names
+  neither the cause nor the fix, and surfaces from whichever command ran
+  first. The script now preflights `git`, `python3` and `unzip` and says
+  what to run:
+
+  ```
+  xcode-select --install
+  ```
+
+  Presence alone is not the test for the two stubs: they are on PATH and
+  still non-functional, which is the whole failure. They get run.
+  `unzip` is checked for presence only — it does not accept `--version`,
+  and probing it that way reports a working tool as broken.
 - **It never requires a commit first.** Uncommitted changes are backed
   up into `.git/magek-deploy-backups/<timestamp>/` and the unpack
   continues. It refuses only two things: a failing lint, and committing
@@ -64,21 +117,37 @@ round and every link 404s until the rules catch up.
 
 ### The rules
 
-`amplify-rewrites.json` in this repo is the copy of record. Amplify
-Console -> App settings -> Rewrites and redirects. **Delete everything
-already there first**, including Amplify's default SPA fallback
-(`{"source": "/<*>", "status": "404-200", "target": "/index.html"}`) —
-that one serves the homepage for every unmatched path and breaks clean
-URLs in a way that looks like the site working.
+**`amplify-rewrites.json` is a build output, not a source file.** It is
+written by `tools/shortlinks.py` every time `build.sh` runs. Do not edit
+it by hand — the edit is silently overwritten on the next build, and for
+a while this repo carried two hand-maintained blocks that disagreed with
+each other (see §9).
 
-```json
-[
-  { "source": "/",        "status": "200", "target": "/index.html" },
-  { "source": "/about",   "status": "200", "target": "/about.html" },
-  { "source": "/contact", "status": "200", "target": "/contact.html" },
-  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
-]
+Print the current block with the generator, or just open the file:
+
 ```
+python3 tools/shortlinks.py            # live site
+python3 tools/shortlinks.py --splash   # splash mode
+```
+
+Amplify Console -> App settings -> Rewrites and redirects. If it shows a
+table of rows, look for **Open text editor** and paste the JSON whole.
+
+**Replace the entire list. The block is not additive.** Amplify takes
+the first matching rule top to bottom, so anything left behind changes
+the outcome. Delete Amplify's default SPA fallback in particular —
+
+```
+</^[^.]+$|\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>   200   /index.html
+```
+
+— it serves the homepage for every unmatched path, which breaks clean
+URLs in a way that looks like the site working, and during a splash
+window quietly serves the real homepage to anyone who mistypes a URL.
+
+**Domain redirects are not in this list.** `www` -> apex and the HTTPS
+redirect live under Domain management. Replacing this list does not
+disturb them.
 
 **One explicit rule per page, never a wildcard.** `{"source": "/<*>",
 "target": "/<*>.html"}` looks correct and is the documented Amplify
@@ -132,25 +201,51 @@ is **switched on and off entirely from the Amplify Console** — the real
 site stays in the repo untouched, so turning it off is a paste, not a
 deploy.
 
-**Splash on** (`amplify-rewrites-splash.json`):
+### The switch
+
+The whole thing is two pastes into the Console. Nothing is deployed and
+nothing in the repo changes.
+
+**Splash on** — paste `amplify-rewrites-splash.json`, or
+`python3 tools/shortlinks.py --splash`:
 
 ```json
 [
-  { "source": "/",        "status": "200", "target": "/splash.html" },
-  { "source": "/home",    "status": "200", "target": "/index.html" },
-  { "source": "/about",   "status": "200", "target": "/about.html" },
-  { "source": "/contact", "status": "200", "target": "/contact.html" },
-  { "source": "/privacy", "status": "200", "target": "/privacy.html" }
+  { "source": "/",            "status": "200", "target": "/splash.html" },
+  { "source": "/home",        "status": "200", "target": "/index.html" },
+  { "source": "/about",       "status": "200", "target": "/splash.html" },
+  { "source": "/contact",     "status": "200", "target": "/splash.html" },
+  { "source": "/privacy",     "status": "200", "target": "/privacy.html" },
+  { "source": "/v/aamc-2025", "status": "302", "target": "https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4" }
 ]
 ```
 
-**Splash off**: paste `amplify-rewrites.json` back. That is the whole
+**Splash off** — paste `amplify-rewrites.json` back. That is the whole
 switch.
 
-`/home` keeps the real homepage reachable while the splash is up.
-**It is a known path, not a secret one** — anyone who guesses it sees the
-site. If it ever needs to be genuinely private that is a different
-mechanism (basic auth on an Amplify branch), not a rewrite rule.
+Both files are regenerated by `build.sh`. Never hand-edit them.
+
+### What stays reachable, and why
+
+**`/about` and `/contact` go to the splash.** Those are the URLs a
+visitor would guess and the ones a search engine may already hold, so
+they must not leak a site that is officially not up yet.
+
+**`/about.html` and `/contact.html` still serve the real pages.** The
+files are on disk and no rule claims those paths, so Amplify serves them
+straight through. That asymmetry is the design: the pretty URLs are
+closed, the `.html` spellings are the back door, and nobody arrives at
+one by accident.
+
+**`/home`** is the real homepage. **A known path, not a secret one** —
+anyone who guesses it sees the site. If it ever needs to be genuinely
+private that is basic auth on an Amplify branch, not a rewrite rule.
+
+**`/privacy` stays live.** A privacy policy behind a coming-soon page is
+worse than no page at all.
+
+**Short links keep working.** `/v/<slug>` is in both blocks, so a link
+already shared does not break during the window. See §2c.
 
 Note that while the splash is up, the real site's own brand link points
 at `/`, which is the splash. Browsing from `/home` and clicking the logo
@@ -182,6 +277,366 @@ September 10" as the site's description long after it is wrong.
 **The date is hardcoded.** Nothing hides it once it passes. If the
 Console does not get switched back, the page keeps advertising a date in
 the past — which reads worse than no date at all.
+
+---
+
+## 2c. Short links for S3 objects
+
+`magekfilmworks.productions/v/<slug>` redirects to a file in the
+`magek-playback` bucket. The AAMC programme is `/v/aamc-2025`.
+
+**Nothing to do until you add a video.** The `/v/` rules are part of the
+same block as the page rules, so they go live with whatever paste is
+current — splash or not. Adding a link is: an entry in
+`shortlinks.json`, run the script, paste the block again.
+
+**There is no shortener service.** A shortener is a lookup table and a
+redirect, and Amplify already does both — so the whole thing is a JSON
+block in a Console field. No Lambda, no DynamoDB, no API Gateway:
+nothing to run, nothing to bill, and nothing that can be down while the
+rest of the site is up.
+
+The cost of that choice is that adding a link means pasting the block
+again. `tools/shortlinks.py` exists so that paste is one copy and never
+hand-edited:
+
+```
+python3 tools/shortlinks.py            # pages + links, ready to paste
+python3 tools/shortlinks.py --splash   # the same, in splash mode
+python3 tools/shortlinks.py --check    # validate only
+```
+
+Links live in `shortlinks.json`. Add a slug and a target, run the
+script, paste what it prints.
+
+**302, not 301.** A permanent redirect is cached by browsers effectively
+forever, so a wrong target would follow people around long after it was
+fixed — and these point at storage that may be re-organised.
+
+**302, not a 200 rewrite.** A rewrite proxies the object through
+Amplify: every byte of a 70-minute programme through the hosting layer,
+slower and paid for twice. A redirect hands the player to S3 and gets
+out of the way. The trade is that the S3 URL appears in the address bar
+once the redirect resolves — the short link is for sharing, not for
+hiding where the file lives.
+
+The script refuses to emit a block with a duplicate slug, a slug that
+shadows a real page, a non-https target, or a raw space. It **warns**
+rather than refuses on a `+` in the target path — see §9.
+
+---
+
+## 2d. Knowing which build is installed
+
+`BUILD` at the repo root holds a content hash of the whole site plus the
+time it was made:
+
+```
+e283574900  2026-09-04 20:25 UTC
+```
+
+`build.sh` writes it, it ships in the zip, and `~/deploy-magek.sh`
+prints the installed one before the diff.
+
+**Why it exists.** Every zip has the same filename, and the deploy
+script picks the newest `magek*.zip` in Downloads and trashes it
+afterwards. If a download landed somewhere else — or a file card got
+opened rather than saved — the script finds an *older* zip, installs it,
+lints it, and reports success. Stale content under a green light, which
+is indistinguishable from working.
+
+**The hash covers `build/` only** — the pages, CSS, JS and images. Not
+the Bible, not `tools/`, not the Amplify JSON: those ship in the zip but
+are not the site, and a documentation edit should not read as a site
+change. The timestamp is appended, so `BUILD` itself always differs
+between builds; **it is the hash that answers whether anything shipped.**
+
+Two symptoms now have answers:
+
+- **"I ran it and nothing changed"** — same hash as the installed one,
+  so the zip carried the site that was already there.
+- **"I deployed but the site is old"** — the zip's age is printed, and a
+  warning fires past 45 minutes.
+
+The stamp must be written **before** `build.sh` syncs `build/` into
+`repo/`. Written after, it never reaches the repo and never ships — it
+was wrong that way first.
+
+---
+
+## 2e. Video delivery: speed and access
+
+### Why playback is slow
+
+Two causes, in the order worth checking.
+
+**1. The moov atom.** An MP4 has an index (`moov`). If the encoder left
+it at the END of the file, a browser cannot show frame one until it has
+fetched its way there. On a 70-minute programme that is a gigabyte or
+more before anything moves. With `+faststart` the index sits at the
+front and playback begins after a megabyte or two.
+
+Check, then fix without re-encoding — it is a remux, so the picture is
+untouched:
+
+```
+ffprobe -v trace -i FILE 2>&1 | grep -m2 -E 'type:.moov|type:.mdat'
+ffmpeg -i FILE -c copy -movflags +faststart FILE-fast.mp4
+```
+
+If `mdat` appears before `moov`, that is the problem.
+
+**2. S3 is storage, not delivery.** Every byte travels from us-east-1 to
+the viewer, with no edge cache and no connection reuse across viewers.
+Fine for one person nearby, slow for anyone far away and slow on every
+seek. **CloudFront in front of the bucket** is the fix.
+
+### Why "prevent download" needs care
+
+**A video the browser can play is a video the viewer already has.** It
+has to be fetched to be decoded; the network tab shows the URL.
+
+What ships is a deterrent, and is labelled as one in `main.js`:
+
+- `controlsList="nodownload"` removes the item from the native player's
+  menu — **Chromium honours it, Safari and Firefox ignore it**
+- a `contextmenu` handler removes "Save video as"
+
+Neither is protection. **The only thing that restricts access is not
+serving the object publicly:** CloudFront with Origin Access Control,
+the bucket private, and signed URLs that expire. Then the file is
+reachable only through a link the site mints, and only for as long as
+that link lives.
+
+Which is the same change that fixes the speed — mostly. **Full setup
+steps are in `CLOUDFRONT-VIDEO.md`**, including the parts that bite: the
+ACM certificate has to be in `us-east-1` regardless of the bucket's
+region, and `Range` must stay out of the cache key or delivery ends up
+slower than plain S3.
+
+**But signing needs a signer.** CloudFront signed URLs are made with a
+private key, server-side, always — the key can never reach the browser.
+This site is static, so signed URLs mean adding a Lambda Function URL to
+mint them. Real infrastructure: deploy, secure, monitor, pay for. Worth
+it for genuinely restricted video; not worth it to make casual saving
+harder, which the two deterrents already do.
+
+**And check the moov atom before blaming delivery.** A file with its
+index at the end has to be fetched almost entirely before frame one
+appears — on a 70-minute programme that is a gigabyte of waiting, and no
+CDN fixes it. `-movflags +faststart` is a remux, not a re-encode.
+
+---
+
+## 2f. Two domains, one site
+
+**The site is `magekfilmworks.productions`. The mail is
+`magekfilmworks.com`.** They are deliberately split and the split is the
+thing to remember, because working on the site puts `.productions` in
+front of you all day and every address gets written that way by reflex.
+
+| | Domain |
+|---|---|
+| Site, canonical for SEO | `magekfilmworks.productions` |
+| Video delivery | `playback.magekfilmworks.productions` |
+| Short links | `magekfilmworks.productions/v/<slug>` |
+| **All email** | **`magekfilmworks.com`** |
+| Typed-by-reflex traffic | `magekfilmworks.com` -> 301 -> `.productions` |
+
+`.productions` is canonical because everything is built on it — the
+Amplify app, the certificate, the video subdomain, the short links. TLD
+is not a Google ranking factor, so there is nothing to gain by moving.
+`.com` exists to catch the people who type it without thinking, and to
+pass the link equity of anything that already points there.
+
+**`lint_chrome.py` fails the build on any `@magekfilmworks.<anything>`
+address that is not `@magekfilmworks.com`** — pages, stylesheet and
+script alike. A wrong mailto is the worst class of bug on a contact
+page: the visitor's mail client opens, they write, they send, and
+nothing arrives. No error anywhere, and the person who would have told
+you is the customer you just lost.
+
+### Redirecting `.com` — what is built
+
+| Piece | Value |
+|---|---|
+| Redirect bucket | `magekfilmworks.com` (empty, website hosting -> redirect to `magekfilmworks.productions`, https) |
+| Certificate | ACM us-east-1, covers `magekfilmworks.com` + `www.magekfilmworks.com` |
+| Distribution | origin is the bucket **website endpoint**, protocol HTTP only |
+| Records | A/ALIAS at the apex and `www`, both at that distribution |
+| Mail | Google Workspace MX on `magekfilmworks.com`, untouched |
+
+**Mail is unaffected by any of this.** MX is a different record type in
+the same zone. What breaks mail is changing the *zone* — a second hosted
+zone, or repointing the registrar's nameservers — which strands the MX
+records somewhere nobody reads.
+
+The full procedure is §2g below, and also stands alone as
+`DOMAIN-REDIRECT.md` for copying into another repo.
+
+---
+
+## 2g. Redirecting one domain to another — the procedure
+
+Written generically so it can be run again for gekjr.pro or any other
+domain. Substitute throughout:
+
+| Placeholder | Meaning | Magek example |
+|---|---|---|
+| `OLD` | the domain being redirected away | `magekfilmworks.com` |
+| `NEW` | the canonical site | `magekfilmworks.productions` |
+
+### First: DNS cannot do this
+
+**There is no DNS record that redirects.** DNS maps a name to an
+address. A redirect is an HTTP response — `301 Moved Permanently` plus a
+`Location` header — so something has to receive the request and answer
+it. No amount of Route 53 configuration produces one.
+
+A CNAME comes close and does the wrong thing: it makes `OLD` and `NEW`
+resolve to the same server, so both hostnames serve the same pages —
+duplicate content under two names, the exact problem the redirect is
+meant to solve.
+
+So the job is to stand up something tiny that answers on `OLD` and does
+nothing but redirect. Four pieces, in this order.
+
+### Before you start
+
+- **`OLD` and `NEW` both have hosted zones in Route 53**, and the
+  registrar's nameservers for each match the NS records in its zone. A
+  mismatch makes everything below look correct and do nothing. Check
+  with `dig +short NS OLD`.
+- **Decide which domain is canonical and mean it** — see *Reversing
+  this*.
+
+### Step 1 — The redirect bucket (S3)
+
+Create a bucket named **exactly** `OLD`. Leave it empty; it will never
+hold a file.
+
+Properties -> Static website hosting -> Edit:
+
+- Static website hosting: **Enable**
+- Hosting type: **Redirect requests for an object**
+- Host name: `NEW`
+- Protocol: **https**
+
+Save, then **copy the Bucket website endpoint** from that section:
+
+```
+OLD.s3-website-us-east-1.amazonaws.com
+```
+
+**Protocol here is `https`** — this is where visitors are sent. Not the
+same setting as the CloudFront origin protocol in step 3, which is HTTP.
+Same word, opposite values, two different hops.
+
+**Use the simple host + protocol fields, not the JSON redirection
+rules.** The simple form emits a `301`. A routing rule lets you specify
+`HttpRedirectCode`, and anything but `301` quietly defeats the point.
+
+### Step 2 — The certificate (ACM)
+
+**Region N. Virginia (us-east-1).** Not the bucket's region. CloudFront
+reads certificates from us-east-1 only, and this is the most common way
+the whole procedure fails.
+
+Request a public certificate for **both** `OLD` and `www.OLD`. DNS
+validation, then **Create records in Route 53** to have ACM write the
+CNAMEs itself. Wait for **Issued**.
+
+**Nothing needs to resolve for this to succeed.** ACM proves you control
+the zone, not that the hostname works. `OLD` may have no A record at all
+at this point.
+
+**Leave the validation CNAMEs in place forever.** ACM re-reads them to
+auto-renew each year. Delete them and nothing happens for thirteen
+months, then HTTPS breaks with a browser security warning.
+
+### Step 3 — The distribution (CloudFront)
+
+- **Origin domain**: paste the **website endpoint**, typed by hand.
+  **Do not pick the bucket from the dropdown** — that offers the REST
+  endpoint, which serves objects, and the bucket is empty on purpose.
+  Only a *website* endpoint performs redirects. (Opposite of the
+  playback distribution, where the bucket is right and the website
+  endpoint is wrong. Pick by what the origin does.)
+- **Protocol**: **HTTP only.** S3 website endpoints do not speak HTTPS.
+  Nothing sensitive rides that hop — there is nothing there but a 301.
+- **Viewer protocol policy**: Redirect HTTP to HTTPS
+- **Allowed HTTP methods**: GET, HEAD
+- **Cache policy**: CachingOptimized
+- **Alternate domain name (CNAME)**: `OLD` **and** `www.OLD`
+- **Custom SSL certificate**: the one from step 2
+
+**The certificate field stays empty until an alternate domain name is
+entered.** If the cert is then missing from the dropdown, it is not
+Issued or not in us-east-1.
+
+**Pricing plan: pay-as-you-go.** Its always-free tier is 1 TB and 10M
+requests a month against the flat-rate Free plan's 100 GB and 1M — and
+sustained excess on the Free plan is answered by serving from fewer and
+more distant edge locations rather than a bill. A redirect distribution
+approaches neither limit; this is about every distribution obeying the
+same rules.
+
+### Step 4 — The records (Route 53)
+
+In the **`OLD`** hosted zone — the one already serving the domain, never
+a new one:
+
+| Record name | Type | Alias | Route traffic to |
+|---|---|---|---|
+| *(blank)* | A | on | Alias to CloudFront distribution -> this distribution |
+| `www` | A | on | same distribution |
+
+Blank name is the apex. **Alias on, not a plain A record**: a normal A
+record wants an IP, and CloudFront's edge addresses change.
+
+**If the distribution is not in the dropdown, it is not missing.** That
+list only shows distributions already carrying the record name as an
+alternate domain name. Go back to step 3.
+
+### Verify
+
+```
+dig +short A OLD
+dig +short A www.OLD
+dig +short MX OLD            # mail must be unchanged
+curl -sI https://OLD     | head -3
+curl -sI https://www.OLD | head -3
+```
+
+Both A lookups return four CloudFront edge addresses, the same four
+each. And:
+
+```
+HTTP/2 301
+location: https://NEW/
+```
+
+**It must say 301** — see §9. If it says 302, check step 1 for a JSON
+redirection rule with `"HttpRedirectCode": "302"`. If S3 already says
+301, CloudFront cached an early response: invalidate `/*` and re-test.
+
+### Reversing this
+
+**Assume you cannot.** Browsers cache a 301 aggressively, often until
+the user clears their cache, and there is no way to reach in and undo
+it. If a real site later goes on `OLD`, anyone who hit the redirect once
+may keep landing on `NEW` regardless of DNS.
+
+That permanence is what makes a 301 right for consolidating SEO, and why
+step 1 is worth being sure about. Deleting the step 4 records stops new
+visitors reaching the redirect; it does not clear the caches of people
+who already did.
+
+### Still missing
+
+No `canonical`, no `og:url`, no `sitemap.xml` on any page. These matter
+more once two hostnames exist — a canonical tag is what tells Google
+which URL is the real one if anything ever answers on both.
 
 ---
 
@@ -534,7 +989,39 @@ Deliberately not flat black — the page still faintly there says "this is
 on top of something" rather than "the site went away". Browsers without
 `backdrop-filter` fall back to 0.95 flat, which is dark enough alone.
 
-**Lightbox.** One `<dialog>`, two source types. Local mp4 or a
+**Lightbox.** One `<dialog>`, **three** source types — a clip we host
+(`src`), YouTube (`youtube`), or Vimeo (`vimeo` plus `vimeo_h`). One
+entry in `REEL` picks which; nothing else in the site has to know.
+
+Both third parties load on the same terms: **nothing is requested until a
+click**, YouTube through the `youtube-nocookie` host and Vimeo with
+`dnt=1`, their do-not-track flag. A visitor who never presses play never
+meets either company. That is what the privacy page promises, so a fourth
+source type has to keep the same bargain or the page stops being true.
+
+`vimeo_h` is the unlisted-video key from the share URL
+(`vimeo.com/<id>/<hash>`). **Without it the embed 404s** — an unlisted
+video is not a private one, but it is not reachable by id alone. Nothing
+currently uses the Vimeo path; it is kept because the capability is real
+and tested, not because a clip depends on it.
+
+**`src` can be a remote URL**, and long-form video should be. The AAMC
+programme is an mp4 on S3
+(`magek-playback.s3.us-east-1.amazonaws.com`), which keeps a 70-minute
+file out of git entirely and out of the 100 MiB push limit — see §9 on
+video weight.
+
+### `inline`: which clips play in the hero frame
+
+**`inline=True` is opt-in and belongs only on a short clip we host
+ourselves.** A slide with it becomes a real `<video>` that plays muted in
+the frame; every other clip is a poster that opens the lightbox.
+
+The test is deliberately not "does this entry have an mp4". The AAMC
+programme is an mp4 too — a feature-length one. Keying off `src` alone
+would put it in the rotation as a `<video>`, armed and autoplaying, on
+every visit to the homepage. **A teaser plays inline; a programme is
+watched in the lightbox.** Local mp4 or a
 `youtube-nocookie` iframe, built on open and torn down on close.
 Removing the node is the only reliable way to stop playback — a hidden
 iframe keeps playing audio. Nothing loads until a click.
@@ -657,6 +1144,14 @@ not. `inset: 0` sizes to the frame's real box, whichever rule won.
 parent has both `aspect-ratio` and a `max-height`, do not size a child
 to it with a percentage.**
 
+**`+` in a URL path is a literal plus, not a space.** It only decodes to
+a space inside a query string. An S3 object URL copied with `+` where
+the key really has spaces 404s — and it fails in a way that reads like a
+permissions problem, which is where the hour goes. `%20` is the encoding
+for a path. `tools/shortlinks.py` warns about it rather than blocking,
+because a key can legitimately contain a plus and only the bucket knows
+which case it is.
+
 **The house name is "Magek".** Capital M, lowercase k, and it has been
 corrected more than once — "MageK" is the kind of wrong that reads as
 right, because the shape is familiar and the eye supplies the rest. It
@@ -664,6 +1159,30 @@ crept back in through my own notes. `lint_chrome.py` now fails the build
 on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
+
+**A redirect that works is not necessarily a redirect that counts.**
+The `.com` went live redirecting correctly to `.productions` — right
+destination, HTTPS, apex and `www` both — and was still wrong, because
+it answered `302 Found` rather than `301 Moved Permanently`. Every
+visitor test passes; nobody sees a difference in a browser. But a 302
+means *temporary*, so search engines keep the old domain indexed and no
+link equity moves, which was the entire point of building it. **Check
+the status code, not just that you landed in the right place.**
+`curl -sI https://OLD | head -3` is the whole test, and it is the sort
+of thing only a machine tells you.
+
+**Two files claiming to be the same thing will disagree.**
+`amplify-rewrites-splash.json` was kept by hand and sent `/about` and
+`/contact` at the real pages; `tools/shortlinks.py --splash` sent them
+at the splash. Both were "the splash block", neither was wrong on its
+face, and which one got pasted into the Console depended on which was
+open — one of them leaving the inner pages public during a window meant
+to hold everything back. Neither had drifted through carelessness; they
+drifted because a generator was added later and the old file was never
+retired. **`build.sh` now writes both JSON files from the generator**,
+so they are outputs and cannot disagree. The general form: the moment
+something can be generated, the hand-written copy stops being a
+convenience and becomes a second source of truth.
 
 **Lint what ships, not a list you maintain.** `build.sh` passed
 `lint_chrome.py` an explicit four-page list while `~/deploy-magek.sh` and

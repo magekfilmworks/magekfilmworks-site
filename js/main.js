@@ -10,7 +10,7 @@
    to opening a prefilled email so the page still works.
    ------------------------------------------------------------ */
 const FORM_ENDPOINT = "";
-const CONTACT_EMAIL = "info@magekfilmworks.productions";
+const CONTACT_EMAIL = "info@magekfilmworks.com";
 
 /* ---------- Hero slider ----------
    A multi-format rotation: photographs, a clip we host that plays in the
@@ -230,9 +230,14 @@ if (slider) {
     delete play.dataset.src;
     delete play.dataset.poster;
     delete play.dataset.youtube;
+    delete play.dataset.vimeo;
+    delete play.dataset.vimeoH;
 
     if (d.videoYoutube) {
       play.dataset.youtube = d.videoYoutube;
+    } else if (d.videoVimeo) {
+      play.dataset.vimeo = d.videoVimeo;
+      if (d.videoVimeoH) play.dataset.vimeoH = d.videoVimeoH;
     } else {
       play.dataset.src = d.videoSrc;
       play.dataset.poster = d.videoPoster;
@@ -425,6 +430,25 @@ if (reelDialog && reelFrame) {
     return iframe;
   };
 
+  /* Vimeo, with dnt=1 — their do-not-track flag, the same bargain the
+     youtube-nocookie host makes: the player still works, they just do
+     not build a profile from it. Nothing is requested until a click,
+     so a visitor who never presses play never meets Vimeo at all.
+
+     The hash is the unlisted-video key. Without it the embed 404s. */
+  const buildVimeo = (id, hash, label) => {
+    const iframe = document.createElement("iframe");
+    iframe.src =
+      `https://player.vimeo.com/video/${encodeURIComponent(id)}` +
+      (hash ? `?h=${encodeURIComponent(hash)}&` : "?") +
+      "autoplay=1&dnt=1&title=0&byline=0&portrait=0";
+    iframe.title = label;
+    iframe.allow = "autoplay; fullscreen; picture-in-picture";
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    return iframe;
+  };
+
   const buildVideo = (src, poster) => {
     const video = document.createElement("video");
     video.className = "reel-video";
@@ -435,6 +459,22 @@ if (reelDialog && reelFrame) {
     // scrubber are right without pulling 9.5MB down for a viewer who
     // opened the box and changed their mind.
     video.preload = "metadata";
+
+    /* Deterrents, not protection — and worth being clear about which.
+
+       controlsList="nodownload" removes the download item from the
+       native player's menu. Chromium honours it; Safari and Firefox
+       ignore it. Blocking the context menu takes away "Save video as".
+
+       Neither stops anyone who opens the network tab, because the file
+       is a public URL and the browser has to fetch it to play it. The
+       only thing that actually restricts access is not serving the
+       object publicly — CloudFront in front of the bucket with the
+       bucket itself private, and signed URLs that expire. See the Site
+       Bible. These two lines just mean it is not a one-click save. */
+    video.setAttribute("controlsList", "nodownload");
+    video.addEventListener("contextmenu", (e) => e.preventDefault());
+
     if (poster) video.poster = poster;
     const source = document.createElement("source");
     source.src = src;
@@ -499,7 +539,9 @@ if (reelDialog && reelFrame) {
     reelFrame.appendChild(
       btn.dataset.youtube
         ? buildYouTube(btn.dataset.youtube, label)
-        : buildVideo(btn.dataset.src, btn.dataset.poster)
+        : btn.dataset.vimeo
+          ? buildVimeo(btn.dataset.vimeo, btn.dataset.vimeoH, label)
+          : buildVideo(btn.dataset.src, btn.dataset.poster)
     );
     if (typeof reelDialog.showModal === "function") reelDialog.showModal();
     else reelDialog.setAttribute("open", "");

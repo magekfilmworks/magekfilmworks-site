@@ -8,7 +8,7 @@
 <link rel="icon" type="image/png" href="images/logo-icon.png" />
 <link rel="apple-touch-icon" href="images/logo-icon.png" />
 <meta name="theme-color" content="#131313" />
-<link rel="stylesheet" href="css/style.css?v=78074300" />
+<link rel="stylesheet" href="css/style.css?v=babd68cf" />
 </head>
 <body>
 
@@ -33,8 +33,10 @@
       <img src="images/rack-photo.jpeg" alt="Fibre, BNC and power runs labelled and laid out on a show floor." class="hero-slide is-active" />
       <video class="hero-slide" data-src="media/art-of-cutting-live.mp4"
              poster="images/clip-poster.jpeg" muted playsinline
-             preload="none" aria-label="A multiviewer showing eight camera feeds and the program cut." data-video-title="Multicam Live Cut Highlight" data-video-time="0:38" data-video-tags="#proav #multicam" data-video-credits='[["Technical Director", "George E. Kennedy, Jr."]]' data-video-src="media/art-of-cutting-live.mp4" data-video-poster="images/clip-poster.jpeg"></video>
-      <img src="images/switcher.jpeg" alt="A Panasonic multi-format live switcher with taped bus labels, beside a marked-up show rundown." class="hero-slide" loading="lazy" />
+             controlsList="nodownload"
+             preload="none" aria-label="A multiviewer showing eight camera feeds and the program cut." style="--focus:center 58%" data-video-title="Multicam Live Cut Highlight" data-video-time="0:38" data-video-tags="#proav #multicam" data-video-credits='[["Technical Director", "George E. Kennedy, Jr."]]' data-video-src="media/art-of-cutting-live.mp4" data-video-poster="images/clip-poster.jpeg"></video>
+      <img src="images/switcher.jpeg" alt="A Panasonic multi-format live switcher with taped bus labels, beside a marked-up show rundown." class="hero-slide" loading="lazy" style="--focus:center 50%" />
+      <img src="images/aamc-2025.webp" alt="A watercolour portrait of a speaker from the 2025 AAMC Virtual Awards Program." class="hero-slide" loading="lazy" style="--focus-m:76% 42%" data-video-title="2025 AAMC Virtual Awards Program" data-video-time="1:10:04" data-video-tags="#cloud" data-video-credits='[["Produced by", "Dent Digital"], ["Streamed via AWS by", "Magek Filmworks"]]' data-video-src="https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4" data-video-poster="images/aamc-2025.webp" />
       <img src="images/fido.jpeg" alt="An SDI fibre transceiver labelled DSM and Aux 1 in gaffer tape." class="hero-slide" loading="lazy" />
       <img src="images/art-of-cutting-live.jpg" alt="The Art of Cutting Live: George E. Kennedy, Jr. beside a multiviewer of eight concert cameras and a live switcher." class="hero-slide" loading="lazy" data-video-title="The Art of Cutting Live" data-video-time="1:09:07" data-video-tags="#cloud" data-video-credits='[["Produced by", "Office Hours Global", "https://officehours.global/"], ["Featuring", "George E. Kennedy, Jr., Founder, Magek Filmworks"]]' data-video-youtube="lQ_MciOESPY" />
     </div>
@@ -64,11 +66,12 @@
     </button>
     <div class="vignette" aria-hidden="true"></div>
     <div class="hero-progress" role="group" aria-label="Choose a slide">
-      <button type="button" class="hero-tick" aria-label="Show slide 1 of 5" data-tick="0"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Show slide 1 of 6" data-tick="0"><span class="hero-tick-rail"><i></i></span></button>
       <button type="button" class="hero-tick" aria-label="Play Multicam Live Cut Highlight" data-tick="1"><span class="hero-tick-rail"><i></i></span></button>
-      <button type="button" class="hero-tick" aria-label="Show slide 3 of 5" data-tick="2"><span class="hero-tick-rail"><i></i></span></button>
-      <button type="button" class="hero-tick" aria-label="Show slide 4 of 5" data-tick="3"><span class="hero-tick-rail"><i></i></span></button>
-      <button type="button" class="hero-tick" aria-label="Play The Art of Cutting Live" data-tick="4"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Show slide 3 of 6" data-tick="2"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Play 2025 AAMC Virtual Awards Program" data-tick="3"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Show slide 5 of 6" data-tick="4"><span class="hero-tick-rail"><i></i></span></button>
+      <button type="button" class="hero-tick" aria-label="Play The Art of Cutting Live" data-tick="5"><span class="hero-tick-rail"><i></i></span></button>
     </div>
   </section>
 
@@ -114,6 +117,18 @@
             </span>
           </button>
           <button type="button" class="reel-slide"
+                  data-reel data-src="https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4" data-poster="images/aamc-2025.webp"
+                  data-label="2025 AAMC Virtual Awards Program" data-meta-tags="#cloud" data-meta-time="1:10:04" data-credits='[["Produced by", "Dent Digital"], ["Streamed via AWS by", "Magek Filmworks"]]' tabindex="-1" aria-hidden="true">
+            <img class="reel-thumb" src="images/aamc-2025.webp" alt="" loading="lazy" />
+            <span class="reel-slide-play" aria-hidden="true"></span>
+            <span class="reel-slide-meta">
+              <span class="reel-slide-title">2025 AAMC Virtual Awards Program</span>
+              <span class="reel-slide-tags"><b class="reel-tag">#cloud</b>1:10:04</span>
+              <span class="reel-slide-credit"><i>Produced by</i>Dent Digital</span>
+              <span class="reel-slide-credit"><i>Streamed via AWS by</i>Magek Filmworks</span>
+            </span>
+          </button>
+          <button type="button" class="reel-slide"
                   data-reel data-youtube="lQ_MciOESPY"
                   data-label="The Art of Cutting Live" data-meta-tags="#cloud" data-meta-time="1:09:07" data-credits='[["Produced by", "Office Hours Global", "https://officehours.global/"], ["Featuring", "George E. Kennedy, Jr., Founder, Magek Filmworks"]]' tabindex="-1" aria-hidden="true">
             <img class="reel-thumb" src="images/art-of-cutting-live.jpg" alt="" loading="lazy" />
@@ -128,7 +143,7 @@
         </div>
         <div class="reel-deck-nav">
           <button type="button" class="deck-arrow" data-deck-prev aria-label="Previous clip"></button>
-          <p class="reel-deck-count"><b data-deck-current>1</b> / 2</p>
+          <p class="reel-deck-count"><b data-deck-current>1</b> / 3</p>
           <button type="button" class="deck-arrow deck-arrow--next" data-deck-next aria-label="Next clip"></button>
         </div>
       </article>
@@ -158,7 +173,7 @@
         <p>Scripted video, a live event, or something in between — we'll help you figure out what it takes.</p>
         <p class="contact-note">The more you can tell us here, the closer our first number will be to the real one. Four short steps, about two minutes.</p>
         <div class="contact-direct">
-          <a href="mailto:info@magekfilmworks.productions">info@magekfilmworks.productions</a>
+          <a href="mailto:info@magekfilmworks.com">info@magekfilmworks.com</a>
         </div>
         <div class="contact-map">
           <iframe
@@ -332,7 +347,7 @@
         <div class="eyebrow">Received</div>
         <h3>Thanks — that's everything we need to start.</h3>
         <p>We read every inquiry ourselves. Expect a reply within one business day, usually with a question or two and a rough number.</p>
-        <p class="intake-done-direct">Need us sooner? <a href="mailto:info@magekfilmworks.productions">info@magekfilmworks.productions</a></p>
+        <p class="intake-done-direct">Need us sooner? <a href="mailto:info@magekfilmworks.com">info@magekfilmworks.com</a></p>
       </div>
     </div>
   </section>
@@ -372,6 +387,6 @@
   </div>
 </footer>
 
-<script src="js/main.js?v=02758163"></script>
+<script src="js/main.js?v=ec531c4a"></script>
 </body>
 </html>
