@@ -1,6 +1,6 @@
 # CloudFront for Magek video
 
-Putting the `magek-vod-output` bucket behind CloudFront. Written the same
+Putting the `magek-playback` bucket behind CloudFront. Written the same
 way as the Amplify clean-URLs reference — including the parts that bite.
 
 ---
@@ -51,13 +51,43 @@ last section — that part has a catch.
 
 ---
 
+## The script
+
+`tools/cloudfront-setup.sh` does Part 1 for you, from a Mac with the AWS
+CLI configured. **Dry run by default** — it prints the exact distribution
+config it would send and changes nothing:
+
+```
+./tools/cloudfront-setup.sh            # show what it would do
+./tools/cloudfront-setup.sh --apply    # create the OAC and distribution
+```
+
+It preflights the CLI, jq, your credentials and the bucket, prints the
+account and identity so you can confirm you are in the right one, and
+**looks the cache policy ID up rather than hardcoding it** — a wrong GUID
+there produces a distribution that caches nothing, which looks exactly
+like CloudFront not helping.
+
+**It stops short of two things on purpose**: it does not attach the
+bucket policy and does not block public access. Both are one-way doors on
+a live site — get the order wrong and the video is unreachable until
+somebody notices. It prints them as the last steps, to run once the
+CloudFront URL plays.
+
+It has not been run against a live account. Dry run, read it, then apply.
+
+The manual walkthrough below is the same sequence, if you would rather do
+it in the console.
+
+---
+
 ## Part 1 — The distribution
 
 ### 1. Create the distribution
 
 CloudFront → **Create distribution**.
 
-- **Origin domain**: pick `magek-vod-output` from the S3 list.
+- **Origin domain**: pick `magek-playback` from the S3 list.
   **Choose the bucket, not a website endpoint** — a website endpoint is
   a public HTTP origin and cannot use OAC at all.
 - **Origin access**: *Origin access control settings (recommended)* →
@@ -89,7 +119,7 @@ take it. If you need it by hand, S3 → bucket → **Permissions** →
       "Effect": "Allow",
       "Principal": { "Service": "cloudfront.amazonaws.com" },
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::magek-vod-output/*",
+      "Resource": "arn:aws:s3:::magek-playback/*",
       "Condition": {
         "StringEquals": {
           "AWS:SourceArn": "arn:aws:cloudfront::ACCOUNT_ID:distribution/DISTRIBUTION_ID"
@@ -112,7 +142,7 @@ default on new buckets. OAC does not work with ACLs enabled.
 Wait for the distribution to say **Deployed** (5–15 minutes), then open:
 
 ```
-https://dxxxxxxxxxxxxx.cloudfront.net/magekfilmworks-playback/2025+AAMC+Virtual+Awards+Program.mp4
+https://dxxxxxxxxxxxxx.cloudfront.net/2025-aamc-virtual-awards.mp4
 ```
 
 **If that 404s, try `%20` in place of every `+`.** In a URL path `+` is
@@ -138,14 +168,44 @@ worked.**
 - Add `video.magekfilmworks.productions` as an **Alternate domain name**
   on the distribution and attach the certificate.
 - In Route 53 (or wherever the DNS lives), add an **A / ALIAS** record
-  pointing the subdomain at the distribution.
+  for `video` pointing at the distribution.
+
+**The order matters, and getting it wrong looks like the distribution
+does not exist.** Route 53's "Route traffic to → Alias to CloudFront
+distribution" dropdown does **not** list every distribution in the
+account. It lists only the ones that already carry the record name you
+are typing as an **Alternate domain name (CNAME)**. So if `video` is not
+yet on the distribution, the dropdown is empty and the distribution you
+just created is nowhere to be found — which reads as a missing
+distribution rather than a missing alias.
+
+Do it in this order:
+
+1. ACM in **us-east-1** — request the certificate for
+   `video.magekfilmworks.productions`, validate it (DNS validation adds
+   a CNAME to the same hosted zone), wait for **Issued**.
+2. CloudFront → distribution → **Settings → Edit** → add
+   `video.magekfilmworks.productions` to **Alternate domain name
+   (CNAME)** and attach that certificate. Save; it redeploys.
+3. *Then* Route 53. The distribution now appears in the dropdown.
+
+You can also just paste the `dxxxxxxxxxxxxx.cloudfront.net` domain into
+the alias field by hand — but if step 2 has not been done, the record
+resolves and CloudFront answers every request with 403, because it does
+not recognise the Host header. Same failure, one layer later.
+
+**Add it as a DNS record, not as a subdomain in Amplify.** Amplify's
+domain management also offers to add subdomains, and anything added there
+points at the *site*. `video` must point at the CloudFront distribution
+instead. Same hosted zone, different tool — and the Amplify one is the
+one that looks more convenient.
 
 ### 6. Point the site at it
 
 One line in `pages.py`:
 
 ```python
-VIDEO_BASE = 'https://video.magekfilmworks.productions/magekfilmworks-playback/'
+VIDEO_BASE = 'https://video.magekfilmworks.productions/'
 ```
 
 And the same host in `shortlinks.json`. Rebuild, deploy, and re-paste
@@ -193,6 +253,11 @@ useful property, and a different one from preventing copying.
 **The certificate must be in us-east-1.** For the custom domain. Not the
 bucket's region. Every other AWS service takes a regional certificate;
 CloudFront does not.
+
+**An empty Route 53 alias dropdown is not a missing distribution.** It
+only lists distributions that already have that exact hostname as an
+Alternate domain name. Certificate first, alternate domain name second,
+DNS record third. See step 5.
 
 **Do not add `Range` to the cache key.** CloudFront handles range
 requests natively and caches byte ranges. Forwarding `Range` as part of
