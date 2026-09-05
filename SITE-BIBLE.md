@@ -1010,6 +1010,7 @@ on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
 
+<<<<<<< HEAD
 **A redirect that works is not necessarily a redirect that counts.**
 The `.com` went live redirecting correctly to `.productions` — right
 destination, HTTPS, apex and `www` both — and was still wrong, because
@@ -1021,6 +1022,8 @@ the status code, not just that you landed in the right place.**
 `curl -sI https://OLD | head -3` is the whole test, and it is the sort
 of thing only a machine tells you.
 
+=======
+>>>>>>> 12762f859ddc491201007992c87ee1e6447a9859
 **Two files claiming to be the same thing will disagree.**
 `amplify-rewrites-splash.json` was kept by hand and sent `/about` and
 `/contact` at the real pages; `tools/shortlinks.py --splash` sent them
