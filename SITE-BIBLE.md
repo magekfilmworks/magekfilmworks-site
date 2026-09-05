@@ -438,7 +438,7 @@ front of you all day and every address gets written that way by reflex.
 | | Domain |
 |---|---|
 | Site, canonical for SEO | `magekfilmworks.productions` |
-| Video delivery | `video.magekfilmworks.productions` |
+| Video delivery | `playback.magekfilmworks.productions` |
 | Short links | `magekfilmworks.productions/v/<slug>` |
 | **All email** | **`magekfilmworks.com`** |
 | Typed-by-reflex traffic | `magekfilmworks.com` -> 301 -> `.productions` |
@@ -456,18 +456,7 @@ page: the visitor's mail client opens, they write, they send, and
 nothing arrives. No error anywhere, and the person who would have told
 you is the customer you just lost.
 
-### Redirecting `.com`
-
-**The procedure lives in `DOMAIN-REDIRECT.md`**, written generically so
-it can be run again for gekjr.pro or any other domain. It is not
-repeated here.
-
-The one-line version, because the instinct is always wrong: **DNS cannot
-redirect.** A record maps a name to an address; a 301 is an HTTP
-response, so something has to answer and reply. What answers is an empty
-S3 bucket in redirect mode, behind CloudFront, behind an ALIAS record.
-
-What is built for Magek, as at September 2026:
+### Redirecting `.com` — what is built
 
 | Piece | Value |
 |---|---|
@@ -481,6 +470,167 @@ What is built for Magek, as at September 2026:
 the same zone. What breaks mail is changing the *zone* — a second hosted
 zone, or repointing the registrar's nameservers — which strands the MX
 records somewhere nobody reads.
+
+The full procedure is §2g below, and also stands alone as
+`DOMAIN-REDIRECT.md` for copying into another repo.
+
+---
+
+## 2g. Redirecting one domain to another — the procedure
+
+Written generically so it can be run again for gekjr.pro or any other
+domain. Substitute throughout:
+
+| Placeholder | Meaning | Magek example |
+|---|---|---|
+| `OLD` | the domain being redirected away | `magekfilmworks.com` |
+| `NEW` | the canonical site | `magekfilmworks.productions` |
+
+### First: DNS cannot do this
+
+**There is no DNS record that redirects.** DNS maps a name to an
+address. A redirect is an HTTP response — `301 Moved Permanently` plus a
+`Location` header — so something has to receive the request and answer
+it. No amount of Route 53 configuration produces one.
+
+A CNAME comes close and does the wrong thing: it makes `OLD` and `NEW`
+resolve to the same server, so both hostnames serve the same pages —
+duplicate content under two names, the exact problem the redirect is
+meant to solve.
+
+So the job is to stand up something tiny that answers on `OLD` and does
+nothing but redirect. Four pieces, in this order.
+
+### Before you start
+
+- **`OLD` and `NEW` both have hosted zones in Route 53**, and the
+  registrar's nameservers for each match the NS records in its zone. A
+  mismatch makes everything below look correct and do nothing. Check
+  with `dig +short NS OLD`.
+- **Decide which domain is canonical and mean it** — see *Reversing
+  this*.
+
+### Step 1 — The redirect bucket (S3)
+
+Create a bucket named **exactly** `OLD`. Leave it empty; it will never
+hold a file.
+
+Properties -> Static website hosting -> Edit:
+
+- Static website hosting: **Enable**
+- Hosting type: **Redirect requests for an object**
+- Host name: `NEW`
+- Protocol: **https**
+
+Save, then **copy the Bucket website endpoint** from that section:
+
+```
+OLD.s3-website-us-east-1.amazonaws.com
+```
+
+**Protocol here is `https`** — this is where visitors are sent. Not the
+same setting as the CloudFront origin protocol in step 3, which is HTTP.
+Same word, opposite values, two different hops.
+
+**Use the simple host + protocol fields, not the JSON redirection
+rules.** The simple form emits a `301`. A routing rule lets you specify
+`HttpRedirectCode`, and anything but `301` quietly defeats the point.
+
+### Step 2 — The certificate (ACM)
+
+**Region N. Virginia (us-east-1).** Not the bucket's region. CloudFront
+reads certificates from us-east-1 only, and this is the most common way
+the whole procedure fails.
+
+Request a public certificate for **both** `OLD` and `www.OLD`. DNS
+validation, then **Create records in Route 53** to have ACM write the
+CNAMEs itself. Wait for **Issued**.
+
+**Nothing needs to resolve for this to succeed.** ACM proves you control
+the zone, not that the hostname works. `OLD` may have no A record at all
+at this point.
+
+**Leave the validation CNAMEs in place forever.** ACM re-reads them to
+auto-renew each year. Delete them and nothing happens for thirteen
+months, then HTTPS breaks with a browser security warning.
+
+### Step 3 — The distribution (CloudFront)
+
+- **Origin domain**: paste the **website endpoint**, typed by hand.
+  **Do not pick the bucket from the dropdown** — that offers the REST
+  endpoint, which serves objects, and the bucket is empty on purpose.
+  Only a *website* endpoint performs redirects. (Opposite of the
+  playback distribution, where the bucket is right and the website
+  endpoint is wrong. Pick by what the origin does.)
+- **Protocol**: **HTTP only.** S3 website endpoints do not speak HTTPS.
+  Nothing sensitive rides that hop — there is nothing there but a 301.
+- **Viewer protocol policy**: Redirect HTTP to HTTPS
+- **Allowed HTTP methods**: GET, HEAD
+- **Cache policy**: CachingOptimized
+- **Alternate domain name (CNAME)**: `OLD` **and** `www.OLD`
+- **Custom SSL certificate**: the one from step 2
+
+**The certificate field stays empty until an alternate domain name is
+entered.** If the cert is then missing from the dropdown, it is not
+Issued or not in us-east-1.
+
+**Pricing plan: pay-as-you-go.** Its always-free tier is 1 TB and 10M
+requests a month against the flat-rate Free plan's 100 GB and 1M — and
+sustained excess on the Free plan is answered by serving from fewer and
+more distant edge locations rather than a bill. A redirect distribution
+approaches neither limit; this is about every distribution obeying the
+same rules.
+
+### Step 4 — The records (Route 53)
+
+In the **`OLD`** hosted zone — the one already serving the domain, never
+a new one:
+
+| Record name | Type | Alias | Route traffic to |
+|---|---|---|---|
+| *(blank)* | A | on | Alias to CloudFront distribution -> this distribution |
+| `www` | A | on | same distribution |
+
+Blank name is the apex. **Alias on, not a plain A record**: a normal A
+record wants an IP, and CloudFront's edge addresses change.
+
+**If the distribution is not in the dropdown, it is not missing.** That
+list only shows distributions already carrying the record name as an
+alternate domain name. Go back to step 3.
+
+### Verify
+
+```
+dig +short A OLD
+dig +short A www.OLD
+dig +short MX OLD            # mail must be unchanged
+curl -sI https://OLD     | head -3
+curl -sI https://www.OLD | head -3
+```
+
+Both A lookups return four CloudFront edge addresses, the same four
+each. And:
+
+```
+HTTP/2 301
+location: https://NEW/
+```
+
+**It must say 301** — see §9. If it says 302, check step 1 for a JSON
+redirection rule with `"HttpRedirectCode": "302"`. If S3 already says
+301, CloudFront cached an early response: invalidate `/*` and re-test.
+
+### Reversing this
+
+**Assume you cannot.** Browsers cache a 301 aggressively, often until
+the user clears their cache, and there is no way to reach in and undo
+it. If a real site later goes on `OLD`, anyone who hit the redirect once
+may keep landing on `NEW` regardless of DNS.
+
+That permanence is what makes a 301 right for consolidating SEO, and why
+step 1 is worth being sure about. Deleting the step 4 records stops new
+visitors reaching the redirect; it does not clear the caches of people
+who already did.
 
 ### Still missing
 
@@ -1010,7 +1160,6 @@ on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
 
-<<<<<<< HEAD
 **A redirect that works is not necessarily a redirect that counts.**
 The `.com` went live redirecting correctly to `.productions` — right
 destination, HTTPS, apex and `www` both — and was still wrong, because
@@ -1022,8 +1171,6 @@ the status code, not just that you landed in the right place.**
 `curl -sI https://OLD | head -3` is the whole test, and it is the sort
 of thing only a machine tells you.
 
-=======
->>>>>>> 12762f859ddc491201007992c87ee1e6447a9859
 **Two files claiming to be the same thing will disagree.**
 `amplify-rewrites-splash.json` was kept by hand and sent `/about` and
 `/contact` at the real pages; `tools/shortlinks.py --splash` sent them

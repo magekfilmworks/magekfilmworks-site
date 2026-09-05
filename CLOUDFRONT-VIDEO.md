@@ -42,7 +42,7 @@ being a round trip to Virginia.
 **A private bucket.** With Origin Access Control the bucket stops being
 public. Objects become reachable only through the distribution.
 
-**A stable URL.** `video.magekfilmworks.productions/...` instead of a
+**A stable URL.** `playback.magekfilmworks.productions/...` instead of a
 bucket hostname, so storage can be reorganised without breaking links
 already shared.
 
@@ -165,16 +165,16 @@ worked.**
 - Request a certificate in **ACM — and it must be in `us-east-1`**,
   whatever region the bucket is in. CloudFront reads certificates from
   that region only. This is the single most common way this step fails.
-- Add `video.magekfilmworks.productions` as an **Alternate domain name**
+- Add `playback.magekfilmworks.productions` as an **Alternate domain name**
   on the distribution and attach the certificate.
 - In Route 53 (or wherever the DNS lives), add an **A / ALIAS** record
-  for `video` pointing at the distribution.
+  for `playback` pointing at the distribution.
 
 **The order matters, and getting it wrong looks like the distribution
 does not exist.** Route 53's "Route traffic to → Alias to CloudFront
 distribution" dropdown does **not** list every distribution in the
 account. It lists only the ones that already carry the record name you
-are typing as an **Alternate domain name (CNAME)**. So if `video` is not
+are typing as an **Alternate domain name (CNAME)**. So if `playback` is not
 yet on the distribution, the dropdown is empty and the distribution you
 just created is nowhere to be found — which reads as a missing
 distribution rather than a missing alias.
@@ -182,10 +182,10 @@ distribution rather than a missing alias.
 Do it in this order:
 
 1. ACM in **us-east-1** — request the certificate for
-   `video.magekfilmworks.productions`, validate it (DNS validation adds
+   `playback.magekfilmworks.productions`, validate it (DNS validation adds
    a CNAME to the same hosted zone), wait for **Issued**.
 2. CloudFront → distribution → **Settings → Edit** → add
-   `video.magekfilmworks.productions` to **Alternate domain name
+   `playback.magekfilmworks.productions` to **Alternate domain name
    (CNAME)** and attach that certificate. Save; it redeploys.
 3. *Then* Route 53. The distribution now appears in the dropdown.
 
@@ -196,7 +196,7 @@ not recognise the Host header. Same failure, one layer later.
 
 **Add it as a DNS record, not as a subdomain in Amplify.** Amplify's
 domain management also offers to add subdomains, and anything added there
-points at the *site*. `video` must point at the CloudFront distribution
+points at the *site*. `playback` must point at the CloudFront distribution
 instead. Same hosted zone, different tool — and the Amplify one is the
 one that looks more convenient.
 
@@ -205,11 +205,23 @@ one that looks more convenient.
 One line in `pages.py`:
 
 ```python
-VIDEO_BASE = 'https://video.magekfilmworks.productions/'
+VIDEO_BASE = 'https://playback.magekfilmworks.productions/'
 ```
 
 And the same host in `shortlinks.json`. Rebuild, deploy, and re-paste
 the rules block from `tools/shortlinks.py`.
+
+**Both, or the build fails.** `build.sh` compares the `VIDEO_BASE` host
+against every shortlink target pointing at our own playback storage, and
+stops if they disagree. They live in two files and change at two
+different moments — the site flips here, the short link is a Console
+paste that is easy to forget — and otherwise the failure is silent:
+`/v/aamc-2025` goes on handing people the raw S3 URL, which returns
+AccessDenied the moment the bucket is locked down. A dead share link,
+with nothing wrong anywhere in the site.
+
+Shortlinks to YouTube, Vimeo or a client's site are ignored. The check
+only polices hosts that serve our own objects.
 
 ---
 
