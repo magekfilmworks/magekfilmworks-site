@@ -4,7 +4,7 @@
     "",
     "  slug    the path after /v/  ->  magekfilmworks.productions/v/<slug>",
     "  target  the full object URL, exactly as S3 gives it",
-    "  label   what it is, for you \u2014 never rendered anywhere",
+    "  label   what it is, for you — never rendered anywhere",
     "",
     "Add an entry, run tools/shortlinks.py, paste the block it prints",
     "into Amplify -> Rewrites and redirects. Nothing to deploy: these",
@@ -13,8 +13,13 @@
   "links": [
     {
       "slug": "aamc-2025",
-      "label": "2025 AAMC Virtual Awards Program \u2014 Dent Digital / Magek",
+      "label": "2025 AAMC Virtual Awards Program — Dent Digital / Magek",
       "target": "https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4"
+    },
+    {
+      "slug": "art-of-cutting-live",
+      "label": "The Art of Cutting Live — Office Hours Global / George",
+      "target": "https://magek-playback.s3.us-east-1.amazonaws.com/art-of-cutting-live.mp4"
     }
   ]
 }

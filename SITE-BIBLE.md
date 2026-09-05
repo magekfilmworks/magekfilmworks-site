@@ -186,11 +186,11 @@ one matters more than it looks: a stray `about.html` still *works* — the
 file is really there — so nothing breaks and nobody notices until it is
 in a shared link or a search index.
 
-### Still missing
+### The clean URL is the canonical one
 
-No `sitemap.xml`, no `canonical`, no `og:url` on any page. Nothing to
-update for clean URLs because none of it exists yet. Worth adding, and
-when it is added it uses the clean paths.
+`canonical`, `og:url` and every `<loc>` in `sitemap.xml` are built from
+`SITE_URL + url(page)` — the same helper the nav uses, so they carry the
+clean path and cannot drift from it. See §2h.
 
 ---
 
@@ -632,11 +632,88 @@ step 1 is worth being sure about. Deleting the step 4 records stops new
 visitors reaching the redirect; it does not clear the caches of people
 who already did.
 
-### Still missing
+---
 
-No `canonical`, no `og:url`, no `sitemap.xml` on any page. These matter
-more once two hostnames exist — a canonical tag is what tells Google
-which URL is the real one if anything ever answers on both.
+## 2h. Sitemap, canonical, and social cards
+
+**One constant feeds all of it.** `SITE_URL` in `pages.py` is
+`https://magekfilmworks.productions`, no trailing slash, and every
+absolute URL the site emits is `SITE_URL + url(page)`. There is no
+second place to change if the site ever moves.
+
+**It is `.productions` deliberately.** The `.com` 301s here, and a
+canonical tag naming a domain that redirects tells Google the redirect
+target is *not* the real page — which undoes the redirect completely.
+The one thing a canonical must never do is point at something that
+moves.
+
+### What each page carries
+
+```html
+<link rel="canonical" href="https://magekfilmworks.productions/about" />
+<meta property="og:url"   content="https://magekfilmworks.productions/about" />
+<meta property="og:title" content="About" />
+<meta property="og:image" content="https://magekfilmworks.productions/images/clip-poster.jpeg" />
+<meta name="twitter:card" content="summary_large_image" />
+```
+
+**`og:title` drops the house name from whichever end it sits on**, because
+the card already prints `og:site_name` underneath it. Splitting naively
+on `" | "` and keeping the first half gave the homepage a card reading
+"Magek Filmworks" above "Magek Filmworks".
+
+**`og:image` is `clip-poster.jpeg`, 1800x1012.** Close to the 1.91:1 that
+Facebook and LinkedIn crop to, so they trim a little top and bottom. A
+purpose-made 1200x630 card would be better and is still worth doing.
+
+### The sitemap
+
+`sitemap.xml` is **generated from `PAGES`**, so a page cannot exist
+without appearing in it. A hand-kept XML file is the same class of bug
+as hand-kept rewrite rules: right the day it is written, wrong the first
+time somebody adds a page.
+
+- **`splash.html` is absent on purpose.** It is `noindex` and temporary;
+  listing it would be asking Google to index a page saying the site is
+  not ready.
+- **No `changefreq`, no `priority`.** Google has ignored both for years.
+  A file full of ignored hints reads as though it were doing something.
+- **`lastmod` is the file's own mtime**, not today. A rebuild that
+  changed nothing must not claim every page changed, or the signal is
+  worth nothing.
+
+`robots.txt` exists mainly to carry the `Sitemap:` line — that is how a
+crawler finds the file with nobody submitting it. It allows everything
+else: there is nothing here to hide, and a `Disallow` written "just in
+case" is how a page silently drops out of the index months later.
+
+### The guard
+
+`lint_chrome.py` fails the build on a page with no canonical, no
+`og:url`, or either of them naming the wrong URL — and on a sitemap that
+lists a page not on disk, or misses one that is. Pages carrying
+`noindex` are exempt, since a canonical on a noindex page is a
+contradiction.
+
+Both tags are checked as a pair because they drift as a pair: they are
+the same absolute URL twice, and a copy-paste that fixes one and not the
+other looks right in the source and is wrong in the index.
+
+### Search Console, not Analytics
+
+A sitemap is submitted to **Google Search Console** — it is about being
+crawled and indexed. **Google Analytics is a separate thing**: a
+JavaScript tag on every page, measuring visitors. Neither needs the
+other, and the sitemap does nothing for analytics.
+
+**Nothing on this site is tracked today, and the privacy page says so in
+those words.** Adding an analytics tag means rewriting that page in the
+same deploy — a privacy policy that misstates tracking is worse than
+having none.
+
+**Do not submit the sitemap while the splash is up.** Every URL in it
+currently serves the holding page, and that is what would get indexed.
+Submit after the switch back.
 
 ---
 

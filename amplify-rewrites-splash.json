@@ -1,8 +1,9 @@
 [
-  { "source": "/",            "status": "200", "target": "/splash.html" },
-  { "source": "/home",        "status": "200", "target": "/index.html" },
-  { "source": "/about",       "status": "200", "target": "/splash.html" },
-  { "source": "/contact",     "status": "200", "target": "/splash.html" },
-  { "source": "/privacy",     "status": "200", "target": "/privacy.html" },
-  { "source": "/v/aamc-2025", "status": "302", "target": "https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4" }
+  { "source": "/",                      "status": "200", "target": "/splash.html" },
+  { "source": "/home",                  "status": "200", "target": "/index.html" },
+  { "source": "/about",                 "status": "200", "target": "/splash.html" },
+  { "source": "/contact",               "status": "200", "target": "/splash.html" },
+  { "source": "/privacy",               "status": "200", "target": "/privacy.html" },
+  { "source": "/v/aamc-2025",           "status": "302", "target": "https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4" },
+  { "source": "/v/art-of-cutting-live", "status": "302", "target": "https://magek-playback.s3.us-east-1.amazonaws.com/art-of-cutting-live.mp4" }
 ]
