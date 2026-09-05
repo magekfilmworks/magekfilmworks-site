@@ -112,6 +112,57 @@ for f in list(files) + [x for x in extras if x.exists()]:
             problems.append(
                 f'{f.name}: house name spelled "{bad}" — it is "{HOUSE}"')
 
+# Every indexable page must name its own canonical URL, and og:url must
+# agree with it. Two hostnames now answer for this site — the .com 301s
+# to .productions — so a page that does not say which address is real is
+# leaving that to a search engine to guess. Worse is a page that names
+# the WRONG one: a canonical pointing at a domain that redirects tells
+# Google the redirect target is not the real page, which undoes the
+# redirect entirely.
+#
+# Checked as a pair because they drift as a pair: both are absolute URLs
+# built from the same constant, and a copy-paste that fixes one and not
+# the other looks right in the source and is wrong in the index.
+#
+# Standalone pages are exempt from the chrome comparison but NOT from
+# this — except splash.html, which is noindex on purpose. A canonical on
+# a noindex page is a contradiction, so its absence is correct.
+SITE_URL = 'https://magekfilmworks.productions'
+for f in files:
+    text = f.read_text()
+    if 'name="robots" content="noindex"' in text:
+        continue
+    want = SITE_URL + ('/' if f.name == 'index.html' else '/' + f.stem)
+
+    m = re.search(r'<link rel="canonical" href="([^"]*)"', text)
+    if not m:
+        problems.append(f'{f.name}: no canonical URL')
+    elif m.group(1) != want:
+        problems.append(f'{f.name}: canonical is "{m.group(1)}", should be "{want}"')
+
+    m = re.search(r'<meta property="og:url" content="([^"]*)"', text)
+    if not m:
+        problems.append(f'{f.name}: no og:url')
+    elif m.group(1) != want:
+        problems.append(f'{f.name}: og:url is "{m.group(1)}", should be "{want}"')
+
+# Every page in the sitemap must exist, and every page on disk must be in
+# the sitemap. A sitemap is a promise about what the site contains; a
+# stale one either advertises 404s or hides real pages from the crawler,
+# and neither shows up anywhere a person would look.
+sitemap = here / 'sitemap.xml'
+if sitemap.exists():
+    listed = set(re.findall(r'<loc>([^<]*)</loc>', sitemap.read_text()))
+    indexable = {f for f in files
+                 if 'name="robots" content="noindex"' not in f.read_text()}
+    want = {SITE_URL + ('/' if f.name == 'index.html' else '/' + f.stem)
+            for f in indexable}
+    for missing in sorted(want - listed):
+        problems.append(f'sitemap.xml: does not list {missing}')
+    for extra in sorted(listed - want):
+        problems.append(f'sitemap.xml: lists {extra}, which is not an '
+                        f'indexable page on disk')
+
 # Mail lives on magekfilmworks.com. The site lives on
 # magekfilmworks.productions. Those are deliberately different, and the
 # overlap is exactly why this needs a machine: every address on the site
