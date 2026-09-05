@@ -10,7 +10,7 @@
    to opening a prefilled email so the page still works.
    ------------------------------------------------------------ */
 const FORM_ENDPOINT = "";
-const CONTACT_EMAIL = "info@magekfilmworks.productions";
+const CONTACT_EMAIL = "info@magekfilmworks.com";
 
 /* ---------- Hero slider ----------
    A multi-format rotation: photographs, a clip we host that plays in the

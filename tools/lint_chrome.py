@@ -112,6 +112,22 @@ for f in list(files) + [x for x in extras if x.exists()]:
             problems.append(
                 f'{f.name}: house name spelled "{bad}" — it is "{HOUSE}"')
 
+# Mail lives on magekfilmworks.com. The site lives on
+# magekfilmworks.productions. Those are deliberately different, and the
+# overlap is exactly why this needs a machine: every address on the site
+# was written as @magekfilmworks.productions because that is the domain
+# in front of you while you work, and a mailto that goes nowhere fails
+# silently — the visitor's mail client opens, they send, nothing arrives,
+# and nobody tells you. Checked in the script too: the intake form falls
+# back to a mailto built from CONTACT_EMAIL.
+MAIL_DOMAIN = 'magekfilmworks.com'
+for f in list(files) + [x for x in extras if x.exists()]:
+    for addr in set(re.findall(r'[\w.+-]+@magekfilmworks\.[a-z]+', f.read_text())):
+        if not addr.endswith('@' + MAIL_DOMAIN):
+            problems.append(
+                f'{f.name}: email "{addr}" — mail is on {MAIL_DOMAIN}, '
+                f'not the site domain')
+
 if problems:
     print('FAIL')
     for p in problems:
