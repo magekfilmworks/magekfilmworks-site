@@ -1238,16 +1238,24 @@ on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
 
-**A redirect that works is not necessarily a redirect that counts.**
-The `.com` went live redirecting correctly to `.productions` — right
-destination, HTTPS, apex and `www` both — and was still wrong, because
-it answered `302 Found` rather than `301 Moved Permanently`. Every
-visitor test passes; nobody sees a difference in a browser. But a 302
-means *temporary*, so search engines keep the old domain indexed and no
-link equity moves, which was the entire point of building it. **Check
-the status code, not just that you landed in the right place.**
-`curl -sI https://OLD | head -3` is the whole test, and it is the sort
-of thing only a machine tells you.
+**Check the status code, not just that you landed in the right place.**
+A redirect can send visitors to exactly the right URL over HTTPS and
+still be wrong for search: `302 Found` means *temporary*, so the old
+domain stays indexed and no link equity moves — which is the entire
+point of building one. Nobody sees the difference in a browser.
+`curl -sI https://OLD | head -3` is the whole test.
+
+**And check it with something that shows you the raw header.** The first
+report that this site's `.com` was answering 302 was mine, and it was
+wrong: it came from a fetch tool that printed its own summary of the
+response instead of the bytes. The config had been right from the
+moment it was built. An hour went into hunting a defect that did not
+exist, and it would have gone further — an invalidation, then a rebuild
+of a correct redirect — if `curl -sI` had not settled it. **A tool that
+paraphrases a response is not evidence about that response.** Same
+lesson as asking for the terminal output before theorising (§2), one
+layer down: it applies to my own instruments too, not just to a
+description of a problem.
 
 **Two files claiming to be the same thing will disagree.**
 `amplify-rewrites-splash.json` was kept by hand and sent `/about` and
