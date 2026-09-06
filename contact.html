@@ -112,9 +112,16 @@
               </optgroup>
               <optgroup label="Cloud / REMI Production">
                 <option>Zoom Event</option>
-                <option>SRT Transport to the cloud</option>
+                <option>Zoom ISO Switched Broadcast</option>
+                <option>SRT venue/mc Transport to the cloud</option>
               </optgroup>
-              <option>Something else</option>
+              <!-- In its own group rather than loose at the end: an
+                   option outside an optgroup renders flush left while
+                   grouped ones are indented, so a bare "Something else"
+                   sat out of line with everything above it. -->
+              <optgroup label="Other">
+                <option>Something else</option>
+              </optgroup>
             </select>
           </div>
 
@@ -149,7 +156,7 @@
           <p class="step-skip">
             Short on time?
             <button type="button" class="linklike" id="wizard-skip">Skip ahead to your details</button>
-            &mdash; the rest is optional.
+            &mdash; the rest is optional, but filling it in gets you a quicker answer.
           </p>
         </fieldset>
 
