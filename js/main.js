@@ -976,6 +976,19 @@ if (form) {
 
   backBtn.addEventListener("click", () => goTo(index - 1));
 
+  // Skip straight to "Who are we talking to?". validateStep() first, so
+  // the required project_type is still enforced: submit() only validates
+  // the step it is standing on, so a visitor who jumped from 1 to 3
+  // without this check would post an inquiry with no project type and
+  // nothing would flag it. Not wired to a fixed index — `last` keeps it
+  // pointing at the contact step if a fourth is ever added.
+  const skipBtn = form.querySelector("#wizard-skip");
+  if (skipBtn) {
+    skipBtn.addEventListener("click", () => {
+      if (validateStep()) goTo(last);
+    });
+  }
+
   // Clear an error the moment the person fixes it.
   form.addEventListener("input", (e) => {
     if (e.target.name) clearError(e.target);

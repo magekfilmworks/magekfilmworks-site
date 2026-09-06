@@ -1201,6 +1201,34 @@ html, body { overflow-x: hidden; }
   max-width: 52ch;
 }
 
+/* The skip-ahead line at the foot of step 1. Deliberately quiet: it is
+   an escape hatch, not a second call to action competing with Next. */
+.step-skip {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 4px 0 0;
+}
+
+/* A button that reads as a link. It has to be a <button> — a bare <a>
+   with no href is not reachable by keyboard, and an href="#" would put
+   a junk entry in the visitor's history on every click. */
+.linklike {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--tally-ink);
+  text-decoration-thickness: 1px;
+}
+
+.linklike:hover,
+.linklike:focus-visible { color: var(--tally-ink); }
+
 .field-error {
   display: none;
   font-family: var(--font-mono);
