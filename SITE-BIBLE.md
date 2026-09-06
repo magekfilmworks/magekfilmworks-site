@@ -200,6 +200,41 @@ the outcome. Delete Amplify's default SPA fallback in particular —
 URLs in a way that looks like the site working, and during a splash
 window quietly serves the real homepage to anyone who mistypes a URL.
 
+**A rules change is not a deploy — redeploy after every paste.**
+Amplify serves HTML with
+
+```
+cache-control: public, max-age=0, s-maxage=31536000
+```
+
+`max-age=0` tells the browser to revalidate every time; `s-maxage` tells
+CloudFront to hold it for **a year**. A deploy invalidates that cache.
+Pasting rules does not — the rule layer changes instantly, but any path
+already sitting in the edge cache keeps serving the response it was
+cached with.
+
+So on 6 Sept the splash came down in the Console and the site went on
+serving the splash. Every check said the setup was right: the repo was
+right, the rules were right, the push had landed, and the header even
+said `x-cache: Miss` from one edge. The whole thing was one cached
+object.
+
+**The tell that separates it from a bad deploy** is to ask for a file
+directly, with no rewrite involved:
+
+```
+curl -s https://magekfilmworks.productions/about.html | grep -o '<title>[^<]*</title>'
+```
+
+The real title there means the files are deployed and only the rewritten
+path is stale. Which is exactly what happened: `/` was the one path
+anyone had actually visited during the splash window, so `/` was the one
+path in the cache. `/about.html` had never been requested, so it went to
+origin and came back current.
+
+**Fix: Amplify Console -> the branch -> Redeploy this version.**
+Non-destructive, republishes what is already there, clears the edge.
+
 **Domain redirects are not in this list.** `www` -> apex and the HTTPS
 redirect live under Domain management. Replacing this list does not
 disturb them.
@@ -1300,6 +1335,16 @@ crept back in through my own notes. `lint_chrome.py` now fails the build
 on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
+
+**Everything correct and the site still wrong: look for a cache.**
+The splash came down in the Console and the site kept serving it. Repo
+right, rules right, push landed, files verifiably deployed — and still
+the wrong page. Amplify hands CloudFront `s-maxage=31536000`, so `/` had
+been cached for a year the first time anyone loaded the splash, and a
+rules change never asks the origin again. **A configuration change is
+not a deploy, and only a deploy invalidates.** The general form: when
+every input checks out and the output is still wrong, stop re-checking
+the inputs and start asking who is answering.
 
 **Check the status code, not just that you landed in the right place.**
 A redirect can send visitors to exactly the right URL over HTTPS and
