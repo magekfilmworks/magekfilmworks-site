@@ -6,8 +6,13 @@ filesystem cannot resolve — opening build/index.html and clicking About
 goes nowhere. This applies the same rewrite table Amplify is configured
 with, so what you see here is what the live site does.
 
-    python3 tools/serve.py            # serves ./ on 8000
+    python3 tools/serve.py            # serves ./ on 8787
     python3 tools/serve.py build 8080
+
+8787 rather than 8000: a machine with other tooling on it almost always
+has something on 8000, 8080 or 3000 already, and the collision surfaces
+as "Address already in use" from this script and "refused to connect" in
+the browser — two opposite-sounding errors for one cause.
 
 Keep REWRITES in step with the Amplify Console. It is generated from the
 pages on disk, so a new page is covered the moment it exists — the
@@ -16,7 +21,7 @@ Console is the copy that has to be updated by hand.
 import http.server, pathlib, socketserver, sys
 
 ROOT = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else '.').resolve()
-PORT = int(sys.argv[2]) if len(sys.argv) > 2 else 8000
+PORT = int(sys.argv[2]) if len(sys.argv) > 2 else 8787
 
 REWRITES = {'/': '/index.html'}
 for page in sorted(ROOT.glob('*.html')):

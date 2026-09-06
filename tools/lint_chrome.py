@@ -163,21 +163,41 @@ if sitemap.exists():
         problems.append(f'sitemap.xml: lists {extra}, which is not an '
                         f'indexable page on disk')
 
-# Mail lives on magekfilmworks.com. The site lives on
-# magekfilmworks.productions. Those are deliberately different, and the
-# overlap is exactly why this needs a machine: every address on the site
-# was written as @magekfilmworks.productions because that is the domain
-# in front of you while you work, and a mailto that goes nowhere fails
-# silently — the visitor's mail client opens, they send, nothing arrives,
-# and nobody tells you. Checked in the script too: the intake form falls
-# back to a mailto built from CONTACT_EMAIL.
-MAIL_DOMAIN = 'magekfilmworks.com'
+# A clip we host in the repo must actually be on disk under the name the
+# page asks for. This exists because two different videos were carrying
+# the same basename — the 38-second multicam highlight was shipping as
+# `media/art-of-cutting-live.mp4`, which is the name of the 69-minute
+# programme. Uploading "art-of-cutting-live.mp4" to the bucket then put
+# the wrong video on the site, and nothing anywhere was technically
+# broken: the page played exactly what it was pointed at.
+#
+# A name check cannot catch a mislabelled file, but a missing-file check
+# catches the rename that fixes one — which is the moment the mistake
+# would otherwise come back.
+for f in files:
+    for src in set(re.findall(r'data-video-src="((?!https?:)[^"]+)"', f.read_text())):
+        if not (here / src).exists():
+            problems.append(f'{f.name}: video src "{src}" is not on disk')
+
+# The public address on the site is info@magekfilmworks.productions —
+# the brand domain, which has its own SES MX record. It was
+# magekfilmworks.com for a while and moved back, which is exactly why
+# this is a machine check rather than a habit: two plausible domains, a
+# handful of places each address appears, and a wrong mailto fails
+# silently. The visitor's mail client opens, they write, they send, and
+# nothing arrives — no error, and the person who would have told you is
+# the customer you just lost. Checked in the script too: the intake form
+# falls back to a mailto built from CONTACT_EMAIL.
+#
+# Change this constant and the whole site has to follow, or the build
+# stops.
+MAIL_DOMAIN = 'magekfilmworks.productions'
 for f in list(files) + [x for x in extras if x.exists()]:
     for addr in set(re.findall(r'[\w.+-]+@magekfilmworks\.[a-z]+', f.read_text())):
         if not addr.endswith('@' + MAIL_DOMAIN):
             problems.append(
-                f'{f.name}: email "{addr}" — mail is on {MAIL_DOMAIN}, '
-                f'not the site domain')
+                f'{f.name}: email "{addr}" — the public address is on '
+                f'{MAIL_DOMAIN}')
 
 if problems:
     print('FAIL')

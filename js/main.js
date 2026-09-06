@@ -3,14 +3,17 @@
    ============================================================ */
 
 /* ------------------------------------------------------------
-   Where intake submissions go.
+   Where intake submissions go. Formspree, delivering to
+   info@magekfilmworks.productions.
 
-   Paste the endpoint from your form service here (Formspree,
-   Basin, Netlify Forms, etc). Until you do, the form falls back
-   to opening a prefilled email so the page still works.
+   The empty-string branch further down is kept deliberately: it
+   is what the page does if this is ever cleared or the service
+   dropped, and it hands the inquiry to the visitor's mail client
+   rather than swallowing it. A contact form that fails silently
+   costs you the customer AND the knowledge that you lost one.
    ------------------------------------------------------------ */
-const FORM_ENDPOINT = "";
-const CONTACT_EMAIL = "info@magekfilmworks.com";
+const FORM_ENDPOINT = "https://formspree.io/f/xoeqdazr";
+const CONTACT_EMAIL = "info@magekfilmworks.productions";
 
 /* ---------- Hero slider ----------
    A multi-format rotation: photographs, a clip we host that plays in the
@@ -1012,12 +1015,43 @@ if (form) {
     return Array.from(merged, ([label, value]) => `${label}: ${value}`).join("\n");
   };
 
+  /* After a send: show the confirmation, then put a blank form back.
+     Ten seconds, not two — the panel carries a real sentence ("expect a
+     reply within one business day") and a visitor who glanced away
+     should still find it when they look back. Faster than that and the
+     page appears to forget the thing they just did.
+
+     `prefers-reduced-motion` gets no auto-reset at all: an unannounced
+     content swap is exactly what that setting asks us not to do, and
+     the confirmation simply stays until the page is reloaded. */
+  const RESET_AFTER = 10000;
+  let resetTimer = null;
+
+  const resetForm = () => {
+    form.reset();
+    // reset() restores the markup's defaults, not the wizard's position,
+    // and leaves any validation styling behind — both have to be undone
+    // by hand or the "new" form opens on step four wearing red borders.
+    form.querySelectorAll(".is-invalid").forEach((f) => clearError(f));
+    index = 0;
+    render();
+    if (done) done.hidden = true;
+    form.hidden = false;
+    sendBtn.disabled = false;
+    status.textContent = "";
+    status.classList.remove("is-error");
+  };
+
   const showDone = () => {
     form.hidden = true;
     if (done) {
       done.hidden = false;
       done.setAttribute("tabindex", "-1");
       done.focus();
+    }
+    clearTimeout(resetTimer);
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      resetTimer = setTimeout(resetForm, RESET_AFTER);
     }
   };
 
@@ -1042,6 +1076,22 @@ if (form) {
     sendBtn.disabled = true;
     status.classList.remove("is-error");
     status.textContent = "Sending…";
+
+    // Formspree reads two fields specially, and both are worth setting.
+    //
+    // `_subject` becomes the notification's subject line. Left alone it
+    // is "New submission from magekfilmworks.productions" on every
+    // single one, which is useless the moment two arrive in a week —
+    // you cannot tell a wedding video from an arena show without
+    // opening them.
+    //
+    // The reply-to comes from the field named `email`, which the form
+    // already has, so hitting Reply in your mail client answers the
+    // person rather than Formspree.
+    const who = (data.get("name") || "").toString().trim();
+    const what = (data.get("project_type") || "").toString().trim();
+    data.set("_subject",
+             ['Project inquiry', who, what].filter(Boolean).join(' — '));
 
     try {
       const res = await fetch(FORM_ENDPOINT, {

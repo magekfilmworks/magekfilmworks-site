@@ -41,6 +41,61 @@ to `main`.
 - `tools/deploy-magek.sh` in this repo is the master copy. A new version
   lands here on every deploy; install it with
   `cp tools/deploy-magek.sh ~/deploy-magek.sh && chmod +x ~/deploy-magek.sh`
+### Previewing locally
+
+Two Terminal tabs. The server holds whichever tab it runs in — that is
+the whole trick, and not knowing it cost an hour on 6 Sept.
+
+**Tab 1, the server.** Start it once and never type in it again:
+
+```
+cd ~/Documents/GitHub/magekfilmworks-site
+python3 tools/serve.py . 8787
+```
+
+**Tab 2 (Cmd-T), everything else.** Download the zip, then:
+
+```
+~/deploy-magek.sh
+```
+
+Then refresh **http://localhost:8787**. That is the whole loop.
+
+**The server never needs restarting.** It reads files off disk on every
+request, so a deploy is visible on the next refresh. Leave it running
+all week.
+
+**A blocked tab swallows commands silently.** Type `~/deploy-magek.sh`
+into the server's tab and nothing happens — no error, no output; the
+text sits in the shell's input buffer. It looks exactly like a broken
+deploy script. Worse, `Ctrl-C` then runs everything that was queued,
+including any `serve.py` lines, so the server appears to restart itself
+and the loop continues. **The escape is to close the window (Cmd-Q),
+not Ctrl-C.**
+
+**When a change does not show, check the file, not the browser.** The
+stylesheet and script carry `?v=<hash>`, so a browser cannot be serving
+a stale copy — if the page looks unchanged, the file on disk is
+unchanged, which means the deploy did not happen:
+
+```
+cat ~/Documents/GitHub/magekfilmworks-site/BUILD
+```
+
+Compare it to the stamp printed with the zip. The script also **trashes
+the zip after a successful deploy**, so each new build needs its own
+download — a second run without one prints `No file matching magek*.zip`
+rather than silently redeploying the old one.
+
+**Pick a high port.** 8787, not 8000 — a working machine has
+something on 8000, 8080 or 3000 already, and the clash shows up as
+`Address already in use` here and `refused to connect` in the browser:
+two opposite-sounding errors, one cause. `pkill -f serve.py` clears any
+strays.
+
+**Other sites:** `serve.py` is generic — a folder and a port. Copy it to
+the gekjr.pro repo and run it on 8788 so both can be up at once.
+
 ### When the deploy script won't run
 
 Two failures, both hit on 4 Sept 2026 moving to a new Mac, both looking
@@ -177,7 +232,7 @@ navigates. **`tools/serve.py` applies the same rewrite table**, so local
 testing matches the live site:
 
 ```
-python3 tools/serve.py build 8000
+python3 tools/serve.py build 8787
 ```
 
 `lint_chrome.py` fails the build on any internal `href` still ending in
@@ -430,17 +485,18 @@ CDN fixes it. `-movflags +faststart` is a remux, not a re-encode.
 
 ## 2f. Two domains, one site
 
-**The site is `magekfilmworks.productions`. The mail is
-`magekfilmworks.com`.** They are deliberately split and the split is the
-thing to remember, because working on the site puts `.productions` in
-front of you all day and every address gets written that way by reflex.
+**The site and its public address are both
+`magekfilmworks.productions`.** `magekfilmworks.com` still carries
+Google Workspace mail and still 301s to the site, but the address a
+visitor sees is on the brand domain, received by SES.
 
 | | Domain |
 |---|---|
 | Site, canonical for SEO | `magekfilmworks.productions` |
 | Video delivery | `playback.magekfilmworks.productions` |
 | Short links | `magekfilmworks.productions/v/<slug>` |
-| **All email** | **`magekfilmworks.com`** |
+| **Public address on the site** | **`info@magekfilmworks.productions`** (SES) |
+| Other mail | `magekfilmworks.com` (Google Workspace) |
 | Typed-by-reflex traffic | `magekfilmworks.com` -> 301 -> `.productions` |
 
 `.productions` is canonical because everything is built on it — the
@@ -449,12 +505,19 @@ is not a Google ranking factor, so there is nothing to gain by moving.
 `.com` exists to catch the people who type it without thinking, and to
 pass the link equity of anything that already points there.
 
+**The public address is `info@magekfilmworks.productions`** — the brand
+domain, which carries its own SES MX record. It was `@magekfilmworks.com`
+for a day and moved back.
+
 **`lint_chrome.py` fails the build on any `@magekfilmworks.<anything>`
-address that is not `@magekfilmworks.com`** — pages, stylesheet and
-script alike. A wrong mailto is the worst class of bug on a contact
-page: the visitor's mail client opens, they write, they send, and
-nothing arrives. No error anywhere, and the person who would have told
-you is the customer you just lost.
+address that is not the one in `MAIL_DOMAIN`** — pages, stylesheet and
+script alike. Change that constant and the whole site has to follow or
+the build stops. Two plausible domains and a handful of places each
+address appears is exactly the shape of problem a machine should hold: a
+wrong mailto is the worst class of bug on a contact page, because the
+visitor's mail client opens, they write, they send, and nothing arrives.
+No error anywhere, and the person who would have told you is the
+customer you just lost.
 
 ### Redirecting `.com` — what is built
 
@@ -1238,16 +1301,43 @@ on any other casing, checking the stylesheet and the script as well as
 the pages, since the credits and the intake copy put the name in places
 a page-only scan misses.
 
-**A redirect that works is not necessarily a redirect that counts.**
-The `.com` went live redirecting correctly to `.productions` — right
-destination, HTTPS, apex and `www` both — and was still wrong, because
-it answered `302 Found` rather than `301 Moved Permanently`. Every
-visitor test passes; nobody sees a difference in a browser. But a 302
-means *temporary*, so search engines keep the old domain indexed and no
-link equity moves, which was the entire point of building it. **Check
-the status code, not just that you landed in the right place.**
-`curl -sI https://OLD | head -3` is the whole test, and it is the sort
-of thing only a machine tells you.
+**Check the status code, not just that you landed in the right place.**
+A redirect can send visitors to exactly the right URL over HTTPS and
+still be wrong for search: `302 Found` means *temporary*, so the old
+domain stays indexed and no link equity moves — which is the entire
+point of building one. Nobody sees the difference in a browser.
+`curl -sI https://OLD | head -3` is the whole test.
+
+**And check it with something that shows you the raw header.** The first
+report that this site's `.com` was answering 302 was mine, and it was
+wrong: it came from a fetch tool that printed its own summary of the
+response instead of the bytes. The config had been right from the
+moment it was built. An hour went into hunting a defect that did not
+exist, and it would have gone further — an invalidation, then a rebuild
+of a correct redirect — if `curl -sI` had not settled it. **A tool that
+paraphrases a response is not evidence about that response.** Same
+lesson as asking for the terminal output before theorising (§2), one
+layer down: it applies to my own instruments too, not just to a
+description of a problem.
+
+**Two different files with the same name is worse than a wrong name.**
+The 38-second multicam highlight shipped in the repo as
+`media/art-of-cutting-live.mp4` — the name of the 69-minute programme,
+which lives in the bucket. Nothing was broken by that on its own: two
+files, two locations, and the pages pointed at the right one each time.
+Then the programme was uploaded to S3 under its own name, from a Mac
+where the file with that name was the highlight — and the site played a
+38-second clip in a slot labelled 1:09:07. **No component was wrong.**
+The page played exactly what it was pointed at, the bucket served
+exactly what it held, and the only error was made by a person reading a
+filename that lied. **A name that describes the wrong thing is a bug
+even when nothing references it.**
+
+`media/` is gone entirely — every clip now comes from the bucket or from
+YouTube, and the repo carries no video at all (the zip dropped from 15 MB
+to 5.5 MB). `lint_chrome.py` still fails the build on a relative
+`data-video-src` that is not on disk; nothing references one today, and
+the check is there for the next time something is added locally.
 
 **Two files claiming to be the same thing will disagree.**
 `amplify-rewrites-splash.json` was kept by hand and sent `/about` and
