@@ -163,6 +163,22 @@ if sitemap.exists():
         problems.append(f'sitemap.xml: lists {extra}, which is not an '
                         f'indexable page on disk')
 
+# A clip we host in the repo must actually be on disk under the name the
+# page asks for. This exists because two different videos were carrying
+# the same basename — the 38-second multicam highlight was shipping as
+# `media/art-of-cutting-live.mp4`, which is the name of the 69-minute
+# programme. Uploading "art-of-cutting-live.mp4" to the bucket then put
+# the wrong video on the site, and nothing anywhere was technically
+# broken: the page played exactly what it was pointed at.
+#
+# A name check cannot catch a mislabelled file, but a missing-file check
+# catches the rename that fixes one — which is the moment the mistake
+# would otherwise come back.
+for f in files:
+    for src in set(re.findall(r'data-video-src="((?!https?:)[^"]+)"', f.read_text())):
+        if not (here / src).exists():
+            problems.append(f'{f.name}: video src "{src}" is not on disk')
+
 # Mail lives on magekfilmworks.com. The site lives on
 # magekfilmworks.productions. Those are deliberately different, and the
 # overlap is exactly why this needs a machine: every address on the site

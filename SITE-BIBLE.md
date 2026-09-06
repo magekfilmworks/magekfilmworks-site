@@ -1257,6 +1257,23 @@ lesson as asking for the terminal output before theorising (§2), one
 layer down: it applies to my own instruments too, not just to a
 description of a problem.
 
+**Two different files with the same name is worse than a wrong name.**
+The 38-second multicam highlight shipped in the repo as
+`media/art-of-cutting-live.mp4` — the name of the 69-minute programme,
+which lives in the bucket. Nothing was broken by that on its own: two
+files, two locations, and the pages pointed at the right one each time.
+Then the programme was uploaded to S3 under its own name, from a Mac
+where the file with that name was the highlight — and the site played a
+38-second clip in a slot labelled 1:09:07. **No component was wrong.**
+The page played exactly what it was pointed at, the bucket served
+exactly what it held, and the only error was made by a person reading a
+filename that lied. `media/` now carries
+`multicam-live-cut-highlight.mp4`, and `lint_chrome.py` fails the build
+on a relative `data-video-src` that is not on disk — which cannot catch
+a mislabelled file, but does catch the rename that fixes one. **A name
+that describes the wrong thing is a bug even when nothing references
+it.**
+
 **Two files claiming to be the same thing will disagree.**
 `amplify-rewrites-splash.json` was kept by hand and sent `/about` and
 `/contact` at the real pages; `tools/shortlinks.py --splash` sent them
