@@ -3,13 +3,16 @@
    ============================================================ */
 
 /* ------------------------------------------------------------
-   Where intake submissions go.
+   Where intake submissions go. Formspree, delivering to
+   info@magekfilmworks.com.
 
-   Paste the endpoint from your form service here (Formspree,
-   Basin, Netlify Forms, etc). Until you do, the form falls back
-   to opening a prefilled email so the page still works.
+   The empty-string branch further down is kept deliberately: it
+   is what the page does if this is ever cleared or the service
+   dropped, and it hands the inquiry to the visitor's mail client
+   rather than swallowing it. A contact form that fails silently
+   costs you the customer AND the knowledge that you lost one.
    ------------------------------------------------------------ */
-const FORM_ENDPOINT = "";
+const FORM_ENDPOINT = "https://formspree.io/f/xoeqdazr";
 const CONTACT_EMAIL = "info@magekfilmworks.com";
 
 /* ---------- Hero slider ----------
@@ -1042,6 +1045,22 @@ if (form) {
     sendBtn.disabled = true;
     status.classList.remove("is-error");
     status.textContent = "Sending…";
+
+    // Formspree reads two fields specially, and both are worth setting.
+    //
+    // `_subject` becomes the notification's subject line. Left alone it
+    // is "New submission from magekfilmworks.productions" on every
+    // single one, which is useless the moment two arrive in a week —
+    // you cannot tell a wedding video from an arena show without
+    // opening them.
+    //
+    // The reply-to comes from the field named `email`, which the form
+    // already has, so hitting Reply in your mail client answers the
+    // person rather than Formspree.
+    const who = (data.get("name") || "").toString().trim();
+    const what = (data.get("project_type") || "").toString().trim();
+    data.set("_subject",
+             ['Project inquiry', who, what].filter(Boolean).join(' — '));
 
     try {
       const res = await fetch(FORM_ENDPOINT, {
