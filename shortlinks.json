@@ -14,12 +14,12 @@
     {
       "slug": "aamc-2025",
       "label": "2025 AAMC Virtual Awards Program — Dent Digital / Magek",
-      "target": "https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4"
+      "target": "https://playback.magekfilmworks.productions/2025-aamc-virtual-awards.mp4"
     },
     {
       "slug": "art-of-cutting-live",
       "label": "The Art of Cutting Live — Office Hours Global / George",
-      "target": "https://magek-playback.s3.us-east-1.amazonaws.com/art-of-cutting-live.mp4"
+      "target": "https://playback.magekfilmworks.productions/art-of-cutting-live.mp4"
     }
   ]
 }
