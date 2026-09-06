@@ -1931,6 +1931,45 @@ html, body { overflow-x: hidden; }
   .about-grid { grid-template-columns: 1fr 1.15fr; gap: 60px; }
 }
 
+/* The crew column, once it was three people and is now one. A single
+   rundown row on its own reads as a stray line rather than a list, so
+   the portrait carries the column instead and the row becomes its
+   caption. */
+.about-who {
+  display: grid;
+  gap: 26px;
+  align-items: start;
+}
+
+.about-portrait {
+  margin: 0;
+  /* 4:5, not the file's own 3:4 — a portrait crop that keeps the frame
+     close on the face. object-position sits a little high because the
+     eyes are above centre in the source and a centred crop puts the
+     forehead in the middle of the box. */
+  aspect-ratio: 4 / 5;
+  max-width: 320px;
+  overflow: hidden;
+  background: var(--paper-raised);
+}
+
+.about-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 38%;
+  display: block;
+}
+
+@media (min-width: 700px) {
+  .about-who {
+    grid-template-columns: 220px 1fr;
+    gap: 34px;
+    align-items: center;
+  }
+  .about-portrait { max-width: none; }
+}
+
 .statement {
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 3vw, 2rem);

@@ -1015,12 +1015,43 @@ if (form) {
     return Array.from(merged, ([label, value]) => `${label}: ${value}`).join("\n");
   };
 
+  /* After a send: show the confirmation, then put a blank form back.
+     Ten seconds, not two — the panel carries a real sentence ("expect a
+     reply within one business day") and a visitor who glanced away
+     should still find it when they look back. Faster than that and the
+     page appears to forget the thing they just did.
+
+     `prefers-reduced-motion` gets no auto-reset at all: an unannounced
+     content swap is exactly what that setting asks us not to do, and
+     the confirmation simply stays until the page is reloaded. */
+  const RESET_AFTER = 10000;
+  let resetTimer = null;
+
+  const resetForm = () => {
+    form.reset();
+    // reset() restores the markup's defaults, not the wizard's position,
+    // and leaves any validation styling behind — both have to be undone
+    // by hand or the "new" form opens on step four wearing red borders.
+    form.querySelectorAll(".is-invalid").forEach((f) => clearError(f));
+    index = 0;
+    render();
+    if (done) done.hidden = true;
+    form.hidden = false;
+    sendBtn.disabled = false;
+    status.textContent = "";
+    status.classList.remove("is-error");
+  };
+
   const showDone = () => {
     form.hidden = true;
     if (done) {
       done.hidden = false;
       done.setAttribute("tabindex", "-1");
       done.focus();
+    }
+    clearTimeout(resetTimer);
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      resetTimer = setTimeout(resetForm, RESET_AFTER);
     }
   };
 
