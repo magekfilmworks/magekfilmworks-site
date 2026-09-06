@@ -41,6 +41,61 @@ to `main`.
 - `tools/deploy-magek.sh` in this repo is the master copy. A new version
   lands here on every deploy; install it with
   `cp tools/deploy-magek.sh ~/deploy-magek.sh && chmod +x ~/deploy-magek.sh`
+### Previewing locally
+
+Two Terminal tabs. The server holds whichever tab it runs in — that is
+the whole trick, and not knowing it cost an hour on 6 Sept.
+
+**Tab 1, the server.** Start it once and never type in it again:
+
+```
+cd ~/Documents/GitHub/magekfilmworks-site
+python3 tools/serve.py . 8787
+```
+
+**Tab 2 (Cmd-T), everything else.** Download the zip, then:
+
+```
+~/deploy-magek.sh
+```
+
+Then refresh **http://localhost:8787**. That is the whole loop.
+
+**The server never needs restarting.** It reads files off disk on every
+request, so a deploy is visible on the next refresh. Leave it running
+all week.
+
+**A blocked tab swallows commands silently.** Type `~/deploy-magek.sh`
+into the server's tab and nothing happens — no error, no output; the
+text sits in the shell's input buffer. It looks exactly like a broken
+deploy script. Worse, `Ctrl-C` then runs everything that was queued,
+including any `serve.py` lines, so the server appears to restart itself
+and the loop continues. **The escape is to close the window (Cmd-Q),
+not Ctrl-C.**
+
+**When a change does not show, check the file, not the browser.** The
+stylesheet and script carry `?v=<hash>`, so a browser cannot be serving
+a stale copy — if the page looks unchanged, the file on disk is
+unchanged, which means the deploy did not happen:
+
+```
+cat ~/Documents/GitHub/magekfilmworks-site/BUILD
+```
+
+Compare it to the stamp printed with the zip. The script also **trashes
+the zip after a successful deploy**, so each new build needs its own
+download — a second run without one prints `No file matching magek*.zip`
+rather than silently redeploying the old one.
+
+**Pick a high port.** 8787, not 8000 — a working machine has
+something on 8000, 8080 or 3000 already, and the clash shows up as
+`Address already in use` here and `refused to connect` in the browser:
+two opposite-sounding errors, one cause. `pkill -f serve.py` clears any
+strays.
+
+**Other sites:** `serve.py` is generic — a folder and a port. Copy it to
+the gekjr.pro repo and run it on 8788 so both can be up at once.
+
 ### When the deploy script won't run
 
 Two failures, both hit on 4 Sept 2026 moving to a new Mac, both looking
@@ -177,7 +232,7 @@ navigates. **`tools/serve.py` applies the same rewrite table**, so local
 testing matches the live site:
 
 ```
-python3 tools/serve.py build 8000
+python3 tools/serve.py build 8787
 ```
 
 `lint_chrome.py` fails the build on any internal `href` still ending in

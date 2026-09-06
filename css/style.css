@@ -1944,43 +1944,96 @@ html, body { overflow-x: hidden; }
   .about-grid { grid-template-columns: 1fr 1.15fr; gap: 60px; }
 }
 
-/* The crew column, once it was three people and is now one. A single
-   rundown row on its own reads as a stray line rather than a list, so
-   the portrait carries the column instead and the row becomes its
-   caption. */
-.about-who {
+/* The people. One row per person: their photograph, then their entry.
+
+   This was a single portrait beside the whole list, which was right
+   while the list was one person. With two it belonged to neither — a
+   face next to a name that is not theirs reads as a mistake, and it is
+   one. */
+.crew {
   display: grid;
-  gap: 26px;
+  gap: 40px;
+}
+
+.crew-row {
+  display: grid;
+  gap: 18px;
   align-items: start;
 }
 
-.about-portrait {
+.crew-portrait {
   margin: 0;
-  /* 4:5, not the file's own 3:4 — a portrait crop that keeps the frame
-     close on the face. object-position sits a little high because the
-     eyes are above centre in the source and a centred crop puts the
-     forehead in the middle of the box. */
+  /* 4:5 for both, so two different source ratios present as one set.
+     Per-person object-position rides on the element — an nth-child rule
+     would point at the wrong person the moment somebody is inserted
+     above, which is exactly what happened to the hero slides. */
   aspect-ratio: 4 / 5;
-  max-width: 320px;
+  max-width: 300px;
   overflow: hidden;
-  background: var(--paper-raised);
+  background: var(--paper-sunk);
 }
 
-.about-portrait img {
+.crew-portrait img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 38%;
+  object-position: 50% 42%;
   display: block;
 }
 
+/* The call-sheet code and the title on one line: with a face above the
+   name, three stacked labels for one person was two too many. */
+.crew-tag {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.crew-tag i {
+  font-style: normal;
+  color: var(--tally-ink);
+  font-weight: 500;
+}
+
+.crew-text h3 {
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  margin-bottom: 8px;
+}
+
+.crew-text p:not(.crew-tag) {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+/* Was .rd-body a, which stopped matching when the crew left the rundown
+   markup — the gekjr.pro link went back to looking like plain text.
+   Same treatment as .reel-credit a: one way of saying "this goes
+   somewhere" across the site. */
+.crew-text a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--tally);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+@media (hover: hover) {
+  .crew-text a:hover { color: var(--tally); }
+}
+
 @media (min-width: 700px) {
-  .about-who {
-    grid-template-columns: 220px 1fr;
-    gap: 34px;
-    align-items: center;
+  .crew-row {
+    grid-template-columns: 168px 1fr;
+    gap: 30px;
   }
-  .about-portrait { max-width: none; }
+  .crew-portrait { max-width: none; }
 }
 
 .statement {
