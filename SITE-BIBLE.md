@@ -216,7 +216,7 @@ nothing in the repo changes.
   { "source": "/about",       "status": "200", "target": "/splash.html" },
   { "source": "/contact",     "status": "200", "target": "/splash.html" },
   { "source": "/privacy",     "status": "200", "target": "/privacy.html" },
-  { "source": "/v/aamc-2025", "status": "302", "target": "https://magek-playback.s3.us-east-1.amazonaws.com/2025-aamc-virtual-awards.mp4" }
+  { "source": "/v/aamc-2025", "status": "302", "target": "https://playback.magekfilmworks.productions/2025-aamc-virtual-awards.mp4" }
 ]
 ```
 
@@ -1084,7 +1084,8 @@ and tested, not because a clip depends on it.
 
 **`src` can be a remote URL**, and long-form video should be. The AAMC
 programme is an mp4 on S3
-(`magek-playback.s3.us-east-1.amazonaws.com`), which keeps a 70-minute
+(`playback.magekfilmworks.productions`, CloudFront in front of the
+`magek-playback` bucket), which keeps a 70-minute
 file out of git entirely and out of the 100 MiB push limit — see §9 on
 video weight.
 
