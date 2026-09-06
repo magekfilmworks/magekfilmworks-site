@@ -613,9 +613,22 @@ p { margin: 0 0 1em; }
   max-width: 66ch;
 }
 
+/* A link in a rundown row — today only gekjr.pro in the crew bio. It had
+   a 1px bottom border in --line, which is the site's rule colour: right
+   for a divider, invisible as a link. Nothing announced it was clickable,
+   so nobody clicked it.
+   Same treatment as .reel-credit a, deliberately — one way of saying
+   "this goes somewhere" across the whole site. */
 .rd-body a {
   color: var(--ink);
-  border-bottom: 1px solid var(--line);
+  text-decoration: underline;
+  text-decoration-color: var(--tally);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+@media (hover: hover) {
+  .rd-body a:hover { color: var(--tally); }
 }
 
 /* The crew list runs the same grid, closer together — three short rows
