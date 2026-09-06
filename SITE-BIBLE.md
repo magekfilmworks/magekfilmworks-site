@@ -430,17 +430,18 @@ CDN fixes it. `-movflags +faststart` is a remux, not a re-encode.
 
 ## 2f. Two domains, one site
 
-**The site is `magekfilmworks.productions`. The mail is
-`magekfilmworks.com`.** They are deliberately split and the split is the
-thing to remember, because working on the site puts `.productions` in
-front of you all day and every address gets written that way by reflex.
+**The site and its public address are both
+`magekfilmworks.productions`.** `magekfilmworks.com` still carries
+Google Workspace mail and still 301s to the site, but the address a
+visitor sees is on the brand domain, received by SES.
 
 | | Domain |
 |---|---|
 | Site, canonical for SEO | `magekfilmworks.productions` |
 | Video delivery | `playback.magekfilmworks.productions` |
 | Short links | `magekfilmworks.productions/v/<slug>` |
-| **All email** | **`magekfilmworks.com`** |
+| **Public address on the site** | **`info@magekfilmworks.productions`** (SES) |
+| Other mail | `magekfilmworks.com` (Google Workspace) |
 | Typed-by-reflex traffic | `magekfilmworks.com` -> 301 -> `.productions` |
 
 `.productions` is canonical because everything is built on it — the
@@ -449,12 +450,19 @@ is not a Google ranking factor, so there is nothing to gain by moving.
 `.com` exists to catch the people who type it without thinking, and to
 pass the link equity of anything that already points there.
 
+**The public address is `info@magekfilmworks.productions`** — the brand
+domain, which carries its own SES MX record. It was `@magekfilmworks.com`
+for a day and moved back.
+
 **`lint_chrome.py` fails the build on any `@magekfilmworks.<anything>`
-address that is not `@magekfilmworks.com`** — pages, stylesheet and
-script alike. A wrong mailto is the worst class of bug on a contact
-page: the visitor's mail client opens, they write, they send, and
-nothing arrives. No error anywhere, and the person who would have told
-you is the customer you just lost.
+address that is not the one in `MAIL_DOMAIN`** — pages, stylesheet and
+script alike. Change that constant and the whole site has to follow or
+the build stops. Two plausible domains and a handful of places each
+address appears is exactly the shape of problem a machine should hold: a
+wrong mailto is the worst class of bug on a contact page, because the
+visitor's mail client opens, they write, they send, and nothing arrives.
+No error anywhere, and the person who would have told you is the
+customer you just lost.
 
 ### Redirecting `.com` — what is built
 

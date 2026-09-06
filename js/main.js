@@ -4,7 +4,7 @@
 
 /* ------------------------------------------------------------
    Where intake submissions go. Formspree, delivering to
-   info@magekfilmworks.com.
+   info@magekfilmworks.productions.
 
    The empty-string branch further down is kept deliberately: it
    is what the page does if this is ever cleared or the service
@@ -13,7 +13,7 @@
    costs you the customer AND the knowledge that you lost one.
    ------------------------------------------------------------ */
 const FORM_ENDPOINT = "https://formspree.io/f/xoeqdazr";
-const CONTACT_EMAIL = "info@magekfilmworks.com";
+const CONTACT_EMAIL = "info@magekfilmworks.productions";
 
 /* ---------- Hero slider ----------
    A multi-format rotation: photographs, a clip we host that plays in the

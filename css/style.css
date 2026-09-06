@@ -2777,6 +2777,31 @@ html, body { overflow-x: hidden; }
   .section--split .contact-form select {
     background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%23a09e97' stroke-width='1.6' d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
   }
+
+  /* The confirmation panel replaces the form in the same column, so it
+     takes the same dark palette and the same 40px inset. Without this
+     it kept the light palette and appeared as a pale card on black —
+     the column changed character the instant you pressed Send.
+
+     It also showed a seam. The black half of this section is a gradient
+     at 50% of the VIEWPORT; the panel starts at the GRID COLUMN edge,
+     and those two lines sit about 3px apart at 1440. Nothing revealed
+     that while a form — which has no background of its own — was there.
+     Give the panel the ground it stands on and the 3px has nothing left
+     to show. */
+  .section--split .intake-done {
+    --paper: #000;
+    --paper-raised: #1a1a18;
+    --paper-sunk: #141413;
+    --ink: #fbfbf9;
+    --ink-soft: #a09e97;
+    --ink-faint: #6c6a65;
+    --line: #302f2c;
+    --line-soft: #201f1d;
+    --tally-ink: var(--tally);
+    color: var(--ink);
+    margin-left: 40px;
+  }
 }
 
 /* Stacked, the last testimonial panel (#f2f1ec) runs straight into the
