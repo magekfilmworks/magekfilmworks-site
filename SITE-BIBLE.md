@@ -1267,12 +1267,14 @@ where the file with that name was the highlight — and the site played a
 38-second clip in a slot labelled 1:09:07. **No component was wrong.**
 The page played exactly what it was pointed at, the bucket served
 exactly what it held, and the only error was made by a person reading a
-filename that lied. `media/` now carries
-`multicam-live-cut-highlight.mp4`, and `lint_chrome.py` fails the build
-on a relative `data-video-src` that is not on disk — which cannot catch
-a mislabelled file, but does catch the rename that fixes one. **A name
-that describes the wrong thing is a bug even when nothing references
-it.**
+filename that lied. **A name that describes the wrong thing is a bug
+even when nothing references it.**
+
+`media/` is gone entirely — every clip now comes from the bucket or from
+YouTube, and the repo carries no video at all (the zip dropped from 15 MB
+to 5.5 MB). `lint_chrome.py` still fails the build on a relative
+`data-video-src` that is not on disk; nothing references one today, and
+the check is there for the next time something is added locally.
 
 **Two files claiming to be the same thing will disagree.**
 `amplify-rewrites-splash.json` was kept by hand and sent `/about` and
