@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://magekfilmworks.productions/images/clip-poster.jpeg" />
 <meta name="twitter:card" content="summary_large_image" />
 
-<link rel="stylesheet" href="css/style.css?v=16092484" />
+<link rel="stylesheet" href="css/style.css?v=577c2d1d" />
 </head>
 <body>
 
@@ -46,7 +46,7 @@
              controlsList="nodownload"
              preload="none" aria-label="A multiviewer showing eight camera feeds and the program cut." style="--focus:center 58%" data-video-title="Multicam Live Cut Highlight" data-video-time="0:38" data-video-tags="#proav #multicam" data-video-credits='[["Technical Director", "George E. Kennedy, Jr."]]' data-video-src="https://playback.magekfilmworks.productions/art-of-cutting-live.mp4" data-video-poster="images/clip-poster.jpeg"></video>
       <img src="images/switcher.jpeg" alt="A Panasonic multi-format live switcher with taped bus labels, beside a marked-up show rundown." class="hero-slide" loading="lazy" style="--focus:center 50%" />
-      <img src="images/aamc-2025.webp" alt="A watercolour portrait of a speaker from the 2025 AAMC Virtual Awards Program." class="hero-slide" loading="lazy" style="--focus-m:76% 42%" data-video-title="2025 AAMC Virtual Awards Program" data-video-time="1:10:04" data-video-tags="#cloud" data-video-credits='[["Produced by", "Dent Digital"], ["Live Streamed By", "Magek Filmworks"]]' data-video-src="https://playback.magekfilmworks.productions/2025-aamc-virtual-awards.mp4" data-video-poster="images/aamc-2025.webp" />
+      <img src="images/aamc-2025.webp" alt="A watercolour portrait of a speaker from the 2025 AAMC Virtual Awards Program." class="hero-slide" loading="lazy" style="--focus-m:76% 42%" data-video-title="2025 AAMC Virtual Awards Program" data-video-time="1:10:04" data-video-tags="#cloud" data-video-credits='[["Produced by", "Dent Digital"], ["Live streamed via", "vMix, Cloudflex-AWS to Zoom Event"], ["Live production by", "Magek Filmworks"]]' data-video-src="https://playback.magekfilmworks.productions/2025-aamc-virtual-awards.mp4" data-video-poster="images/aamc-2025.webp" />
       <img src="images/fido.jpeg" alt="An SDI fibre transceiver labelled DSM and Aux 1 in gaffer tape." class="hero-slide" loading="lazy" />
       <img src="images/child-mind-institute.png" alt="A clinician speaking to camera in a consulting room, from the Child Mind Institute clinician profile." class="hero-slide" loading="lazy" style="--focus-m:34% 40%" data-video-title="Child Mind Institute Clinician Profile" data-video-time="2:09" data-video-tags="#videoproduction" data-video-credits='[["Produced by", "Kicker Media", "https://www.kickerinc.com/"], ["Production support by", "Magek Filmworks"]]' data-video-src="https://playback.magekfilmworks.productions/child-mind-institute-clinician-profile.mp4" data-video-poster="images/child-mind-institute.png" />
       <img src="images/art-of-cutting-live.jpg" alt="The Art of Cutting Live: George E. Kennedy, Jr. beside a multiviewer of eight concert cameras and a live switcher." class="hero-slide" loading="lazy" data-video-title="The Art of Cutting Live" data-video-time="1:09:07" data-video-tags="#cloud" data-video-credits='[["Produced by", "Office Hours Global", "https://officehours.global/"], ["Featuring", "George E. Kennedy, Jr., Head of Production, Magek Filmworks"]]' data-video-youtube="lQ_MciOESPY" />
@@ -112,7 +112,20 @@
         <p class="panel-label"><b>03</b> <span>Remote crew</span></p>
         <h3>Cloud and REMI Production</h3>
         <p>Remote-integration workflows and live streaming: the show happens in the room, the production wherever the crew is. Every stream runs redundant: one primary, one backup. On-screen Q&amp;A, recorded for on-demand. For when travel is the expensive line item, or two events land the same day.</p>
-        <p class="rd-systems">REMI workflows · Live streaming · Remote switching · Distributed crew · Cloud review and delivery</p>
+        <p class="rd-systems">REMI workflows · Live streaming · Remote switching · Distributed crew · Cloud review and delivery · Venue/MC SRT transport to Cloud</p>
+        <div class="transport-diagram">
+          <svg viewBox="0 0 240 64" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true" focusable="false">
+            <circle class="td-accent" cx="14" cy="18" r="3.4" fill="currentColor" stroke="none"/>
+            <path class="td-ink" d="M10 48 L10 42"/>
+            <path class="td-ink" d="M18 48 L18 36"/>
+            <path class="td-ink" d="M26 48 L26 28"/>
+            <path class="td-accent td-flow" d="M40 38 L172 38"/>
+            <path class="td-ink" d="M188 44 h20 a9 9 0 0 0 1.2 -17.9 a12 12 0 0 0 -22.9 -3.4 a8 8 0 0 0 0.7 21.3 z"/>
+          </svg>
+          <span>Venue/MC &rarr; SRT feed &rarr; Cloudflex-AWS &rarr; NDI feed &rarr; vMix &rarr; Live</span>
+        </div>
       </article>
       <article class="panel panel--reel">
         <p class="panel-label"><span>The reel</span></p>
@@ -130,14 +143,15 @@
           </button>
           <button type="button" class="reel-slide"
                   data-reel data-src="https://playback.magekfilmworks.productions/2025-aamc-virtual-awards.mp4" data-poster="images/aamc-2025.webp"
-                  data-label="2025 AAMC Virtual Awards Program" data-meta-tags="#cloud" data-meta-time="1:10:04" data-credits='[["Produced by", "Dent Digital"], ["Live Streamed By", "Magek Filmworks"]]' tabindex="-1" aria-hidden="true">
+                  data-label="2025 AAMC Virtual Awards Program" data-meta-tags="#cloud" data-meta-time="1:10:04" data-credits='[["Produced by", "Dent Digital"], ["Live streamed via", "vMix, Cloudflex-AWS to Zoom Event"], ["Live production by", "Magek Filmworks"]]' tabindex="-1" aria-hidden="true">
             <img class="reel-thumb" src="images/aamc-2025.webp" alt="" loading="lazy" />
             <span class="reel-slide-play" aria-hidden="true"></span>
             <span class="reel-slide-meta">
               <span class="reel-slide-title">2025 AAMC Virtual Awards Program</span>
               <span class="reel-slide-tags"><b class="reel-tag">#cloud</b>1:10:04</span>
               <span class="reel-slide-credit"><i>Produced by</i>Dent Digital</span>
-              <span class="reel-slide-credit"><i>Live Streamed By</i>Magek Filmworks</span>
+              <span class="reel-slide-credit"><i>Live streamed via</i>vMix, Cloudflex-AWS to Zoom Event</span>
+              <span class="reel-slide-credit"><i>Live production by</i>Magek Filmworks</span>
             </span>
           </button>
           <button type="button" class="reel-slide"
@@ -264,7 +278,7 @@
               <optgroup label="Cloud / REMI Production">
                 <option>Zoom Event</option>
                 <option>Zoom ISO Switched Broadcast</option>
-                <option>SRT venue/mc Transport to the cloud</option>
+                <option>Venue/MC SRT transport to Cloud</option>
               </optgroup>
               <!-- In its own group rather than loose at the end: an
                    option outside an optgroup renders flush left while

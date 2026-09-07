@@ -1,0 +1,92 @@
+# Custom Cache-Control headers for magekfilmworks.productions.
+#
+# WHY THIS FILE EXISTS
+#
+# Left alone, Amplify hands every response this header:
+#
+#   cache-control: public, max-age=0, s-maxage=31536000
+#
+# max-age=0 tells the browser to always revalidate. s-maxage=31536000
+# tells CloudFront to hold the response at the edge for a YEAR. A
+# redeploy invalidates the edge that served it, but a visitor on a
+# different edge — a different city, a different carrier, a phone on
+# cellular instead of the same wifi as the desk it was tested on — can
+# still be handed a response cached before the deploy, with no way to
+# tell from the outside that anything is stale. This has already caused
+# two incidents: the splash page continuing to serve after go-live, and
+# a contact-form update visible on desktop but not on mobile. Both were
+# "everything is correct and the site is still wrong" bugs, and both
+# traced back to this one default. See SITE-BIBLE.md §9.
+#
+# THE FIX
+#
+# Stop relying on "Redeploy this version" as a manual cache-buster and
+# tell CloudFront explicitly, per file type, how long it may hold a
+# response:
+#
+#   - Everything defaults to no edge caching at all. A deploy is live
+#     everywhere within seconds, at the cost of every request reaching
+#     the origin. For a site at this traffic level that trade is free.
+#   - CSS and JS are the exception, and it is safe to cache them for a
+#     year, because pages.py stamps every reference with a content
+#     hash — style.css?v=16092484 — so a new build is a new URL. The
+#     old URL is never referenced again, so nothing can go stale under
+#     a name still in use.
+#   - Images get a middling cache, not a year. They are NOT
+#     content-hashed — a portrait can be re-cropped or re-lit and
+#     re-uploaded under the exact same filename, which has already
+#     happened once this build. A long cache on an unversioned name
+#     would silently hide an image update the same way the HTML default
+#     silently hid a form update.
+#
+# WHERE THIS FILE HAS TO LIVE
+#
+# The Amplify project root — this directory — not inside build/ or
+# behind pages.py. AWS reads customHttp.yml directly; it is deploy
+# configuration, the same category as amplify.yml sitting next to it,
+# not generated site content. build.sh's tar step already carries every
+# file in this directory into the zip, so nothing else needs to change
+# for this to ship.
+#
+# VERIFYING IT TOOK EFFECT
+#
+# Precedence between overlapping patterns below is not documented by
+# AWS in a way worth trusting blind. After the next deploy, confirm
+# with curl rather than assuming the YAML did what it reads like it
+# should:
+#
+#   curl -sI https://magekfilmworks.productions/contact.html | egrep -i 'cache-control|^age'
+#   curl -sI https://magekfilmworks.productions/css/style.css | egrep -i 'cache-control|^age'
+#   curl -sI https://magekfilmworks.productions/images/logo-lockup.png | egrep -i 'cache-control|^age'
+#
+# The HTML line should show max-age=0 with no s-maxage. The CSS line
+# should show max-age=31536000. If either doesn't, the pattern below
+# didn't match what was expected and needs adjusting, not re-deploying.
+
+customHeaders:
+  # The default: nothing is held at the edge. AWS's own example for
+  # "every path, including the root" uses this exact pattern.
+  - pattern: '**/*'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=0, s-maxage=0, must-revalidate'
+
+  # Content-hashed on every build (?v=<hash>) — a year is safe because
+  # a changed file is a changed URL, never the same name meaning
+  # something new.
+  - pattern: '/css/*'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=31536000, immutable'
+  - pattern: '/js/*'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=31536000, immutable'
+
+  # Not content-hashed — the same filename can hold different pixels
+  # after a re-edit. A day balances repeat-visitor speed against
+  # another silent-stale-asset incident.
+  - pattern: '/images/*'
+    headers:
+      - key: 'Cache-Control'
+        value: 'public, max-age=86400'

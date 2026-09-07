@@ -235,6 +235,18 @@ origin and came back current.
 **Fix: Amplify Console -> the branch -> Redeploy this version.**
 Non-destructive, republishes what is already there, clears the edge.
 
+**Update, 7 Sept — this default is gone.** `customHttp.yml` at the repo
+root now sets explicit `Cache-Control` per file type: no edge caching at
+all by default (`max-age=0, s-maxage=0, must-revalidate`), a year for
+`/css/*` and `/js/*` because every reference is content-hash stamped
+(`?v=<hash>`) so a changed file is a changed URL, and a day for
+`/images/*` because images are *not* hashed and can be re-uploaded under
+the same name. "Redeploy this version" should no longer be a routine
+step — if it is needed again, the header override did not take, and
+that is itself the thing to chase. Verify with
+`curl -sI <url> | grep -i cache-control`, not by re-reading the YAML —
+see §9, "the mobile form."
+
 **Domain redirects are not in this list.** `www` -> apex and the HTTPS
 redirect live under Domain management. Replacing this list does not
 disturb them.
@@ -1407,6 +1419,33 @@ give it the same input**, or the earlier one is theatre.
 **Google Fonts is blocked in the sandbox**, so every early wrap
 measurement was made in Helvetica, not Space Grotesk. Conclusions held,
 but by luck. Fonts are self-hosted now, which fixes this permanently.
+
+**"The mobile form," 7 Sept — the cache bug came back wearing a
+different coat.** The contact-form changes were live on desktop and
+stale on a phone, in a fresh incognito tab, after a Console redeploy —
+so it was neither the browser's own cache (incognito ruled that out)
+nor a stale rules paste (a redeploy had already run). The splash
+incident and this one have the same root cause — Amplify's default
+`s-maxage=31536000` holding a response at whatever CloudFront edge
+answered the request — but they don't look alike from the outside. The
+splash bug was one bad path stuck behind one edge everyone happened to
+hit. This one was invisible on the machine doing the work and only
+showed up on a different network, because a phone on cellular and a
+laptop on home wifi are routed to different edges, and only one of them
+had been asked for that page since the last change. **The same defect
+can present as "works everywhere I can see" and "one specific report
+that won't reproduce," depending on which edges the people looking at
+it happen to be routed through.** A fix that only clears the edge you
+tested from is not a fix.
+
+**The actual fix was to stop treating the symptom and remove the
+cause.** Two redeploys in one afternoon were still not enough, because
+redeploy clears an edge's cache — it doesn't change how long the *next*
+response gets held there. `customHttp.yml` sets explicit
+`Cache-Control` per file type instead of accepting Amplify's default,
+so a deploy is correct everywhere within seconds rather than "eventually,
+once each edge happens to be asked again." See the update under §2's
+cache-control note above for what it actually sets.
 
 ---
 

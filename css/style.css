@@ -3263,6 +3263,62 @@ html, body { overflow-x: hidden; }
   max-width: 44ch;
 }
 
+/* The Cloud/REMI panel's transport diagram — an SRT feed leaving a
+   venue's MC and landing in the cloud. currentColor on the SVG plus
+   var() on the two path classes means it needs no light/dark rule of
+   its own: whichever palette the panel is already carrying (this one
+   is .panel--light) is what it inherits. */
+/* Stacked, not side-by-side: the caption started as three short words
+   and is now six pipeline stages. Beside the icon it had to fight for a
+   narrow leftover column and wrapped to three or four cramped lines on
+   a phone. Full-width beneath the icon, it wraps the same text in
+   about half as many lines and reads as a caption rather than a squeeze. */
+.transport-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.transport-diagram svg {
+  width: 150px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.transport-diagram span {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  color: var(--ink-faint);
+  max-width: 40ch;
+}
+
+.td-ink { color: var(--ink); }
+.td-accent { color: var(--tally-ink); }
+
+/* The line never stops moving — a static dashed line reads as "connected,"
+   which is only half the fact. This is the same stroke-dasharray walk
+   used for a marching-ants selection outline: cheap, GPU-friendly, and
+   needs no JS. */
+.td-flow {
+  stroke-dasharray: 5 7;
+  animation: transport-flow 1.1s linear infinite;
+}
+
+@keyframes transport-flow {
+  to { stroke-dashoffset: -24; }
+}
+
+/* Motion is the whole point, so the fallback is the finished picture
+   rather than a blank one: the dashes stay put, still reading as a path
+   to the cloud, just not walking. */
+@media (prefers-reduced-motion: reduce) {
+  .td-flow { animation: none; }
+}
+
 .panel blockquote {
   margin: 0;
   font-family: var(--font-display);
