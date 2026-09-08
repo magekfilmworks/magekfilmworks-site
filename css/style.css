@@ -1020,7 +1020,12 @@ html, body { overflow-x: hidden; }
   .footer-grid { gap: 18px; }
   .footer-brand { gap: 14px; }
   .footer-mark { height: 58px; }
-  .footer-social { flex-wrap: wrap; gap: 14px; }
+  /* .footer-grid stacks its two rows with align-items: flex-start, so
+     the brand row and this one both start pinned left by default.
+     align-self overrides that for just this row, giving it the full
+     row width to center within — otherwise justify-content has no
+     extra space to work with. */
+  .footer-social { flex-wrap: wrap; gap: 14px; justify-content: center; align-self: stretch; }
   /* Was 27px tall — under the thumb floor, and these are the only
      outbound links on the page. */
   .footer-social a {
@@ -2896,6 +2901,17 @@ html, body { overflow-x: hidden; }
    markup. */
 @media (max-width: 899px) {
   #contact { border-top: 64px solid #000; }
+
+  /* The stacked form is its own full-bleed black card with a 36px inset
+     of its own (see .section--split .contact-form above); left alone,
+     the section's ordinary bottom padding reopens once that card ends
+     — a slab of plain paper between the black card and the dark
+     footer, with nothing in it. Scoped to :has(form) rather than
+     #contact outright: once the form is sent, form[hidden] flips and
+     the confirmation panel takes its place — a bordered card on the
+     paper ground, not a full-bleed one — and that panel still needs
+     the section's normal padding underneath it. */
+  #contact:has(.contact-form:not([hidden])) { padding-bottom: 0; }
 }
 
 /* Stacked, a vertical split would cut across both blocks instead of

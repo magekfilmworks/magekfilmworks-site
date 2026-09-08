@@ -17,7 +17,7 @@
    human reads it. A contact form that fails silently costs you the
    customer AND the knowledge that you lost one.
    ------------------------------------------------------------ */
-const FORM_ENDPOINT = "https://formspree.io/f/xoeqdazr";
+const FORM_ENDPOINT = "https://formspree.io/f/mdeowjbj";
 const CONTACT_EMAIL = "info@magekfilmworks.com";
 
 /* ---------- Hero slider ----------
