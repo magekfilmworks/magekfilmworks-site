@@ -3,17 +3,22 @@
    ============================================================ */
 
 /* ------------------------------------------------------------
-   Where intake submissions go. Formspree, delivering to
-   info@magekfilmworks.productions.
+   Where intake submissions go. FORM_ENDPOINT is Formspree — its
+   own dashboard config decides where that delivers, not this file.
 
-   The empty-string branch further down is kept deliberately: it
-   is what the page does if this is ever cleared or the service
-   dropped, and it hands the inquiry to the visitor's mail client
-   rather than swallowing it. A contact form that fails silently
-   costs you the customer AND the knowledge that you lost one.
+   CONTACT_EMAIL is the fallback path: the empty-string branch
+   further down is kept deliberately, for if Formspree is ever
+   cleared or the service dropped, and it hands the inquiry to the
+   visitor's mail client rather than swallowing it. It's also what
+   the "couldn't send" error tells a visitor to type by hand. Both
+   are live delivery, not display text, so this constant carries the
+   inbox that's actually read day to day — the .com domain — even
+   though the site shows the .productions address everywhere a
+   human reads it. A contact form that fails silently costs you the
+   customer AND the knowledge that you lost one.
    ------------------------------------------------------------ */
-const FORM_ENDPOINT = "https://formspree.io/f/xoeqdazr";
-const CONTACT_EMAIL = "info@magekfilmworks.productions";
+const FORM_ENDPOINT = "https://formspree.io/f/mdeowjbj";
+const CONTACT_EMAIL = "info@magekfilmworks.com";
 
 /* ---------- Hero slider ----------
    A multi-format rotation: photographs, a clip we host that plays in the
@@ -975,6 +980,19 @@ if (form) {
   });
 
   backBtn.addEventListener("click", () => goTo(index - 1));
+
+  // Skip straight to "Who are we talking to?". validateStep() first, so
+  // the required project_type is still enforced: submit() only validates
+  // the step it is standing on, so a visitor who jumped from 1 to 3
+  // without this check would post an inquiry with no project type and
+  // nothing would flag it. Not wired to a fixed index — `last` keeps it
+  // pointing at the contact step if a fourth is ever added.
+  const skipBtn = form.querySelector("#wizard-skip");
+  if (skipBtn) {
+    skipBtn.addEventListener("click", () => {
+      if (validateStep()) goTo(last);
+    });
+  }
 
   // Clear an error the moment the person fixes it.
   form.addEventListener("input", (e) => {

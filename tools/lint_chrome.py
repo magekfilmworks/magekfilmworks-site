@@ -179,25 +179,46 @@ for f in files:
         if not (here / src).exists():
             problems.append(f'{f.name}: video src "{src}" is not on disk')
 
-# The public address on the site is info@magekfilmworks.productions —
-# the brand domain, which has its own SES MX record. It was
-# magekfilmworks.com for a while and moved back, which is exactly why
-# this is a machine check rather than a habit: two plausible domains, a
-# handful of places each address appears, and a wrong mailto fails
-# silently. The visitor's mail client opens, they write, they send, and
-# nothing arrives — no error, and the person who would have told you is
-# the customer you just lost. Checked in the script too: the intake form
-# falls back to a mailto built from CONTACT_EMAIL.
+# Two addresses, two jobs, on purpose. Everywhere a human reads the
+# address — link text, the splash page, the JS error string — it says
+# info@magekfilmworks.productions, the brand domain. But actually
+# receiving that mail would mean buying a second Google Workspace seat
+# for one address, so every mailto: TARGET — the href, and the JS
+# constant that builds a fallback one — points instead at
+# info@magekfilmworks.com, which the house already reads. A visitor who
+# clicks sees .productions and lands in a .com inbox without noticing;
+# a visitor who copies or types the address reaches the same inbox
+# either way.
 #
-# Change this constant and the whole site has to follow, or the build
+# A plain "one domain everywhere" check can't tell the drift that
+# matters — a mailto: quietly pointed back at .productions (nobody
+# reads that inbox, mail vanishes silently) — from the split that's
+# intentional. So this checks link/JS-constant targets and displayed
+# text as two separate contexts, each pinned to its own domain.
+#
+# Change either domain and the whole site has to follow, or the build
 # stops.
-MAIL_DOMAIN = 'magekfilmworks.productions'
+MAIL_DISPLAY_DOMAIN = 'magekfilmworks.productions'
+MAIL_SEND_DOMAIN = 'magekfilmworks.com'
+ADDR_RE = re.compile(r'[\w.+-]+@magekfilmworks\.[a-z]+')
+MAILTO_RE = re.compile(r'mailto:([\w.+-]+@magekfilmworks\.[a-z]+)')
+SEND_CONST_RE = re.compile(r'CONTACT_EMAIL\s*=\s*"([\w.+-]+@magekfilmworks\.[a-z]+)"')
+
 for f in list(files) + [x for x in extras if x.exists()]:
-    for addr in set(re.findall(r'[\w.+-]+@magekfilmworks\.[a-z]+', f.read_text())):
-        if not addr.endswith('@' + MAIL_DOMAIN):
+    text = f.read_text()
+    for addr in set(MAILTO_RE.findall(text)) | set(SEND_CONST_RE.findall(text)):
+        if not addr.endswith('@' + MAIL_SEND_DOMAIN):
             problems.append(
-                f'{f.name}: email "{addr}" — the public address is on '
-                f'{MAIL_DOMAIN}')
+                f'{f.name}: mailto target "{addr}" — mail is actually '
+                f'read at {MAIL_SEND_DOMAIN}, not this address')
+    # Strip both send-target contexts before checking what's left, which
+    # is what a human actually reads (link text, JS string literals).
+    display_text = SEND_CONST_RE.sub('', MAILTO_RE.sub('', text))
+    for addr in set(ADDR_RE.findall(display_text)):
+        if not addr.endswith('@' + MAIL_DISPLAY_DOMAIN):
+            problems.append(
+                f'{f.name}: displayed email "{addr}" — the public '
+                f'address is {MAIL_DISPLAY_DOMAIN}')
 
 if problems:
     print('FAIL')
