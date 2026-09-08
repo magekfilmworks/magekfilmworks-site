@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Privacy | Magek Filmworks</title>
-<meta name="description" content="What magekfilmworks.productions collects: no cookies, no analytics, no trackers. What the project form asks for and how it is used." />
+<meta name="description" content="What magekfilmworks.productions collects: Google Analytics measures visits, and the project form collects only what you type into it. No advertising trackers." />
 <link rel="canonical" href="https://magekfilmworks.productions/privacy" />
 <link rel="icon" type="image/png" href="images/logo-mark.png" />
 <link rel="apple-touch-icon" href="images/logo-mark.png" />
@@ -14,11 +14,20 @@
 <meta property="og:site_name" content="Magek Filmworks" />
 <meta property="og:url" content="https://magekfilmworks.productions/privacy" />
 <meta property="og:title" content="Privacy" />
-<meta property="og:description" content="What magekfilmworks.productions collects: no cookies, no analytics, no trackers. What the project form asks for and how it is used." />
+<meta property="og:description" content="What magekfilmworks.productions collects: Google Analytics measures visits, and the project form collects only what you type into it. No advertising trackers." />
 <meta property="og:image" content="https://magekfilmworks.productions/images/clip-poster.jpeg" />
 <meta name="twitter:card" content="summary_large_image" />
 
 <link rel="stylesheet" href="css/style.css?v=45b2c1d5" />
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8HSHWG9TJT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-8HSHWG9TJT');
+</script>
 </head>
 <body>
 
@@ -43,18 +52,26 @@
       <div class="prose">
         <div class="eyebrow">Privacy</div>
         <h1>What this site collects.</h1>
-        <p class="prose-lead">Short version: nothing, unless you write to us.</p>
+        <p class="prose-lead">Short version: we measure visits with Google
+           Analytics, and beyond that, nothing unless you write to us.</p>
 
         <h2>Cookies and tracking</h2>
-        <p>This site sets no cookies. It stores nothing in your browser &mdash; no
-           local storage, no session storage, no device identifiers. There is no
-           analytics package, no advertising pixel and no third-party tracker of
-           any kind. Nothing here follows you to another site.</p>
+        <p>This site uses Google Analytics (GA4) to understand how many people
+           visit and which pages they read. It sets a cookie (typically named
+           <code>_ga</code> and <code>_ga_*</code>) and collects standard usage
+           data &mdash; pages viewed, roughly how you arrived, device and
+           browser type, and an approximate location such as city or region.
+           It does not collect your name, email or anything you type into the
+           form below. That data is handled under
+           <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google&rsquo;s
+           own privacy policy</a>, which covers what they retain and for how
+           long. There is no advertising pixel and no other third-party
+           tracker on this site.</p>
 
         <h2>What loads from elsewhere</h2>
-        <p>Type and images are served from this site&rsquo;s own domain, so simply
-           reading a page contacts nobody but us. Two things reach outside, and
-           only when you ask for them:</p>
+        <p>Type and images are served from this site&rsquo;s own domain. Besides
+           the Google Analytics tag above, which runs on every page, two more
+           things reach outside &mdash; but only when you ask for them:</p>
         <ul>
           <li><b>The map</b> on the contact section loads from Google Maps, and
               only once you scroll far enough down the page to see it. Google may
@@ -82,7 +99,7 @@
            hold, go to
            <a href="mailto:info@magekfilmworks.com">info@magekfilmworks.productions</a>.</p>
 
-        <p class="prose-meta">Last updated 1 September 2026. If this page ever
+        <p class="prose-meta">Last updated 8 September 2026. If this page ever
            stops matching what the site does, the site is wrong, not this page
            &mdash; tell us and we will fix it.</p>
       </div>
