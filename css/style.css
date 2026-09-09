@@ -1859,7 +1859,7 @@ html, body { overflow-x: hidden; }
 .seq-we {
   display: block;
   font-size: 2em;
-  animation: seq-beat 20s ease-in-out infinite;
+  animation: seq-beat 16s ease-in-out infinite;
   animation-delay: 0s;
   opacity: 0;
   line-height: 0.92;
@@ -1880,19 +1880,23 @@ html, body { overflow-x: hidden; }
   /* Every line holds its space at all times — only opacity and
      transform animate, so the hero never changes height and the
      subhead below it never shifts. */
-  animation: seq-beat 20s ease-in-out infinite;
+  animation: seq-beat 16s ease-in-out infinite;
   opacity: 0;
 }
 
-/* Tightened from 0.75s. The stagger delays the clear as much as the
-   build: at 0.75s the last beat was still leaving 3.8s after the W,
-   which put it well into the following slide. At 0.5s the whole
-   sequence clears within 2.6s of the slide change and reads as one
-   movement rather than a queue. */
-.seq-line:nth-child(1) { animation-delay: 0.5s; }
-.seq-line:nth-child(2) { animation-delay: 1s; }
-.seq-line:nth-child(3) { animation-delay: 1.5s; }
-.seq-line:nth-child(4) { animation-delay: 2s; }
+/* Scaled down with the cycle (20s -> 16s, see THE ONE DIAL below) by
+   the same 0.8 factor, so each delay is still the same fraction of the
+   loop it always was — 2.5% / 5% / 7.5% / 10% — and the stagger reads
+   identically, just compressed. Originally tightened from 0.75s: at
+   0.75s (on the old 20s cycle) the last beat was still leaving 3.8s
+   after the W, which put it well into the following slide. At 0.5s the
+   whole sequence cleared within 2.6s of the slide change and read as
+   one movement rather than a queue — that proportion is what 0.4s now
+   preserves on the shorter cycle. */
+.seq-line:nth-child(1) { animation-delay: 0.4s; }
+.seq-line:nth-child(2) { animation-delay: 0.8s; }
+.seq-line:nth-child(3) { animation-delay: 1.2s; }
+.seq-line:nth-child(4) { animation-delay: 1.6s; }
 
 .seq-line-accent { color: var(--tally); }
 
@@ -1903,27 +1907,30 @@ html, body { overflow-x: hidden; }
    motion. Only the rest at the end changes.
 
    THIS DURATION AND THE SLIDER'S HOLD ARE ONE NUMBER, NOT TWO. The hold
-   is 10s (data-hold in pages.py); the cycle is 20s, which is two slides,
+   is 8s (data-hold in pages.py); the cycle is 16s, which is two slides,
    and a video slide at two holds is exactly one cycle. Left free-running
-   at 20s against an 8s hold they drifted, and the headline could land on
-   a fresh slide already mid-cycle and start fading a second later.
+   at a mismatched ratio they drift, and the headline can land on a
+   fresh slide already mid-cycle and start fading a second later — this
+   was 10s/20s before the slider was sped up, and every number below
+   scaled down by the same 0.8 factor to keep it locked.
 
    The hold percentage is pinned to the slide change, not to a number
-   that looked right. At 20s:
+   that looked right. At 16s:
      0.00s  rises
-     0.84s  fully up
-    10.00s  still up  <- 50%, exactly when the slide changes
-    11.10s  the W has cleared
-    12.60s  the last beat has cleared (2s delay)
-    20.00s  starts again
+     0.67s  fully up
+     8.00s  still up  <- 50%, exactly when the slide changes
+     8.88s  the W has cleared
+    10.48s  the last beat has cleared (1.6s delay)
+    16.00s  starts again
    So nothing fades in the middle of a bar. The headline holds for the
    whole of its slide and leaves on the cut, and the slide that follows
-   is the rest — seven and a half empty seconds, which is what the
+   is the rest — about five and a half empty seconds, which is what the
    subhead underneath needs to get read. Sequence on one slide, silence
    on the next.
 
-   Tried along the way — 12s gave no gap at all, 18s about six seconds,
-   24s about twelve, which was too long a wait for the headline. */
+   Tried along the way, back when the cycle was 20s — 12s gave no gap at
+   all, 18s about six seconds, 24s about twelve, which was too long a
+   wait for the headline. */
 @keyframes seq-beat {
   0%     { opacity: 0; transform: translate3d(0, 16px, 0); }
   4.2%   { opacity: 1; transform: translate3d(0, 0, 0); }
