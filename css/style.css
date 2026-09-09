@@ -1859,7 +1859,7 @@ html, body { overflow-x: hidden; }
 .seq-we {
   display: block;
   font-size: 2em;
-  animation: seq-beat 16s ease-in-out infinite;
+  animation: seq-beat 12s ease-in-out infinite;
   animation-delay: 0s;
   opacity: 0;
   line-height: 0.92;
@@ -1880,23 +1880,23 @@ html, body { overflow-x: hidden; }
   /* Every line holds its space at all times — only opacity and
      transform animate, so the hero never changes height and the
      subhead below it never shifts. */
-  animation: seq-beat 16s ease-in-out infinite;
+  animation: seq-beat 12s ease-in-out infinite;
   opacity: 0;
 }
 
-/* Scaled down with the cycle (20s -> 16s, see THE ONE DIAL below) by
-   the same 0.8 factor, so each delay is still the same fraction of the
-   loop it always was — 2.5% / 5% / 7.5% / 10% — and the stagger reads
-   identically, just compressed. Originally tightened from 0.75s: at
-   0.75s (on the old 20s cycle) the last beat was still leaving 3.8s
-   after the W, which put it well into the following slide. At 0.5s the
-   whole sequence cleared within 2.6s of the slide change and read as
-   one movement rather than a queue — that proportion is what 0.4s now
-   preserves on the shorter cycle. */
-.seq-line:nth-child(1) { animation-delay: 0.4s; }
-.seq-line:nth-child(2) { animation-delay: 0.8s; }
-.seq-line:nth-child(3) { animation-delay: 1.2s; }
-.seq-line:nth-child(4) { animation-delay: 1.6s; }
+/* Scaled with the cycle every time it moves (20s -> 16s -> 12s, see THE
+   ONE DIAL below) by whatever factor the cycle moved, so each delay
+   stays the same fraction of the loop it always was — 2.5% / 5% / 7.5%
+   / 10% — and the stagger reads identically, just compressed.
+   Originally tightened from 0.75s: at 0.75s (on the old 20s cycle) the
+   last beat was still leaving 3.8s after the W, which put it well into
+   the following slide. At 0.5s the whole sequence cleared within 2.6s
+   of the slide change and read as one movement rather than a queue —
+   that proportion is what 0.3s now preserves on the current cycle. */
+.seq-line:nth-child(1) { animation-delay: 0.3s; }
+.seq-line:nth-child(2) { animation-delay: 0.6s; }
+.seq-line:nth-child(3) { animation-delay: 0.9s; }
+.seq-line:nth-child(4) { animation-delay: 1.2s; }
 
 .seq-line-accent { color: var(--tally); }
 
@@ -1907,30 +1907,32 @@ html, body { overflow-x: hidden; }
    motion. Only the rest at the end changes.
 
    THIS DURATION AND THE SLIDER'S HOLD ARE ONE NUMBER, NOT TWO. The hold
-   is 8s (data-hold in pages.py); the cycle is 16s, which is two slides,
+   is 6s (data-hold in pages.py); the cycle is 12s, which is two slides,
    and a video slide at two holds is exactly one cycle. Left free-running
    at a mismatched ratio they drift, and the headline can land on a
    fresh slide already mid-cycle and start fading a second later — this
-   was 10s/20s before the slider was sped up, and every number below
-   scaled down by the same 0.8 factor to keep it locked.
+   was 10s/20s originally, then 8s/16s, and every number below has
+   scaled down each time to keep it locked.
 
    The hold percentage is pinned to the slide change, not to a number
-   that looked right. At 16s:
+   that looked right. At 12s:
      0.00s  rises
-     0.67s  fully up
-     8.00s  still up  <- 50%, exactly when the slide changes
-     8.88s  the W has cleared
-    10.48s  the last beat has cleared (1.6s delay)
-    16.00s  starts again
+     0.50s  fully up
+     6.00s  still up  <- 50%, exactly when the slide changes
+     6.66s  the W has cleared
+     7.86s  the last beat has cleared (1.2s delay)
+    12.00s  starts again
    So nothing fades in the middle of a bar. The headline holds for the
    whole of its slide and leaves on the cut, and the slide that follows
-   is the rest — about five and a half empty seconds, which is what the
+   is the rest — a little over four empty seconds, which is what the
    subhead underneath needs to get read. Sequence on one slide, silence
    on the next.
 
    Tried along the way, back when the cycle was 20s — 12s gave no gap at
    all, 18s about six seconds, 24s about twelve, which was too long a
-   wait for the headline. */
+   wait for the headline. (That 12s was a candidate CYCLE length being
+   tested against a fixed hold, not the current 12s cycle above — a
+   coincidence of the same number, not the same thing.) */
 @keyframes seq-beat {
   0%     { opacity: 0; transform: translate3d(0, 16px, 0); }
   4.2%   { opacity: 1; transform: translate3d(0, 0, 0); }
