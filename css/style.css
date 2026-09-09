@@ -2661,6 +2661,15 @@ html, body { overflow-x: hidden; }
   margin: 44px 0 12px;
 }
 
+/* One level under h2, for a page like the FAQ that groups terms inside a
+   section rather than giving each term its own h2 — a term name should
+   read as a term, not as a new topic the way an h2 does. */
+.prose h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 24px 0 6px;
+}
+
 .prose p { margin: 0 0 16px; color: var(--ink-soft); }
 .prose .prose-lead { font-size: 1.2rem; color: var(--ink); margin-bottom: 8px; }
 
