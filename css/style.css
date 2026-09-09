@@ -3505,6 +3505,25 @@ video.hero-slide { background: #0a0a09; }
   background: var(--tally);
 }
 
+/* A breathing glow on the one bar actually filling, so it reads as
+   "this is happening right now" rather than a static rail that
+   happens to be growing — which is also what makes a first-time
+   visitor register it as a live control instead of decoration. Scoped
+   to .is-live (set by main.js on the current tick only) so a finished
+   bar goes still the instant it resets, and an upcoming one never
+   pulses before its turn. Opacity only, so it layers over the width
+   transition JS is driving without fighting it — a transition and an
+   animation on different properties of the same element don't
+   collide. */
+@keyframes hero-tick-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+.hero-tick.is-live .hero-tick-rail i {
+  animation: hero-tick-pulse 1.1s ease-in-out infinite;
+}
+
 /* Hovering says "this is a control" without moving anything on the page:
    the rail thickens in place, inside padding that already exists. */
 @media (hover: hover) {
@@ -3532,7 +3551,7 @@ video.hero-slide { background: #0a0a09; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-tick i { transition: none !important; }
+  .hero-tick i { transition: none !important; animation: none !important; }
 }
 
 
