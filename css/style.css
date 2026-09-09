@@ -1018,13 +1018,16 @@ html, body { overflow-x: hidden; }
 
   .site-footer { padding: 24px 0 32px; }
   .footer-grid { gap: 18px; }
-  .footer-brand { gap: 14px; }
+  /* .footer-grid stacks its rows with align-items: flex-start, so every
+     row starts pinned left by default. align-self overrides that per
+     row, giving each the full row width to center within — otherwise
+     centering the content inside has no extra space to work with.
+     The brand row goes column (mark above copyright line, both
+     centered) rather than staying a left-to-right pair, since a wide
+     copyright line next to a small mark reads as left-aligned text
+     with a logo beside it, not a centered block. */
+  .footer-brand { flex-direction: column; gap: 14px; align-self: stretch; text-align: center; }
   .footer-mark { height: 58px; }
-  /* .footer-grid stacks its two rows with align-items: flex-start, so
-     the brand row and this one both start pinned left by default.
-     align-self overrides that for just this row, giving it the full
-     row width to center within — otherwise justify-content has no
-     extra space to work with. */
   .footer-social { flex-wrap: wrap; gap: 14px; justify-content: center; align-self: stretch; }
   /* Was 27px tall — under the thumb floor, and these are the only
      outbound links on the page. */
