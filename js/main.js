@@ -26,12 +26,15 @@ const CONTACT_EMAIL = "info@magekfilmworks.com";
    the lightbox. Hard cuts, with a segmented bar filling across each
    hold. Swipeable, and it stops entirely for reduced motion.
 
-   The hold is 8s. It was 20 — the headline's whole cycle, so every
-   slide landed exactly as "We" rose — but that made reaching the fifth
-   slide an 80-second wait. Strict sync and a quick rotation cannot both
-   be had: holding to the headline's beat means every slide must consume
-   a multiple of 20s. 8s keeps a rhythm without the wait, and a clip
-   runs two holds so it has room to play. */
+   The hold is 6s. It was 20 at first — the headline's whole cycle, so
+   every slide landed exactly as "We" rose — but that made reaching the
+   fifth slide an 80-second wait. Strict sync and a quick rotation
+   cannot both be had: holding to the headline's beat means every slide
+   must consume a multiple of the cycle. It settled at 10s for a while,
+   then 8s, then 6s for an increasingly snappy rotation — the CSS
+   headline animation (see THE ONE DIAL in style.css) moved with it each
+   time, to 12s now, so the two stay locked at the same 2:1 ratio rather
+   than drifting apart. A clip runs two holds so it has room to play. */
 /* Credits ride on a data attribute as JSON — a credit can carry a URL,
    and every cheap separator turns up inside one ('https://' has the
    colon, a company name may have the pipe or the dash). Bad JSON returns
