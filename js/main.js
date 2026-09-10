@@ -116,6 +116,10 @@ if (slider) {
      this file reads those attributes at click time, not at load. */
   const play = document.querySelector(".hero-play");
 
+  /* The plain caption for a photo slide — the counterpart to .hero-play
+     above, which only ever appears for a slide carrying video data. */
+  const caption = document.querySelector("[data-hero-caption]");
+
   const stage = slider.closest(".hero");
 
   /* Restarting the headline sequence from its first frame.
@@ -233,8 +237,19 @@ if (slider) {
 
     if (!d || !d.videoTitle) {
       play.hidden = true;
+      // A photograph gets the plain caption instead — its alt text,
+      // which was already written to read as one rather than as dry
+      // accessibility boilerplate.
+      if (caption) {
+        const text = (slide && slide.alt) || "";
+        caption.textContent = text;
+        caption.hidden = !text;
+      }
       return;
     }
+
+    // A video slide's own title/credits (below) cover this instead.
+    if (caption) caption.hidden = true;
 
     // Clear both sources first: a YouTube slide following a local one
     // would otherwise keep the stale src and open the wrong clip.

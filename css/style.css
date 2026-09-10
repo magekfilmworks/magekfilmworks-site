@@ -418,14 +418,14 @@ p { margin: 0 0 1em; }
   content: "";
   position: absolute;
   inset: 0;
-  /* Shadows carry most of the legibility; this closes the gap on the
-     brightest frames. Deepened just enough to pay for toning the type
-     off pure white: measured against all four frames, #e6e2da over this
-     scrim reads at 2.38:1 worst-case, where pure white over the old one
-     managed 2.30 — so the softer colour costs nothing. Going further
-     would clear the 3:1 large-text threshold, but only by darkening the
-     photographs more than the type problem justifies. */
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.44) 0%, rgba(10, 10, 10, 0.54) 55%, rgba(10, 10, 10, 0.78) 100%);
+  /* Brightened on feedback that the slider read too dark overall —
+     roughly halved from the previous 0.44/0.54/0.78. Legibility no
+     longer rides on this scrim alone: the play control and the new
+     photo caption both sit on their own solid plate now (see
+     .hero-play-body and .hero-caption below), so the frame itself is
+     free to run lighter. Easy revert: put 0.44/0.54/0.78 back if the
+     team prefers the darker read. */
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.22) 0%, rgba(10, 10, 10, 0.27) 55%, rgba(10, 10, 10, 0.39) 100%);
 }
 
 .hero .wrap {
@@ -916,12 +916,13 @@ html, body { overflow-x: hidden; }
   }
   .section { padding: 72px 0; }
 
-  /* Narrower crop pulls the bright sky behind the eyebrow — lift the scrim. */
+  /* Narrower crop pulls the bright sky behind the eyebrow — lift the scrim.
+     Brightened along with the base rule above; was 0.42/0.62/0.93. */
   .hero::after {
     background: linear-gradient(180deg,
-      rgba(8, 8, 7, 0.42) 0%,
-      rgba(8, 8, 7, 0.62) 45%,
-      rgba(8, 8, 7, 0.93) 100%);
+      rgba(8, 8, 7, 0.21) 0%,
+      rgba(8, 8, 7, 0.31) 45%,
+      rgba(8, 8, 7, 0.47) 100%);
   }
   .hero-bg { object-position: 58% 42%; }
 }
@@ -970,12 +971,13 @@ html, body { overflow-x: hidden; }
      plain vh isn't the real fix either. */
   .hero { min-height: 82vh; }
 
-  /* Darker scrim — the headline was landing on open sky. */
+  /* Darker scrim — the headline was landing on open sky. Brightened
+     along with the other two; was 0.55/0.68/0.94. */
   .hero::after {
     background: linear-gradient(180deg,
-      rgba(8, 8, 7, 0.55) 0%,
-      rgba(8, 8, 7, 0.68) 42%,
-      rgba(8, 8, 7, 0.94) 100%);
+      rgba(8, 8, 7, 0.28) 0%,
+      rgba(8, 8, 7, 0.34) 42%,
+      rgba(8, 8, 7, 0.47) 100%);
   }
 
   /* Favor the stage-left structure over the bright sky. */
@@ -1661,8 +1663,16 @@ html, body { overflow-x: hidden; }
   transition: border-left-color 0.25s ease;
 }
 
-/* The caption sits on the frame with nothing behind it — no plate, no
-   scrim, no shadow. */
+/* Used to sit on the frame with nothing behind it — no plate, no scrim,
+   no shadow, relying entirely on .hero::after for contrast. That scrim
+   got substantially brighter on "too dark" feedback (see .hero::after),
+   which would have left this text underwater on its own, so it now
+   carries its own solid plate. Flat color, no blur — a backdrop-filter
+   here would reintroduce the exact GPU compositing cost this hero
+   already got flagged for on mobile scroll (see the isolation /
+   translateZ notes on .hero above). Easy revert: drop the background,
+   border-radius and padding back to `padding: 2px 0 0` if the plate
+   itself is what the team objects to rather than the brightness. */
 .hero-play-body {
   display: grid;
   gap: 5px;
@@ -1673,10 +1683,9 @@ html, body { overflow-x: hidden; }
   justify-items: center;
   text-align: center;
   width: 100%;
-  /* Only enough to hold the block clear of the ring above it. There is
-     no box edge left for padding to sit inside. */
-  padding: 2px 0 0;
-  background: none;
+  padding: 12px 20px 14px;
+  background: rgba(6, 6, 6, 0.66);
+  border-radius: 3px;
   border: 0;
 }
 
@@ -1840,7 +1849,7 @@ html, body { overflow-x: hidden; }
      the middle of the frame is free. */
   .hero-play { gap: 12px; }
   .hero-play-title { font-size: 1.05rem; }
-  .hero-play-body { padding: 2px 0 0; }
+  .hero-play-body { padding: 10px 16px 12px; }
   /* One number: the ring's size and the offset that centres it are the
      same token, so they cannot drift apart. */
   .hero-play { --ring: 66px; --play-drop: 0px; }
@@ -2502,7 +2511,9 @@ html, body { overflow-x: hidden; }
    place. */
 .hero { position: relative; transform: translateZ(0); isolation: isolate; }
 
-/* Vignette: the falloff of a real lens, not a drop shadow. */
+/* Vignette: the falloff of a real lens, not a drop shadow. Lightened
+   along with the scrim above on the same "too dark" feedback — was
+   0.38/0.68 at the edges. */
 .hero .vignette {
   position: absolute;
   inset: 0;
@@ -2511,8 +2522,8 @@ html, body { overflow-x: hidden; }
   background-color: transparent;
   background-image: radial-gradient(118% 90% at 50% 44%,
     rgba(0, 0, 0, 0) 34%,
-    rgba(0, 0, 0, 0.38) 74%,
-    rgba(0, 0, 0, 0.68) 100%);
+    rgba(0, 0, 0, 0.20) 74%,
+    rgba(0, 0, 0, 0.36) 100%);
   transition: background-color 0.45s ease;
 }
 
@@ -2540,6 +2551,44 @@ html, body { overflow-x: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero .vignette { transition: none; }
+}
+
+/* A plain caption for a photo slide. A video slide already carries its
+   title and credits on .hero-play; a photograph had nothing at all, and
+   the team asked to see something there too — its existing alt text,
+   which was already written as a real caption ("Fibre, BNC and power
+   runs labelled and laid out on a show floor.") rather than dry
+   accessibility boilerplate.
+
+   Sits below the header rather than at the foot of the frame: the
+   bottom is already a stack (subhead, CTA row, tick rail) that a fixed
+   offset can't reliably clear — the subhead alone wraps to a different
+   number of lines by viewport width and copy length, unlike .hero-play,
+   which has real collision-avoidance math behind it (see fitPlay in
+   main.js). The strip just under the header has nothing in it on every
+   slide, video or not, so there's nothing to collide with. Left-ranged,
+   like the rest of the site, rather than centred the way the play
+   control is — there's no ring here for it to center under.
+
+   Same flat plate as .hero-play-body and for the same reason — no
+   backdrop-filter, given what that already cost this hero on mobile
+   scroll. main.js shows and fills this whenever the active slide has no
+   video; hidden by default. */
+.hero-caption {
+  position: absolute;
+  z-index: 2;
+  left: var(--gutter);
+  right: var(--gutter);
+  top: calc(var(--header-h) + 24px);
+  max-width: 46ch;
+  margin: 0;
+  padding: 9px 14px;
+  background: rgba(6, 6, 6, 0.66);
+  border-radius: 3px;
+  color: #e6e2da;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 /* Scope ratio on wide screens. 2.39:1 is the frame a feature is shot
@@ -3542,6 +3591,7 @@ video.hero-slide { background: #0a0a09; }
 
 @media (max-width: 760px) {
   .hero-progress { bottom: calc(44px - var(--tick-pad)); gap: 5px; }
+  .hero-caption { font-size: 0.74rem; max-width: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
