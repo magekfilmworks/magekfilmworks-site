@@ -964,7 +964,10 @@ html, body { overflow-x: hidden; }
     margin-top: 10px;
   }
 
-  /* Hero: svh so mobile browser chrome doesn't crop the frame. */
+  /* Hero: vh fallback here; the @supports block below (search "Hero:
+     svh, not dvh") swaps in svh on browsers that have it, which is
+     the version that actually holds still — see that comment for why
+     plain vh isn't the real fix either. */
   .hero { min-height: 82vh; }
 
   /* Darker scrim — the headline was landing on open sky. */
@@ -1061,9 +1064,20 @@ html, body { overflow-x: hidden; }
   :root { --header-h: 94px; --logo-h: 62px; }
 }
 
-@supports (height: 100dvh) {
+/* Hero: svh, not dvh. dvh tracks mobile Safari's collapsing/expanding
+   address bar in real time, so a hero sized with it visibly swells
+   taller as the bar hides mid-scroll and shrinks back as it returns —
+   which is exactly the "sticky/torn" feeling reported from a phone,
+   not a compositing glitch. (Ran into the same thing on gekjr.pro
+   first — dvh was the tempting fix there too, and caused this same
+   swell before svh replaced it.) svh locks to the smallest possible
+   viewport (address bar fully expanded) and never resizes, so the
+   hero holds still through a scroll no matter what the browser chrome
+   is doing. Gated the same way the dvh version was, since the two
+   landed in browsers together. */
+@supports (height: 100svh) {
   @media (max-width: 760px) {
-    .hero { min-height: 82dvh; }
+    .hero { min-height: 82svh; }
   }
 }
 
