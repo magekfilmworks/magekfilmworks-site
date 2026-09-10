@@ -418,14 +418,12 @@ p { margin: 0 0 1em; }
   content: "";
   position: absolute;
   inset: 0;
-  /* Brightened on feedback that the slider read too dark overall —
-     roughly halved from the previous 0.44/0.54/0.78. Legibility no
-     longer rides on this scrim alone: the play control and the new
-     photo caption both sit on their own solid plate now (see
-     .hero-play-body and .hero-caption below), so the frame itself is
-     free to run lighter. Easy revert: put 0.44/0.54/0.78 back if the
-     team prefers the darker read. */
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.22) 0%, rgba(10, 10, 10, 0.27) 55%, rgba(10, 10, 10, 0.39) 100%);
+  /* Brightened once on "too dark" feedback, then reverted the same day
+     once the lighter read made the headline and subhead hard to read —
+     back to the original 0.44/0.54/0.78. The play control and the photo
+     caption keep their own solid plate regardless (see .hero-play-body
+     and .hero-caption below), so that legibility fix stays either way. */
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.44) 0%, rgba(10, 10, 10, 0.54) 55%, rgba(10, 10, 10, 0.78) 100%);
 }
 
 .hero .wrap {
@@ -917,12 +915,12 @@ html, body { overflow-x: hidden; }
   .section { padding: 72px 0; }
 
   /* Narrower crop pulls the bright sky behind the eyebrow — lift the scrim.
-     Brightened along with the base rule above; was 0.42/0.62/0.93. */
+     Brightened along with the base rule above, then reverted with it. */
   .hero::after {
     background: linear-gradient(180deg,
-      rgba(8, 8, 7, 0.21) 0%,
-      rgba(8, 8, 7, 0.31) 45%,
-      rgba(8, 8, 7, 0.47) 100%);
+      rgba(8, 8, 7, 0.42) 0%,
+      rgba(8, 8, 7, 0.62) 45%,
+      rgba(8, 8, 7, 0.93) 100%);
   }
   .hero-bg { object-position: 58% 42%; }
 }
@@ -972,12 +970,12 @@ html, body { overflow-x: hidden; }
   .hero { min-height: 82vh; }
 
   /* Darker scrim — the headline was landing on open sky. Brightened
-     along with the other two; was 0.55/0.68/0.94. */
+     along with the other two, then reverted with them. */
   .hero::after {
     background: linear-gradient(180deg,
-      rgba(8, 8, 7, 0.28) 0%,
-      rgba(8, 8, 7, 0.34) 42%,
-      rgba(8, 8, 7, 0.47) 100%);
+      rgba(8, 8, 7, 0.55) 0%,
+      rgba(8, 8, 7, 0.68) 42%,
+      rgba(8, 8, 7, 0.94) 100%);
   }
 
   /* Favor the stage-left structure over the bright sky. */
@@ -2512,8 +2510,8 @@ html, body { overflow-x: hidden; }
 .hero { position: relative; transform: translateZ(0); isolation: isolate; }
 
 /* Vignette: the falloff of a real lens, not a drop shadow. Lightened
-   along with the scrim above on the same "too dark" feedback — was
-   0.38/0.68 at the edges. */
+   along with the scrim above on the same "too dark" feedback, then
+   reverted with it back to 0.38/0.68 at the edges. */
 .hero .vignette {
   position: absolute;
   inset: 0;
@@ -2522,8 +2520,8 @@ html, body { overflow-x: hidden; }
   background-color: transparent;
   background-image: radial-gradient(118% 90% at 50% 44%,
     rgba(0, 0, 0, 0) 34%,
-    rgba(0, 0, 0, 0.20) 74%,
-    rgba(0, 0, 0, 0.36) 100%);
+    rgba(0, 0, 0, 0.38) 74%,
+    rgba(0, 0, 0, 0.68) 100%);
   transition: background-color 0.45s ease;
 }
 
