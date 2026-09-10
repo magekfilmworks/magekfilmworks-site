@@ -245,6 +245,11 @@ p { margin: 0 0 1em; }
   right: 0;
   z-index: 50;
   background: #000;
+  /* Its own GPU layer, so the browser doesn't have to repaint a
+     position: fixed element against whatever is scrolling underneath it
+     on every frame — see the note on .hero, which is the section that
+     actually stresses this on a phone. */
+  transform: translateZ(0);
 }
 
 .site-header .wrap {
@@ -1552,6 +1557,12 @@ html, body { overflow-x: hidden; }
   border: 0;
   cursor: pointer;
   animation: hero-play-in 460ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* Repositions on every slide change (--play-drop/--play-lift come from
+     main.js) and animates in on top of the hero's own heavy stacking
+     context — see the note on .hero. Hinting the browser here too, on
+     top of the parent's own layer, rather than assuming the parent
+     alone covers it. */
+  will-change: transform;
 
   /* An absolutely positioned box with left: 50% and no width shrinks to
      fit the space from that line to the right edge — half the viewport.
@@ -2459,7 +2470,23 @@ html, body { overflow-x: hidden; }
   pointer-events: none;
 }
 
-.hero { position: relative; }
+/* Promoted to its own compositing layer. The hero stacks a lot in one
+   box — a mix-blend-mode grain pass, an autoplaying inline video on one
+   slide, an absolutely positioned play control that animates in, the
+   tick row — sitting directly under a position: fixed header. Reported
+   as the mobile site feeling "sticky" while scrolling: on iOS Safari a
+   heavy stacking context like this one, left on the main thread's paint
+   path, can fall a frame behind during a fast scroll and briefly show a
+   torn, doubled frame of its own content — which reads as the page
+   snagging, not as a video or animation problem on its own. Giving the
+   hero (and the header, see .site-header above) its own GPU layer via
+   transform keeps their repainting off the rest of the page's critical
+   path. isolation: isolate keeps the blend mode's own compositing
+   contained to the hero rather than reaching into the stacking context
+   around it. Layout is unaffected — position: relative still holds, so
+   nothing inside that measures against the hero's box changes size or
+   place. */
+.hero { position: relative; transform: translateZ(0); isolation: isolate; }
 
 /* Vignette: the falloff of a real lens, not a drop shadow. */
 .hero .vignette {
