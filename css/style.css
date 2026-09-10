@@ -3341,49 +3341,27 @@ html, body { overflow-x: hidden; }
   max-width: 44ch;
 }
 
-/* Shared by all three service diagrams — the Cloud/REMI transport
-   diagram, the Video Production camera, and the ProAV stage below.
-   currentColor on each SVG plus var() on the two path classes means
-   none of them need a light/dark rule of their own: whichever palette
-   the panel is already carrying is what they inherit. */
-/* Stacked, not side-by-side: the transport diagram's caption started as
-   three short words and is now six pipeline stages. Beside the icon it
-   had to fight for a narrow leftover column and wrapped to three or
-   four cramped lines on a phone. Full-width beneath the icon, it wraps
-   the same text in about half as many lines and reads as a caption
-   rather than a squeeze — kept for the camera and stage captions too,
-   even though those are short, so all three sit the same way. */
-.svc-diagram {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 22px;
+/* The Cloudflex-AWS mention in the Cloud/REMI systems line links out to
+   its own writeup. Plain `a { color: inherit }` would leave it the same
+   faint, undifferentiated tone as the rest of that mono line — no sign
+   it's clickable. Same treatment as .crew-text a: one way of saying
+   "this goes somewhere" across the site. */
+.rd-systems a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--tally);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
 }
 
-.svc-diagram svg {
-  width: 150px;
-  height: auto;
-  flex-shrink: 0;
+@media (hover: hover) {
+  .rd-systems a:hover { color: var(--tally); }
 }
 
-.svc-diagram span {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-  line-height: 1.6;
-  color: var(--ink-faint);
-  max-width: 40ch;
-}
-
-.svc-ink { color: var(--ink); }
-.svc-accent { color: var(--tally-ink); }
-
-/* All three service diagrams carried motion at one point — a flowing
-   dashed line here and on the stage's light beams, a spinning reel or
-   focus ring on the camera through several redesigns. Removed on
-   request: no CSS animation left anywhere in this group, just line art
-   in two tones. */
+/* A cloud/transport diagram, then a camera and a stage, all lived here
+   under the three service panels (.svc-diagram / .svc-ink / .svc-accent,
+   plus a couple of animation keyframes) — removed on request, icons
+   and all. The panels are text only again. */
 
 .panel blockquote {
   margin: 0;
