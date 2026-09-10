@@ -3494,10 +3494,12 @@ html, body { overflow-x: hidden; }
    background so a frame gap never shows the page through. */
 video.hero-slide { background: #0a0a09; }
 
-/* Was .hero-slide:nth-child(2) and (3). An nth-child focal point points
-   at whatever photograph happens to sit in that position, so inserting a
-   slide anywhere above it re-aims the crop of two unrelated images with
-   no error and no visible cause. They live on the elements now. */
+/* Was .hero-slide:nth-child(2), (3) and (4). An nth-child focal point
+   points at whatever photograph happens to sit in that position, so
+   inserting a slide anywhere above it re-aims the crop of two unrelated
+   images with no error and no visible cause. They live on the elements
+   now — the (4) rule was the last straggler, quietly pinning the AAMC
+   slide's mobile crop to 46% 42% no matter what --focus-m said. */
 
 /* A phone crops a 16:9 frame hard from the sides — the hero is taller
    than it is wide, so cover scales to fill the height and most of the
@@ -3507,7 +3509,6 @@ video.hero-slide { background: #0a0a09; }
 @media (max-width: 760px) {
   .hero-slide { object-position: var(--focus-m, var(--focus, center 46%)); }
 }
-.hero-slide:nth-child(4) { object-position: 46% 42%; }
 
 /* ---------- the load bar ---------- */
 /* The strip sits by its rail, not by its buttons. Each button carries
