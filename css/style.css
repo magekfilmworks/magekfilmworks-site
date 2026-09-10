@@ -3379,44 +3379,11 @@ html, body { overflow-x: hidden; }
 .svc-ink { color: var(--ink); }
 .svc-accent { color: var(--tally-ink); }
 
-/* The line never stops moving — a static dashed line reads as "connected,"
-   which is only half the fact. This is the same stroke-dasharray walk
-   used for a marching-ants selection outline: cheap, GPU-friendly, and
-   needs no JS. Also drives the stage diagram's two light beams below —
-   light hitting a stage is a live signal too, so it gets the same
-   motion as the SRT feed rather than a different kind of animation. */
-.svc-flow {
-  stroke-dasharray: 5 7;
-  animation: svc-flow 1.1s linear infinite;
-}
-
-@keyframes svc-flow {
-  to { stroke-dashoffset: -24; }
-}
-
-/* The camera diagram's take-up reel, turning the way a running
-   camera's actually does. transform-origin: 0 0 is enough here (no
-   transform-box: fill-box needed, which older Safari doesn't always
-   honor) because the reel sits inside an inner <g> whose parent <g>
-   already translated it to the reel's center — so the inner g's own
-   local origin already lands exactly where it needs to spin around. */
-.svc-spin {
-  transform-origin: 0 0;
-  animation: svc-spin 5s linear infinite;
-}
-
-@keyframes svc-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Motion is the whole point of each of these, so the fallback is the
-   finished picture rather than a blank one: the lines stay put (still
-   reading as a path, or a light beam) and the reel stays at whatever
-   angle it was drawn at, just not turning. */
-@media (prefers-reduced-motion: reduce) {
-  .svc-flow { animation: none; }
-  .svc-spin { animation: none; }
-}
+/* All three service diagrams carried motion at one point — a flowing
+   dashed line here and on the stage's light beams, a spinning reel or
+   focus ring on the camera through several redesigns. Removed on
+   request: no CSS animation left anywhere in this group, just line art
+   in two tones. */
 
 .panel blockquote {
   margin: 0;
